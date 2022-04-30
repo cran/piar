@@ -113,14 +113,19 @@ all.equal(time(epr3), c(letters, LETTERS))
 # Stacking and unstacking are opposite operations
 all.equal(epr1, Reduce(stack, unstack(epr1)))
 
+# Coercion are opposite operations
+all.equal(as_index(as.matrix(epr1)), as_index(as.data.frame(epr1)))
+all.equal(chain(epr1), as_index(as.matrix(chain(epr1)), chain = FALSE))
+all.equal(chain(epr1), as_index(as.data.frame(chain(epr1))[c(2, 1, 3)], c(2, 1, 3), chain = FALSE))
+
 # Test mean.ind()
 epr4 <- mean(epr1, window = 12)
 all.equal(levels(epr4), levels(epr1))
 time(epr4)
 all.equal(as.matrix(epr4)[, 1], rowMeans(as.matrix(epr1)[, 1:12]))
 all.equal(as.matrix(epr4)[, 2], rowMeans(as.matrix(epr1)[, 13:24]))
-is_chain_index(epr4)
-is_chain_index(mean(chain(epr1)))
+is_chainable_index(epr4)
+is_chainable_index(mean(chain(epr1)))
 epr4$contrib
 
 w <- matrix(seq_len(5 * 26), 5)
@@ -129,10 +134,23 @@ all.equal(as.matrix(mean(epr1, w, window = 12))[, 1],
 all.equal(as.matrix(mean(epr1, w, window = 12))[, 2], 
           diag(as.matrix(epr1)[, 13:24] %*% apply(w[, 13:24], 1, scale_weights)), check.attributes = FALSE)
 
+# Test head/tail
+all.equal(head(epr1), epr1)
+all.equal(head(epr1, 2), epr1[1:2])
+all.equal(head(epr1, c(-2, 2)), epr1[1:3, 1:2])
+all.equal(head(epr1, c(NA, 2)), epr1[, 1:2])
+all.equal(tail(epr1), epr1)
+all.equal(tail(epr1, 2), epr1[4:5])
+all.equal(tail(epr1, c(-2, 2)), epr1[3:5, 25:26])
+all.equal(tail(epr1, c(NA, 2)), epr1[, 25:26])
+
 # Toy example that can be easily verified
 dat <- data.frame(rel = c(1:6, NA, 7, 8),
                   period = c(1, 1, 1, 1, 1, 2, 2, 2, 2),
                   ea = c("11", "11", "12", "12", "13", "11", "12", "11", "14"))
+
+all.equal(as_index(dat, c("period", "ea", "rel")),
+          with(dat[c(2, 4, 5, 7, 8, 9), ], elemental_index(rel, period, ea)))
 
 (epr <- with(dat, elemental_index(rel, period, ea, contrib = TRUE)))
 unclass(epr)
@@ -156,19 +174,21 @@ all.equal(epr$time, epr2$time)
 contrib(epr2)
 
 epr[] <- as.matrix(epr2)
-all.equal(as.matrix(epr), as.matrix(epr2)) # has_contrib is not equal
+all.equal(epr, epr2)
 all.equal(contrib(epr), contrib(epr2))
 all.equal(levels(epr), levels(epr2))
 all.equal(time(epr), time(epr2))
-is_chain_index(epr)
-is_chain_index(epr2)
+is_chainable_index(epr)
+is_chainable_index(epr2)
 
 # It shouldn't be possible to make a non-numeric index
-epr <- as_index(data.frame(a = as.character(1:5), b = 1:5))
+mat <- as.matrix(data.frame(a = as.character(1:5), b = 1:5))
+
+epr <- as_index(mat)
 is.numeric(as.matrix(epr))
 
 epr[, "b"] <- as.character(1:5)
-all.equal(epr, as_index(data.frame(a = as.character(1:5), b = 1:5)))
+all.equal(epr, as_index(mat))
 
 # Nor one without EA names
 as_index(matrix(1:5, ncol = 5, dimnames = list("a", 1:5)))

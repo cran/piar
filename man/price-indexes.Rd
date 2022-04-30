@@ -22,6 +22,7 @@
 \alias{as_index}
 \alias{as_index.default}
 \alias{as_index.matrix}
+\alias{as_index.data.frame}
 \alias{is_index}
 \alias{is_aggregate_index}
 
@@ -39,14 +40,12 @@ elemental_index(rel, ...)
 
 \method{elemental_index}{numeric}(rel, period = gl(1, length(rel)), 
                 ea = gl(1, length(rel)), w, contrib = FALSE, 
-                chain = TRUE, na.rm = FALSE, r = 0, ...)
+                chainable = TRUE, na.rm = FALSE, r = 0, ...)
                             
 # Aggregate
 \method{aggregate}{ind}(x, pias, na.rm = FALSE, r = 1, ...)
 
-\method{vcov}{agg_ind}(object, repweights, mse = TRUE, 
-     parallel = c("no", "mc", "snow"), ncpus = 1, 
-     cl = makeCluster(ncpus), ...)
+\method{vcov}{agg_ind}(object, repweights, mse = TRUE, ...)
 
 \method{mean}{ind}(x, w, window = 3, na.rm = FALSE, r = 1, ...)
 
@@ -70,9 +69,9 @@ elemental_index(rel, ...)
 
 \method{end}{ind}(x, ...)
 
-\method{head}{ind}(x, ...)
+\method{head}{ind}(x, n = 6, ...)
 
-\method{tail}{ind}(x, ...)
+\method{tail}{ind}(x, n = 6, ...)
 
 # Coerce
 \method{as.matrix}{ind}(x, ...)
@@ -83,7 +82,9 @@ as_index(x, ...)
 
 \method{as_index}{default}(x, ...)
 
-\method{as_index}{matrix}(x, chain = TRUE, ...)
+\method{as_index}{matrix}(x, chainable = TRUE, ...)
+
+\method{as_index}{data.frame}(x, cols = 1:3, chainable = TRUE, ...)
 
 is_index(x)
 
@@ -101,13 +102,13 @@ is_aggregate_index(x)
 
 \item{contrib}{Should quote contributions be calculated? The default does not calculate contributions.}
 
-\item{chain}{Are the price relatives in \code{rel} period-over-period relatives for a chained calculation (the default)? This should be \code{FALSE} when \code{rel} are fixed-base relatives.}
+\item{chainable}{Are the price relatives in \code{rel} period-over-period relatives for a chained calculation (the default)? This should be \code{FALSE} when \code{rel} are fixed-base relatives.}
 
 \item{na.rm}{Should missing values be removed? By default, missing values are not removed. Setting \code{na.rm = TRUE} is equivalent to overall mean imputation.}
 
 \item{r}{Order of the generalized mean to aggregate price relatives/index values. 0 for a geometric index (the default for making elemental indexes), 1 for an arithmetic index (the default for aggregating elemental indexes and averaging indexes over subperiods), or -1 for a harmonic index (usually for a Paasche index). Other values are possible; see \code{\link[=generalized_mean]{generalized_mean()}} for details.}
 
-\item{x, y}{A price index, as made by \code{elemental_index()} or \code{aggregate()}.}
+\item{x, y}{A price index, usually made by \code{elemental_index()} or \code{aggregate()}.}
 
 \item{pias}{A price index aggregation structure. This can be made with \code{\link[=aggregation_structure]{aggregation_structure()}}.}
 
@@ -117,17 +118,15 @@ is_aggregate_index(x)
 
 \item{mse}{Should covariances be centered off the value of the index in \code{object} (the default), or the mean of the replicates?}
 
-\item{parallel}{One of \code{"no"} to compute the covariance matrix in serial (the default), \code{"mc"} to use the multicore functionality in \pkg{parallel}, or \code{"snow"} to use the clusters functionality in \pkg{parallel}.}
-
-\item{ncpus}{Number of cpus to use for computing the covariance matrix if \code{parallel} is not \code{"no"}, with a default of 1.}
-
-\item{cl}{A cluster that can be used in \code{\link[=parLapply]{parLapply()}} for computing the covariance matrix in parallel. Only applies if \code{parallel = "snow"}.}
-
 \item{window}{The size of the window used to average index values across subperiods. The default (3) turns a monthly index into into a quarterly one.}
 
 \item{i, j, value}{See \link{Extract}, with \code{value} being a numeric vector (or something that can coerced into one.)}
 
-\item{stringsAsFactors}{See \code{\link{as.data.frame}}}.
+\item{n}{See \code{\link{head}}.}
+
+\item{stringsAsFactors}{See \code{\link{as.data.frame}}.}
+
+\item{cols}{A vector giving the positions/names of the period, level, and value columns in \code{x}. The default assumes that the first column contains time periods, the second contains levels, and the third contains index values.}
 
 \item{...}{Further arguments passed to or used by methods.}
 }
@@ -138,7 +137,7 @@ When supplied with a numeric vector, \code{elemental_index()} is a simple wrappe
 
 The default method simply coerces \code{rel} to a numeric prior to calling the method above.
 
-The interpretation of the index depends on how the price relatives in \code{rel} are made. If these are period-over-period relatives, then the result is a collection of period-over-period elemental indexes; if these are fixed-base relatives, then the result is a collection of fixed-base (direct) elemental indexes. For the latter, \code{chain} should be set to \code{FALSE} so that no subsequent methods assume that a chained calculation should be used.
+The interpretation of the index depends on how the price relatives in \code{rel} are made. If these are period-over-period relatives, then the result is a collection of period-over-period elemental indexes; if these are fixed-base relatives, then the result is a collection of fixed-base (direct) elemental indexes. For the latter, \code{chainable} should be set to \code{FALSE} so that no subsequent methods assume that a chained calculation should be used.
 
 By default, missing price relatives in \code{rel} will propagate throughout the index calculation. Ignoring missing values with \code{na.rm = TRUE} is the same as parental (or overall mean) imputation, and needs to be explicitly set in the call to \code{elemental_index()}. Explicit imputation of missing relatives, and especially imputation of missing prices, should be done prior to calling \code{elemental_index()}.
 
@@ -150,7 +149,7 @@ The \code{aggregate()} method aggregates elemental indexes by looping over each 
 \enumerate{
 \item aggregates the elemental indexes with \code{\link[=generalized_mean]{generalized_mean(r)}} for each level of \code{pias};
 \item aggregates quote contributions for each level of \code{pias} (if there are any);
-\item price updates the weights in \code{pias} with \code{\link[=factor_weights]{factor_weights(r)}} (only for period-over-period elemental indexes, i.e., \code{is_chain_index(x) == TRUE}).
+\item price updates the weights in \code{pias} with \code{\link[=factor_weights]{factor_weights(r)}} (only for period-over-period elemental indexes, i.e., \code{is_chainable_index(x) == TRUE}).
 }
 The result is a collection of aggregated period-over-period indexes that can be chained together to get a fixed-base index when \code{x} are period-over-period elemental indexes. Otherwise, when \code{x} are fixed-base elemental indexes, the result is a collection of aggregated fixed-base (direct) indexes.
 
@@ -162,7 +161,7 @@ Aggregating quote contributions uses the method in chapter 9 of the CPI manual (
 
 There may not be contributions for all prices relatives in an elemental aggregate if the elemental indexes are built from several sources (as with \code{merge()}). In this case the contribution for a price relative in the aggregated index will be correct, but the sum of all contributions will not equal the change in the value of the index. This can also happen when aggregating an already aggregated index in which missing index values have been imputed (i.e., when \code{na.rm = TRUE}).
 
-The \code{vcov()} method is a simple wrapper to calculate the covariance matrix for an aggregated index when bootstrap replicate weights are available for the elemental aggregates. This approach is usually applicable when elemental aggregates are sampled, and provides an estimator of the sampling variance of the price index. It ignores any sampling variance from the elemental indexes (which often use judgmental sampling), and ultimately depends on the method of generating replicate weights. It returns an array of covariance matrices for each \code{period}. (Chapters 3 and 4 of Selvanathan and Rao (1994), especially section 4.7, provide analytic variance estimators for some common price indexes that are applicable with simple random sampling.)
+The \code{vcov()} method is a simple wrapper to calculate the variance matrix for an aggregated index when bootstrap replicate weights are available for the elemental aggregates. This approach is usually applicable when elemental aggregates are sampled, and provides an estimator of the sampling variance of the price index. It ignores any sampling variance from the elemental indexes (which often use judgmental sampling), and ultimately depends on the method of generating replicate weights. It returns a matrix of variances with a row for each upper-level index and a column for each time period. (Chapters 3 and 4 of Selvanathan and Rao (1994), especially section 4.7, provide analytic variance estimators for some common price indexes that are applicable with simple random sampling.) Note that any missing elemental indexes need to be explicitly imputed prior to using this method, otherwise they will propagate throughout the variance calculation.
 
 Indexes can be aggregated over subperiods by taking the (usually arithmetic) mean of index values for each level over consecutive windows of subperiods. The \code{mean()} method constructs a set of windows of length \code{window}, starting in the first period of the index, and takes the unweighted mean of each index value in these windows for each level of the index. The last window is discarded if it is incomplete, so that index values are always averaged over \code{window} periods. The names for the first time period in each window form the new names for the aggregated time periods. Note that quote contributions are discarded when aggregating over subperiods. 
 
@@ -174,7 +173,7 @@ The \code{merge()} method combines two index objects with common time periods, m
 
 The \code{stack()} method combines two index objects with common levels, stacking index values and quote contributions for each level in \code{y} after those in \code{x}. The \code{unstack()} method breaks up \code{x} into a list of indexes, one for each period in \code{x}. These methods can be used in a map-reduce to make an index with multiple aggregation structures (like a Paasche index).
 
-It is not generally possible to merge aggregated indexes, as this would change the aggregation structure, so merging always returns an index of class \code{ind}. If at least one of \code{x} or \code{y} is an aggregate index then result of stacking these indexes is also an aggregate index; otherwise, it is the same class as \code{x}.
+It is not generally possible to merge aggregated indexes, as this would change the aggregation structure, so merging always returns an index of class \code{ind}. If at least one of \code{x} or \code{y} is an aggregate index then the result of stacking these indexes is also an aggregate index; otherwise, it is the same class as \code{x}.
 }
 
 \subsection{Extract}{
@@ -192,7 +191,9 @@ The \code{summary()} method summarizes \code{x} as a matrix of index values (i.e
 \subsection{Coerce}{
 The \code{as.matrix()} method turns an index into a matrix with a row for each level and a column for each period. The \code{as.data.frame()} method turns an index into a data frame with three columns: period, level, and value. 
 
-\code{as_index()} is useful to form an elemental index from pre-computed values. Numeric matrices are coerced into an elemental index object by treating each column as a separate time period, and each row as an elemental aggregate. Column names are used to denote time periods, and row names are used to denote elemental aggregates (so they must be unique). If a dimension is unnamed, then it is given a sequential label from 1 to the size of that dimension. The default method coerces \code{x} to a matrix prior to using the matrix method.
+\code{as_index()} is useful to form an elemental index from pre-computed values. Numeric matrices are coerced into an elemental index object by treating each column as a separate time period, and each row as an elemental aggregate. Column names are used to denote time periods, and row names are used to denote elemental aggregates (so they must be unique). This essentially reverses calling \code{as.matrix()} on an index object. If a dimension is unnamed, then it is given a sequential label from 1 to the size of that dimension. The default method coerces \code{x} to a matrix prior to using the matrix method.
+
+The data frame method for \code{as_index()} is best understood as reversing the effect of \code{as.data.frame()} on an index object. It constructs a matrix by taking the unique values of \code{x[[cols[1]]]} as columns and the unique values of \code{x[[cols[2]]]} as rows (in the order they appear). It then populates this matrix with the corresponding values in \code{x[[cols[3]]]}, and uses the matrix method for \code{as_index()}. Note that the resulting index is therefore sensitive to the ordering of \code{x}.
 }
 }
 
@@ -204,7 +205,7 @@ Most of these functions return index objects of class \code{ind}. These often be
 \item{levels}{The levels for \code{ea}.}
 \item{time}{The levels for \code{period}.}
 \item{has_contrib}{The value of \code{contrib}.}
-\item{chain}{The value of \code{chain}, usually \code{TRUE}.}
+\item{chainable}{The value of \code{chainable}, usually \code{TRUE}.}
 
 \code{aggregate()} returns an aggregate index. This is an object of class \code{agg_ind}, inheriting from class \code{ind}, which has the following components.
 
@@ -213,7 +214,7 @@ Most of these functions return index objects of class \code{ind}. These often be
 \item{levels}{The levels for \code{pias}.}
 \item{time}{The levels for \code{period} from \code{x}.}
 \item{has_contrib}{The value of \code{has_contrib} from \code{x}.}
-\item{chain}{The value for \code{chain} from \code{x}, usually \code{TRUE.}}
+\item{chainable}{The value for \code{chainable} from \code{x}, usually \code{TRUE.}}
 \item{r}{The value for \code{r}, usually \code{1}.}
 \item{pias}{A list containing the \code{child}, \code{parent}, \code{eas}, and \code{height} components of \code{pias}.}
 }
@@ -271,6 +272,10 @@ epr[1, ] <- 1 # can be useful for doing specific imputations
 
 (index <- aggregate(epr, pias, na.rm = TRUE))
 
+# Aggregation can equivalently be done as matrix multiplication
+
+as.matrix(pias) \%*\% as.matrix(chain(index[letters[1:3]]))
+
 # Merge two indexes prior to aggregation
 
 prices2 <- data.frame(rel = 1:8, period = rep(1:2, each = 4), ea = rep(letters[3:4], 4))
@@ -302,6 +307,9 @@ summary(index)
 
 as.data.frame(index)
 as.matrix(index)
+
+all.equal(as_index(as.data.frame(epr)), epr)
+all.equal(as_index(as.matrix(epr)), epr)
 
 # Calculate a CSWD index (same as the Jevons in this example) 
 # as an arithmetic index by constructing appropriate weights

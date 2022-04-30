@@ -1,4 +1,4 @@
-export(elemental_index, as_index, is_index, is_aggregate_index, is_chain_index,
+export(elemental_index, as_index, is_index, is_aggregate_index, is_chainable_index, is_chain_index,
        price_relative,
        aggregation_structure, expand_classification,
        carry_forward, shadow_price,
@@ -32,6 +32,7 @@ S3method(elemental_index, numeric)
 
 S3method(as_index, default)
 S3method(as_index, matrix)
+S3method(as_index, data.frame)
 S3method(as_index, ind)
 
 S3method(contrib, ind)
@@ -47,12 +48,12 @@ S3method(print, pias)
 S3method(weights, pias)
 S3method(levels, pias)
 S3method(update, pias)
+S3method(as.matrix, pias)
+S3method(as.data.frame, pias)
 
 importFrom(stats, aggregate, weights, update, time, start, end)
 
 importFrom(utils, stack, unstack, head, tail)
 
-importFrom(parallel, mclapply, makeCluster, parLapply, stopCluster)
-
 importFrom(gpindex, generalized_mean, factor_weights, contributions, 
-           transmute_weights, scale_weights, back_price, nested_mean, nested_contributions)
+           transmute_weights, scale_weights, back_period)

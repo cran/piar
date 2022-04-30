@@ -215,7 +215,7 @@ $time
 $has_contrib
 [1] TRUE
 
-$chain
+$chainable
 [1] TRUE
 
 $r
@@ -266,6 +266,11 @@ B3      1 2.0200036 1.6353355 0.537996
 B4      1 1.3007239 1.0630743 4.576286
 B5      1 1.3007239 1.0630743 4.576286
 > 
+> # Check against matrix calculation
+> all.equal(as.matrix(ms_pias) %*% as.matrix(chain(ms_index[paste0("B", 1:5)])), 
++           as.matrix(chain(ms_index[1:3, ])))
+[1] TRUE
+>
 > # Check adding up of lower-level indexes
 > all.equal(apply(as.matrix(chain(ms_index)[4:8, ]), 2, weighted.mean, weights(ms_pias)[[3]]),
 +           as.matrix(chain(ms_index))[1, ])
@@ -278,10 +283,34 @@ B5      1 1.3007239 1.0630743 4.576286
 > # Re-aggregating the index shouldn't do anything
 > all.equal(as.matrix(aggregate(ms_index, ms_pias)), as.matrix(ms_index))
 [1] TRUE
+>
+> all.equal(aggregate(chain(ms_index), ms_pias), chain(ms_index))
+[1] TRUE
 > 
 > all.equal(as.matrix(aggregate(ms_index, ms_pias, na.rm = TRUE)), as.matrix(ms_index))
 [1] TRUE
+>
+> # A two-step aggregation should give the same result
+> pias2 <- aggregation_structure(list(c(1, 1), c(11, 12)), weights(ms_pias)[[2]])
 > 
+> aggregate(ms_index, pias2)
+   202001   202002   202003   202004
+1       1 1.300724 1.063074 2.734761
+11      1 1.300724 1.063074 1.574515
+12      1 1.300724 1.063074 4.576286
+> 
+> # Aggregating only elementals should just add B5
+> ms_epr2 <- aggregate(ms_epr, aggregation_structure(list(ms_weights$business), ms_weights$weight))
+> 
+> all.equal(ms_epr, ms_epr2[1:4, ])
+[1] TRUE
+> ms_epr2[5, ]
+   202001 202002 202003 202004
+B5     NA     NA     NA     NA
+> 
+> all.equal(contrib(ms_epr), contrib(ms_epr2))
+[1] TRUE
+>
 > # Re-arranging the index shouldn't do anything
 > s <- c(14, 16, 26, 28, 24, 29, 11, 32, 36, 2, 22, 34, 6, 7, 10, 17, 8, 27, 37, 1, 12, 33, 20, 3, 9, 40, 13, 4, 38, 23, 31, 15, 25, 39, 21, 30, 35, 19, 18, 5)
 > ms_epr <- with(
@@ -336,6 +365,9 @@ B5    330 429.2389  456.3128 2088.2182
 > 
 > all.equal(as.matrix(aggregate(ms_index, ms_pias, r = -1.7, na.rm = TRUE)), as.matrix(ms_index))
 [1] TRUE
+>
+> all.equal(aggregate(chain(ms_index), ms_pias, r = -1.7), chain(ms_index))
+[1] TRUE
 > 
 > all.equal(as.matrix(ms_index)[1, ], 
 +           colSums(contrib(ms_index), na.rm = TRUE) + 1)
@@ -345,6 +377,10 @@ B5    330 429.2389  456.3128 2088.2182
 +           as.matrix(chain(ms_index))[1, ])
 [1] TRUE
 > 
+> all.equal((as.matrix(ms_pias) %*% as.matrix(chain(ms_index[paste0("B", s)]))^(-1.7))^(1 /-1.7), 
++           as.matrix(chain(ms_index[1:3, ])))
+[1] TRUE
+>
 > ms_index <- aggregate(ms_epr, ms_pias, r = -1.7)
 > 
 > all.equal(aggregate(ms_index, ms_pias, r = -1.7), ms_index)
@@ -572,7 +608,7 @@ $time
 $has_contrib
 [1] TRUE
 
-$chain
+$chainable
 [1] TRUE
 
 $r
@@ -661,7 +697,7 @@ $pias$height
 +                      product = rep(1:5, each = 3), 
 +                      ea = rep(c("f1", "f2"), c(6, 9)))
 > prices$pop_rel <- with(prices, price_relative(price, period, product))
-> prices$fx_rel <- with(prices, price / gpindex::base_price(price, period, product))
+> prices$fx_rel <- with(prices, price / price[gpindex::base_period(period, product)])
 > 
 > pias <- aggregation_structure(list(c("1", "1"), c("f1", "f2")), 1:2)
 > 
@@ -675,6 +711,10 @@ $pias$height
 > all.equal(index_fx, chain(index_pop))
 [1] TRUE
 > all.equal(chain(index_pop[, -1], as.matrix(index_fx[, 1])), index_fx[, -1])
+[1] TRUE
+>
+> # Should work for a non-arithmetic index
+> all.equal(chain(aggregate(epr_pop, pias, r = 3)), aggregate(epr_fx, pias, r = 3))
 [1] TRUE
 > 
 > # Tests for methods

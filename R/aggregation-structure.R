@@ -1,17 +1,16 @@
 #---- Make an aggregation structure ----
 aggregation_structure <- function(x, w) {
   x <- lapply(x, as.character)
+  len <- length(x)
+  if (!len || !length(ea <- x[[len]])) {
+    stop(gettext("cannot make an aggregation structure with no elemental aggregates"))
+  }
   if (any(vapply(x, anyNA, logical(1L)))) {
     stop(gettext("'x' cannot contain NAs"))
   }
-  len <- length(x)
-  ea <- x[[len]]
-  if (!length(ea)) {
-    stop(gettext("cannot make an aggregation structure with no elemental aggregates"))
-  }
   w <- if (missing(w)) rep(1, length(ea)) else as.numeric(w)
   # basic argument checking to make sure inputs can make an aggregation structure
-  if (length(ea) != length(w) || any(lengths(x) != length(w))) {
+  if (any(lengths(x) != length(w))) {
     stop(gettext("all arguments must be the same length"))
   }
   if (anyDuplicated(ea)) {
@@ -84,9 +83,43 @@ update.pias <- function(object, index, period = end(index), ...) {
   if (!all(object$levels %in% index$levels)) {
     warning(gettext("not all weights in 'object' have a corresponding index value"))
   }
-  epr <- as.matrix(chain(index))[, period[1]]
+  epr <- as.matrix(chain(index))[, period[1L]] # drop dimensions
   object$weights[] <- price_update(epr[object$eas], object$weights)
   object
+}
+
+as.matrix.pias <- function(x, ...) {
+  nea <- length(x$eas)
+  if (x$height == 1L) {
+    return(matrix(numeric(0), ncol = nea, dimnames = list(NULL, x$eas)))
+  }
+  loc <- seq_len(nea)
+  # don't need the eas
+  lev <- lapply(pias2list(x)[-x$height], as.factor)
+  rows <- vector("list", length(lev))
+  # generate the rows for each level of the matrix and rbind together
+  for (i in seq_along(rows)) {
+    mat <- matrix(0, nrow = nlevels(lev[[i]]), ncol = nea, 
+                  dimnames = list(levels(lev[[i]]), x$eas))
+    # splitting orders the rows of the matrix the same as the aggregation structure
+    cols <- split(loc, lev[[i]])
+    w <- split(x$weights, lev[[i]])
+    for (r in seq_len(nrow(mat))) {
+      mat[r, cols[[r]]] <- scale_weights(w[[r]])
+    }
+    rows[[i]] <- mat
+  }
+  do.call(rbind, rows)
+}
+
+as.data.frame.pias <- function(x, ..., stringsAsFactors = FALSE) {
+  # could use recycle0 = TRUE in paste0
+  colnames <- c(if (length(x$child)) paste0("level", seq_along(x$child)), "ea")
+  res <- as.data.frame(pias2list(x), 
+                       col.names = colnames,
+                       stringsAsFactors = stringsAsFactors)
+  res$weight <- x$weight
+  res
 }
 
 #---- Expand classification ----

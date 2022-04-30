@@ -2,6 +2,8 @@
 \alias{aggregation_structure}
 \alias{weights.pias}
 \alias{update.pias}
+\alias{as.matrix.pias}
+\alias{as.data.frame.pias}
 \alias{expand_classification}
 
 \title{
@@ -18,6 +20,10 @@ aggregation_structure(x, w)
 \method{weights}{pias}(object, ea_only = FALSE, na.rm = FALSE, ...)
 
 \method{update}{pias}(object, index, period = end(index), ...)
+
+\method{as.matrix}{pias}(x, ...)
+
+\method{as.data.frame}{pias}(x, ..., stringsAsFactors = FALSE)
 
 expand_classification(class, width)
 }
@@ -41,6 +47,8 @@ expand_classification(class, width)
 
 \item{width}{A numeric vector that gives the width of each digit in \code{x}. This cannot contain NAs. The default assumes each digit has a width of 1, as in the NAICS, NAPCS, and SIC classifications.}
 
+\item{stringsAsFactors}{See \code{\link{as.data.frame}}}.
+
 \item{...}{Further arguments passed to or used by methods.}
 }
 
@@ -57,6 +65,10 @@ expand_classification(class, width)
 \code{weights()} returns a list with a named vector of weights for each level in the aggregation structure, unless \code{ea_only = TRUE}; in this case the return value is just a named vector.
 
 \code{update()} returns a copy of \code{object} with price-updated weights using the index values in \code{index}.
+
+\code{as.matrix()} represents an aggregation structure as a matrix, such that multiplying with a (column) vector of elemental indexes gives the aggregated index.
+
+\code{as.data.frame()} takes an aggregation structure and returns a data frame that could have generated it, with columns \code{level1}, \code{level2}, ..., \code{ea}, and \code{weight}.
 
 \code{expand_classification()} returns a list with a entry for each level in \code{x} giving the "digits" that represent each level in the hierarchy.
 }

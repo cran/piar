@@ -21,6 +21,10 @@ unclass(ms_index)
 
 as_index(ms_index)
 
+# Check against matrix calculation
+all.equal(as.matrix(ms_pias) %*% as.matrix(chain(ms_index[paste0("B", 1:5)])), 
+          as.matrix(chain(ms_index[1:3, ])))
+
 # Check adding up of lower-level indexes
 all.equal(apply(as.matrix(chain(ms_index)[4:8, ]), 2, weighted.mean, weights(ms_pias)[[3]]),
           as.matrix(chain(ms_index))[1, ])
@@ -31,7 +35,22 @@ all.equal(apply(as.matrix(chain(ms_index)[2:3, ]), 2, weighted.mean, weights(ms_
 # Re-aggregating the index shouldn't do anything
 all.equal(as.matrix(aggregate(ms_index, ms_pias)), as.matrix(ms_index))
 
+all.equal(aggregate(chain(ms_index), ms_pias), chain(ms_index))
+
 all.equal(as.matrix(aggregate(ms_index, ms_pias, na.rm = TRUE)), as.matrix(ms_index))
+
+# A two-step aggregation should give the same result
+pias2 <- aggregation_structure(list(c(1, 1), c(11, 12)), weights(ms_pias)[[2]])
+
+aggregate(ms_index, pias2)
+
+# Aggregating only elementals should just add B5
+ms_epr2 <- aggregate(ms_epr, aggregation_structure(list(ms_weights$business), ms_weights$weight))
+
+all.equal(ms_epr, ms_epr2[1:4, ])
+ms_epr2[5, ]
+
+all.equal(contrib(ms_epr), contrib(ms_epr2))
 
 # Re-arranging the index shouldn't do anything
 s <- c(14, 16, 26, 28, 24, 29, 11, 32, 36, 2, 22, 34, 6, 7, 10, 17, 8, 27, 37, 1, 12, 33, 20, 3, 9, 40, 13, 4, 38, 23, 31, 15, 25, 39, 21, 30, 35, 19, 18, 5)
@@ -74,11 +93,16 @@ ms_index <- aggregate(ms_epr, ms_pias, r = -1.7, na.rm = TRUE)
 
 all.equal(as.matrix(aggregate(ms_index, ms_pias, r = -1.7, na.rm = TRUE)), as.matrix(ms_index))
 
+all.equal(aggregate(chain(ms_index), ms_pias, r = -1.7), chain(ms_index))
+
 all.equal(as.matrix(ms_index)[1, ], 
           colSums(contrib(ms_index), na.rm = TRUE) + 1)
 
 all.equal(apply(as.matrix(chain(ms_index)[2:3, ]), 2, gpindex::generalized_mean(-1.7), weights(ms_pias)[[2]]),
           as.matrix(chain(ms_index))[1, ])
+
+all.equal((as.matrix(ms_pias) %*% as.matrix(chain(ms_index[paste0("B", s)]))^(-1.7))^(1 /-1.7), 
+          as.matrix(chain(ms_index[1:3, ])))
 
 ms_index <- aggregate(ms_epr, ms_pias, r = -1.7)
 
@@ -133,7 +157,7 @@ prices <- data.frame(price = 1:15,
                      product = rep(1:5, each = 3), 
                      ea = rep(c("f1", "f2"), c(6, 9)))
 prices$pop_rel <- with(prices, price_relative(price, period, product))
-prices$fx_rel <- with(prices, price / gpindex::base_price(price, period, product))
+prices$fx_rel <- with(prices, price / price[gpindex::base_period(period, product)])
 
 pias <- aggregation_structure(list(c("1", "1"), c("f1", "f2")), 1:2)
 
@@ -146,6 +170,9 @@ index_fx <- aggregate(epr_fx, pias)
 # Chained calculation and fixed-base calculation should be the same
 all.equal(index_fx, chain(index_pop))
 all.equal(chain(index_pop[, -1], as.matrix(index_fx[, 1])), index_fx[, -1])
+
+# Should work for a non-arithmetic index
+all.equal(chain(aggregate(epr_pop, pias, r = 3)), aggregate(epr_fx, pias, r = 3))
 
 # Tests for methods
 s1 <- merge(ms_index, fs_epr)

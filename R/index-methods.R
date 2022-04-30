@@ -69,6 +69,30 @@ end.ind <- function(x, ...) {
   x$time[length(x$time)]
 }
 
+head.ind <- function(x, n = 6L, ...) {
+  nl <- levels <- length(x$levels)
+  np <- periods <- length(x$time)
+  if (!is.na(n[1L])) {
+    nl <- if (n[1L] < 0L) max(levels + n[1L], 0L) else min(n[1L], levels)
+  }
+  if (!is.na(n[2L])) {
+    np <- if (n[2L] < 0L) max(periods + n[2L], 0L) else min(n[2L], periods)
+  }
+  x[seq_len(nl), seq_len(np)]
+}
+
+tail.ind <- function(x, n = 6L, ...) {
+  nl <- levels <- length(x$levels)
+  np <- periods <- length(x$time)
+  if (!is.na(n[1L])) {
+    nl <- if (n[1L] < 0L) max(levels + n[1L], 0L) else min(n[1L], levels)
+  }
+  if (!is.na(n[2L])) {
+    np <- if (n[2L] < 0L) max(periods + n[2L], 0L) else min(n[2L], periods)
+  }
+  x[seq.int(to = levels, length.out = nl), seq.int(to = periods, length.out = np)]
+}
+
 #---- Merge ----
 merge.agg_ind <- function(x, y, ...) {
   x$r <- x$pias <- NULL
@@ -86,7 +110,7 @@ merge.ind <- function(x, y, ...) {
   if (any(x$levels %in% y$levels)) {
     stop(gettext("the same levels appear in both 'x' and 'y'"))
   }
-  if (x$chain != y$chain) {
+  if (x$chainable != y$chainable) {
     stop(gettext("cannot merge a fixed-base and period-over-period index"))
   }
   # loop over time periods and combine index values/contributions
@@ -121,7 +145,7 @@ stack.ind <- function(x, y, ...) {
   if (any(x$time %in% y$time)) {
     stop(gettext("the same periods appear in both 'x' and 'y'"))
   }
-  if (x$chain != y$chain) {
+  if (x$chainable != y$chainable) {
     stop(gettext("cannot stack a period-over-period and a fixed-base index"))
   }
   x$index <- c(x$index, y$index)
@@ -145,7 +169,7 @@ unstack.ind <- function(x, ...) {
     res[[i]]$levels <- x$levels
     res[[i]]$time <- x$time[i]
     res[[i]]$has_contrib <- x$has_contrib
-    res[[i]]$chain <- x$chain
+    res[[i]]$chainable <- x$chainable
     res[[i]]$r <- x$r
     res[[i]]$pias <- x$pias
     class(res[[i]]) <- class(x)
@@ -157,14 +181,6 @@ unstack.ind <- function(x, ...) {
 print.ind <- function(x, ...) {
   print(as.matrix(x), ...)
   invisible(x)
-}
-
-head.ind <- function(x, ...) {
-  head(as.matrix(x), ...)
-}
-
-tail.ind <- function(x,  ...) {
-  tail(as.matrix(x), ...)
 }
 
 #---- Summary ----

@@ -25,15 +25,15 @@ Type 'q()' to quit R.
 > base::assign(".oldSearch", base::search(), pos = 'CheckExEnv')
 > base::assign(".old_wd", base::getwd(), pos = 'CheckExEnv')
 > cleanEx()
-> nameEx("aggregation_structure")
-> ### * aggregation_structure
+> nameEx("aggregation-structure")
+> ### * aggregation-structure
 > 
 > flush(stderr()); flush(stdout())
 > 
 > ### Name: aggregation_structure
 > ### Title: Aggregation structure
-> ### Aliases: aggregation_structure weights.pias update.pias
-> ###   expand_classification
+> ### Aliases: aggregation_structure weights.pias update.pias as.matrix.pias
+> ###   as.data.frame.pias expand_classification
 > 
 > ### ** Examples
 > 
@@ -156,7 +156,8 @@ Type 'q()' to quit R.
 > ### Name: chain
 > ### Title: Chain and rebase a price index
 > ### Aliases: chain chain.default chain.ind unchain unchain.default
-> ###   unchain.ind rebase rebase.default rebase.ind is_chain_index
+> ###   unchain.ind rebase rebase.default rebase.ind is_chainable_index
+> ###   is_chain_index
 > 
 > ### ** Examples
 > 
@@ -228,8 +229,8 @@ b.2 0.8284271 2.4871732
 > 
 > 
 > cleanEx()
-> nameEx("impute_prices")
-> ### * impute_prices
+> nameEx("impute-prices")
+> ### * impute-prices
 > 
 > flush(stderr()); flush(stdout())
 > 
@@ -251,8 +252,8 @@ b.2 0.8284271 2.4871732
 > 
 > 
 > cleanEx()
-> nameEx("price_indexes")
-> ### * price_indexes
+> nameEx("price-indexes")
+> ### * price-indexes
 > 
 > flush(stderr()); flush(stdout())
 > 
@@ -262,7 +263,8 @@ b.2 0.8284271 2.4871732
 > ###   elemental_index.numeric aggregate.ind vcov.agg_ind mean.ind merge.ind
 > ###   stack.ind unstack.ind [.ind [<-.ind levels.ind time.ind start.ind
 > ###   end.ind head.ind tail.ind summary.ind as.matrix.ind as.data.frame.ind
-> ###   as_index as_index.default as_index.matrix is_index is_aggregate_index
+> ###   as_index as_index.default as_index.matrix as_index.data.frame  
+> ###   is_index is_aggregate_index
 > 
 > ### ** Examples
 > 
@@ -311,6 +313,12 @@ top 2.218951 6.037662
 a   1.000000 1.000000
 b   2.828427 6.928203
 c   2.218951 6.037662
+>
+> # Aggregation can equivalently be done as matrix multiplication
+> 
+> as.matrix(pias) %*% as.matrix(chain(index[letters[1:3]]))
+           1        2
+top 2.218951 13.39728
 > 
 > # Merge two indexes prior to aggregation
 > 
@@ -386,7 +394,12 @@ top 2.218951 6.037662
 a   1.000000 1.000000
 b   2.828427 6.928203
 c   2.218951 6.037662
-> 
+>
+> all.equal(as_index(as.data.frame(epr)), epr)
+[1] TRUE
+> all.equal(as_index(as.matrix(epr)), epr)
+[1] TRUE
+>
 > # Calculate a CSWD index (same as the Jevons in this example) 
 > # as an arithmetic index by constructing appropriate weights
 > 
@@ -412,8 +425,8 @@ b 2.828427 6.928203
 
 detaching ‘package:gpindex’
 
-> nameEx("price_relative")
-> ### * price_relative
+> nameEx("price-relative")
+> ### * price-relative
 > 
 > flush(stderr()); flush(stdout())
 > 
