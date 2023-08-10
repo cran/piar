@@ -3,12 +3,15 @@ contrib <- function(x, ...) {
   UseMethod("contrib")
 }
 
-contrib.ind <- function(x, level = levels(x), ...) {
-  if (!x$has_contrib) return(NULL)
+contrib.index <- function(x, level = levels(x), ...) {
+  if (!has_contrib(x)) {
+    return(NULL)
+  }
   level <- as.character(level)
   con <- lapply(x$contrib, `[[`, match.arg(level))
   products <- unique(nested_names(con))
-  out <- structure(vector("list", length(con)), names = names(con))
+  out <- vector("list", length(con))
+  names(out) <- x$time
   # initialize 0 contributions for all products in all time periods
   out[] <- list(structure(numeric(length(products)), names = products))
   # then replace with the actual values, so products that didn't sell

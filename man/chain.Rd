@@ -1,15 +1,16 @@
 \name{chain}
 \alias{chain}
 \alias{chain.default}
-\alias{chain.ind}
+\alias{chain.chainable_index}
+\alias{chain.direct_index}
 \alias{unchain}
 \alias{unchain.default}
-\alias{unchain.ind}
+\alias{unchain.direct_index}
+\alias{unchain.chainable_index}
 \alias{rebase}
 \alias{rebase.default}
-\alias{rebase.ind}
-\alias{is_chainable_index}
-\alias{is_chain_index}
+\alias{rebase.direct_index}
+\alias{rebase.chainable_index}
 
 \title{
 Chain and rebase a price index
@@ -24,23 +25,25 @@ chain(x, ...)
 
 \method{chain}{default}(x, ...)
 
-\method{chain}{ind}(x, link = rep(1, nlevels(x)), ...)
+\method{chain}{chainable_index}(x, link = rep(1, nlevels(x)), ...)
+
+\method{chain}{direct_index}(x, ...)
 
 unchain(x, ...)
 
 \method{unchain}{default}(x, ...)
 
-\method{unchain}{ind}(x, ...)
+\method{unchain}{direct_index}(x, ...)
+
+\method{unchain}{chainable_index}(x, ...)
 
 rebase(x, ...)
 
 \method{rebase}{default}(x, ...)
 
-\method{rebase}{ind}(x, base = rep(1, nlevels(x)), ...)
+\method{rebase}{direct_index}(x, base = rep(1, nlevels(x)), ...)
 
-is_chainable_index(x)
-
-is_chain_index(x) # deprecated
+\method{rebase}{chainable_index}(x, ...)
 }
 
 \arguments{
@@ -60,19 +63,21 @@ Chaining an index takes the cumulative product of the index values for each leve
 
 Rebasing a fixed-base index divides the values for each level of this index by the corresponding values for each level in the new base period. It's roughly the same as \code{as.matrix(x) / base}. Like unchaining, rebasing a period-over-period index does nothing.
 
-Quote contributions are removed when chaining/unchaining/rebasing an index, as it's not usually possible to update them correctly.
+Percent-change contributions are removed when chaining/unchaining/rebasing an index, as it's not usually possible to update them correctly.
 }
 
 \value{
-Each of these functions returns an index of the same type as \code{x}, except \code{is_chainable_index()} which returns \code{TRUE} when \code{x} is a period-over-period index (so that chaining makes sense).
-}
+\code{chain()} and \code{rebase()} return a fixed-base index (i.e., inherits from \code{direct_index}).
 
-\seealso{
-\code{\link{elemental_index}} for making elemental price indexes.
+\code{unchain()} returns a period-over-period index (i.e., inherits from \code{chainable_index}).
 }
 
 \examples{
-prices <- data.frame(rel = 1:8, period = rep(1:2, each = 4), ea = rep(letters[1:2], 4))
+prices <- data.frame(
+  rel = 1:8,
+  period = rep(1:2, each = 4),
+  ea = rep(letters[1:2], 4)
+)
 
 # A simple period-over-period elemental index
 
@@ -86,7 +91,8 @@ chain(epr)
 
 all.equal(epr, unchain(chain(epr)))
 
-# Change the base period to period 2 (note the loss of information for period 0)
+# Change the base period to period 2 (note the
+# loss of information for period 0)
 
 epr <- chain(epr)
 rebase(epr, epr[, 2])

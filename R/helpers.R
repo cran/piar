@@ -1,22 +1,22 @@
 # None of these functions are exported
 
 different_length <- function(...) {
-  res <- lengths(list(...))
+  res <- lengths(Filter(Negate(is.null), list(...)))
   any(res != res[1L])
-}
-
-any_negative <- function(...) {
-  min(..., 1, na.rm = TRUE) <= 0 # the 1 stops the warnings with length-0 inputs
-}
-
-named_extract <- function(x, nm) {
-  nm <- as.character(nm)
-  structure(x[nm], names = nm)
 }
 
 sequential_names <- function(...) {
   f <- interaction(...)
   unsplit(Map(seq_len, tabulate(f)), f)
+}
+
+valid_product_names <- function(x, period, ea) {
+  x <- as.character(x)
+  if (anyNA(x) || any(x == "")) {
+    stop("each product must have a non-missing name")
+  }
+  f <- interaction(period, ea)
+  unsplit(lapply(split(x, f), make.unique), f)
 }
 
 paste_until <- function(x, i) {
@@ -27,28 +27,26 @@ nested_names <- function(x) {
   as.character(unlist(lapply(x, names), use.names = FALSE))
 }
 
-aggregate2pias <- function(x, w) {
-  structure(list(child = x$pias$child,
-                 parent = x$pias$parent,
-                 levels = x$levels,
-                 eas = x$pias$eas,
-                 weights = structure(w, names = x$pias$eas),
-                 height = x$pias$height),
-            class = "pias")
-}
-
-pias2list <- function(x) {
-  if (x$height == 1L) return(list(x$eas))
-  res <- vector("list", length(x$parent))
-  res[[1L]] <- x$parent[[1L]]
-  # walk up the parent nodes to reconstruct the inputs that generated 'x'
-  for (i in seq_along(x$parent)[-1L]) {
-    res[[i]] <- x$parent[[i]][res[[i - 1L]]]
-  }
-  top <- names(x$child[[length(x$child)]])[res[[length(res)]]]
-  c(list(top), lapply(rev(res), names))
-}
-
 empty_contrib <- function(x) {
-  list(structure(rep(list(numeric(0L)), length(x)), names = x))
+  res <- rep.int(list(numeric(0L)), length(x))
+  names(res) <- x
+  list(res)
+}
+
+has_contrib <- function(x) {
+  Position(\(x) any(lengths(x) > 0L), x$contrib, nomatch = 0L) > 0L
+}
+
+index_skeleton <- function(levels, time) {
+  index <- rep.int(NA_real_, length(levels))
+  names(index) <- levels
+  res <- rep.int(list(index), length(time))
+  names(res) <- time
+  res
+}
+
+contrib_skeleton <- function(levels, time) {
+  res <- rep.int(empty_contrib(levels), length(time))
+  names(res) <- time
+  res
 }

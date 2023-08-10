@@ -1,31 +1,47 @@
-export(elemental_index, as_index, is_index, is_aggregate_index, is_chainable_index, is_chain_index,
+export(elemental_index, as_index, is_index, is_aggregate_index, is_chainable_index,
        price_relative,
-       aggregation_structure, expand_classification,
+       aggregation_structure, expand_classification, as_aggregation_structure, is_aggregation_structure,
        carry_forward, shadow_price,
-       contrib, chain, unchain, rebase)
+       contrib, chain, unchain, rebase, "weights<-")
 
-S3method("[", ind)
-S3method("[<-", ind)
-S3method(levels, ind)
-S3method(time, ind)
-S3method(start, ind)
-S3method(end, ind)
-S3method(head, ind)
-S3method(tail, ind)
-S3method(as.data.frame, ind)
-S3method(as.matrix, ind)
-S3method(as.double, ind)
-S3method(merge, agg_ind)
-S3method(merge, ind)
-S3method(stack, agg_ind)
-S3method(stack, ind)
-S3method(unstack, ind)
-S3method(print, ind)
-S3method(summary, ind)
-S3method(print, ind_summary)
-S3method(aggregate, ind)
-S3method(mean, ind)
-S3method(vcov, agg_ind)
+S3method("[", index)
+S3method("[[", index)
+S3method("[", aggregate_index)
+S3method("[<-", index)
+S3method("[[<-", index)
+S3method(head, index)
+S3method(tail, index)
+
+S3method(levels, index)
+S3method("levels<-", index)
+S3method(time, index)
+S3method(start, index)
+S3method(end, index)
+
+S3method(as.data.frame, index)
+S3method(as.matrix, index)
+S3method(as.double, index)
+
+S3method(merge, aggregate_index)
+S3method(merge, chainable_index)
+S3method(merge, direct_index)
+S3method(merge, index)
+
+S3method(stack, aggregate_index)
+S3method(stack, chainable_index)
+S3method(stack, direct_index)
+S3method(stack, index)
+S3method(unstack, index)
+
+S3method(print, index)
+S3method(summary, index)
+S3method(print, index_summary)
+S3method(str, index)
+
+S3method(aggregate, index)
+S3method(mean, index)
+
+S3method(vcov, aggregate_index)
 
 S3method(elemental_index, default)
 S3method(elemental_index, numeric)
@@ -33,27 +49,44 @@ S3method(elemental_index, numeric)
 S3method(as_index, default)
 S3method(as_index, matrix)
 S3method(as_index, data.frame)
-S3method(as_index, ind)
+S3method(as_index, chainable_index)
+S3method(as_index, direct_index)
 
-S3method(contrib, ind)
+S3method(contrib, index)
 
 S3method(chain, default)
-S3method(chain, ind)
+S3method(chain, chainable_index)
+S3method(chain, direct_index)
 S3method(unchain, default)
-S3method(unchain, ind)
+S3method(unchain, chainable_index)
+S3method(unchain, direct_index)
 S3method(rebase, default)
-S3method(rebase, ind)
+S3method(rebase, chainable_index)
+S3method(rebase, direct_index)
 
-S3method(print, pias)
-S3method(weights, pias)
-S3method(levels, pias)
-S3method(update, pias)
-S3method(as.matrix, pias)
-S3method(as.data.frame, pias)
+S3method(as_aggregation_structure, default)
+S3method(as_aggregation_structure, data.frame)
+S3method(as_aggregation_structure, matrix)
+S3method(as_aggregation_structure, aggregate_index)
+S3method(as_aggregation_structure, aggregation_structure)
+
+S3method(print, aggregation_structure)
+S3method(str, aggregation_structure)
+
+S3method(weights, aggregation_structure)
+S3method("weights<-", aggregation_structure)
+S3method(levels, aggregation_structure)
+S3method("levels<-", aggregation_structure)
+
+S3method(update, aggregation_structure)
+
+S3method(as.matrix, aggregation_structure)
+S3method(as.data.frame, aggregation_structure)
+S3method(as.list, aggregation_structure)
 
 importFrom(stats, aggregate, weights, update, time, start, end)
 
-importFrom(utils, stack, unstack, head, tail)
+importFrom(utils, stack, unstack, head, tail, str)
 
 importFrom(gpindex, generalized_mean, factor_weights, contributions, 
            transmute_weights, scale_weights, back_period)
