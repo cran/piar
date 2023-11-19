@@ -55,8 +55,9 @@ test_that("a matched-sample index aggregates correctly", {
                as.matrix(ms_index))
 
   # Re aggregating breaks contributions for imputed indexes
-  expect_failure(
-    expect_equal(contrib(ms_index), contrib(aggregate(ms_index, ms_pias)))
+  expect_true(
+    all(colSums(contrib(ms_index), na.rm = TRUE)[-1]
+        > colSums(contrib(aggregate(ms_index, ms_pias)), na.rm = TRUE)[-1])
   )
   expect_equal(contrib(aggregate(ms_index, ms_pias)),
                contrib(aggregate(aggregate(ms_index, ms_pias), ms_pias)))
@@ -65,6 +66,10 @@ test_that("a matched-sample index aggregates correctly", {
   pias2 <- aggregation_structure(list(c(1, 1), c(11, 12)),
                                  weights(ms_pias)[[2]])
   expect_equal(as.matrix(aggregate(ms_index, pias2)), as.matrix(ms_index[1:3]))
+  expect_equal(
+    contrib(aggregate(aggregate(ms_index, ms_pias), pias2)),
+    contrib(aggregate(ms_index, ms_pias))
+  )
 
   # Re-arranging the index shouldn't do anything
   s1 <- c(
@@ -86,13 +91,18 @@ test_that("a matched-sample index aggregates correctly", {
     )
   )
 
+  ms_index2 <- aggregate(ms_epr, ms_pias, na.rm = TRUE)
   expect_equal(
-    as.matrix(aggregate(ms_epr, ms_pias, na.rm = TRUE)[levels(ms_index), ]),
+    as.matrix(ms_index2)[levels(ms_index), ],
     as.matrix(ms_index)
   )
   expect_equal(
-    as.matrix(aggregate(ms_epr, ms_pias, na.rm = TRUE)[1:3, ]),
-    as.matrix(ms_index)[1:3, ]
+    contrib(ms_index),
+    contrib(ms_index2)
+  )
+  expect_equal(
+    as.matrix(ms_pias) %*% as.matrix(chain(ms_index2[paste0("B", s2)])),
+    as.matrix(chain(ms_index[c(1, 3, 2), ]))
   )
 
   # Aggregated contributions should add up
@@ -155,7 +165,7 @@ test_that("a weird index aggregates correctly", {
   )
 
   expect_equal(
-    (as.matrix(ms_pias) %*%
+    as.matrix(as.matrix(ms_pias, sparse = TRUE) %*%
        as.matrix(chain(ms_index[paste0("B", 1:5)]))^(-1.7))^(1 / -1.7),
     as.matrix(chain(ms_index[1:3, ]))
   )
@@ -254,11 +264,17 @@ test_that("a fixed-based index aggregates correctly", {
   # Should work for a non-arithmetic index
   expect_equal(chain(aggregate(epr_pop, pias, r = 3)),
                aggregate(epr_fx, pias, r = 3))
+  
+  # Consistency in aggregation holds with a change in base period
+  expect_equal(
+    rebase(index_fx, index_fx[, 2]),
+    aggregate(rebase(index_fx, index_fx[, 2]), update(pias, index_fx, "b"))
+  )
 })
 
 test_that("corner cases work", {
-  expect_equal(as.matrix(aggregate(as_index(1:5), list(1:5))),
-               matrix(1:5, 5, dimnames = list(1:5, 1)))
+  expect_equal(as.matrix(aggregate(as_index(matrix(1:10, 5)), list(1:5))),
+               matrix(1:10, 5, dimnames = list(1:5, 1:2)))
   expect_equal(as.matrix(aggregate(as_index(1:5), 6)),
                matrix(NA_real_, dimnames = list(6, 1)))
 })
@@ -291,4 +307,96 @@ test_that("partial contributions are correct", {
     sum(gpindex::arithmetic_contributions(as.numeric(index[letters[1:3], 2]),
                                           weights(pias2, ea_only = TRUE))[1:2])
   )
+})
+
+test_that("duplicate products get unique names during aggregation", {
+  epr1 <- elemental_index(setNames(1:4, 1:4), ea = gl(2, 2), contrib = TRUE, r = 1)
+  epr2 <- epr1
+  levels(epr2) <- 3:4
+  index <- aggregate(merge(epr1, epr2),
+                     list(c(0, 0, 0, 0), c("a", "a", "b", "b"), 1:4))
+  expect_equal(
+    contrib(index, "a"),
+    matrix(c(0, 0.25, 0.5, 0.75), 4, dimnames = list(1:4, 1))
+  )
+  expect_equal(
+    contrib(index, "a"),
+    contrib(index, "b")
+  )
+  expect_equal(
+    contrib(index),
+    matrix(rep(c(0, 0.125, 0.25, 0.375), each = 2), 8,
+           dimnames = list(c(1, "1.1", 2, "2.1", 3, "3.1", 4, "4.1"), 1))
+  )
+})
+
+test_that("aggregating in parallel works", {
+  pias <- aggregation_structure(
+    list(
+      c(1, 1, 1, 2, 2, 2),
+      c(11, 11, 12, 21, 22, 22),
+      c(111, 112, 121, 211, 221, 222)
+    ),
+    c(1, 2, 3, 3, 2, 1)
+  )
+  
+  pias1 <- aggregation_structure(
+    list(
+      c(1, 1, 1),
+      c(11, 11, 12),
+      c(111, 112, 121)
+    ),
+    c(1, 2, 3)
+  )
+  
+  pias2 <- aggregation_structure(
+    list(
+      c(2, 2, 2),
+      c(21, 22, 22),
+      c(211, 221, 222)
+    ),
+    c(3, 2, 1)
+  )
+  
+  epr1 <- elemental_index(1:18, rep(1:2, 9), rep(c(111, 112, 121), each = 6),
+                          contrib = TRUE)
+  epr2 <- elemental_index(18:1, rep(1:2, 9), rep(c(111, 112, 121), each = 6),
+                          contrib = TRUE)
+  levels(epr2) <- c(211, 221, 222)
+  
+  index <- aggregate(merge(epr1, epr2), pias, r = 0.5)
+  index1 <- aggregate(epr1, pias, r = 0.5)
+  index2 <- aggregate(epr2, pias, r = 0.5)
+  
+  expect_equal(index[1], index1[1])
+  expect_equal(index[2], index2[2])
+})
+
+test_that("aggregating with a dead branch does nothing", {
+  epr <- elemental_index(1:18, rep(1:3, each = 6), rep(1:2, 9), contrib = TRUE)
+  pias <- data.frame(l1 = c(0, 0, 0),
+                     l2 = c("01", "01", "02"),
+                     l3 = c("011", "012", "021"),
+                     ea = 1:3,
+                     weights = 3:1)
+  index1 <- aggregate(epr, pias)
+  index1na <- aggregate(epr, pias, na.rm = TRUE)
+  index2 <- aggregate(epr, pias[1:2, ])
+  
+  expect_equal(index1["01"], index2["01"])
+  expect_equal(index1na["0"], index2["0"])
+  expect_equal(contrib(index1, "01"), contrib(index2, "01"))
+  expect_equal(contrib(index1na), contrib(index2))
+})
+
+test_that("reaggregating doesn't introduce incorrect contributions", {
+  epr <- elemental_index(c(1:7, NA), rep(1:2, each = 4), rep(1:2, 4),
+                         contrib = TRUE)
+  pias <- as_aggregation_structure(list(c(0, 0), c(1, 2)))
+  index <- aggregate(epr, pias, na.rm = TRUE)
+  expect_equal(contrib(index)[, 1], contrib(aggregate(index, pias))[, 1])
+  
+  r <- as.numeric(index[2:3, 1])
+  r <- (r / sum(r))[1]
+  expect_equal(contrib(index)[, 2] * r, contrib(aggregate(index, pias))[, 2])
 })

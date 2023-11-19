@@ -1,3 +1,49 @@
+# Version 0.6.0
+
+## Significant changes
+
+- The `[[` method for index objects has been removed as it created unexpected problems for little gain. `as.matrix(index)[[1, 1]]` is a more explicit and flexible way to get the same behavior as `index[[1, 1]]`.
+
+- `aggregation_structure()` now orders the levels of an aggregation according to the order they appear in the data. Previously the levels were ordered lexicographically, except for the elemental aggregates. This can affect the order in which index values appear for an aggregate index.
+
+There are a number of changes to the way product names are handled when making an index and extracting percent-change contributions.
+
+- Names for price relatives now need to be unique within a time period for `elemental_index()`. The previous (undocumented) behavior was to only require that names be unique within a time period *and* elemental aggregate. This implies two non-backward compatible changes.
+
+   - The default product names for `elemental_index()` now include the name of the elemental aggregate to conform to the above requirement.
+
+   - Percent-change contributions from `contrib()` have simplified row names, as there is now no need to include index-level names to make product names unique.
+   
+- `contrib()` now always returns a matrix. Previously it would return `NULL` if there were no contributions for each level of the index.
+
+- Rows for the contributions matrix are ordered according to product names so that they have a consistent ordering.
+
+## Improvements
+
+- Printing an index gives a textual description in addition to the matrix of index values. Printing an aggregation structure now gives a description and tabular representation instead of a list.
+
+- There are now methods to set the levels and time periods of an index.
+
+- Methods for index objects are now faster for larger indexes.
+
+- `aggregate()` gains a new argument `contrib` that controls if percent-change contributions for elemental indexes are aggregated. The default maintains the current behavior of aggregating contributions if there are any.
+
+- The class names for index objects have changed to fix a name conflict with `Matrix`. This means it's now possible to use `rsmatrix` with `piar`.
+
+- The `as.matrix()` method for aggregation structures gains a new argument `sparse`. If `sparse = TRUE` then the aggregation matrix is a sparse, rather than dense, matrix. This option can also be used in the `vcov()` method for aggregate price indexes to improve performance for large indexes.
+
+- Added the `carry_backwards()` function to do carry backwards (as opposed to carry forwards) imputation.
+
+## Bug fixes
+
+- Viewing index objects in the RStudio viewer longer gives an error.
+
+- `is_direct_index()` is now exported.
+
+- Replacing index values for an aggregate index no longer returns an aggregate index, as it may not be consistent in aggregation.
+
+- Stacking two indexes now only returns an aggregate index if both indexes are themselves aggregate indexes. Previously it was possible to stack an aggregate index with a non-aggregate index to produce an aggregate index that was not consistent in aggregation.
+
 # Version 0.5.0
 
 ## Significant changes

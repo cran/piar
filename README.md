@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file. -->
 
-# Price Index Aggregation in R
+# Price Index Aggregation in R <a href="https://marberts.github.io/piar/"><img src="man/figures/logo.png" align="right" height="139" alt="piar website" /></a>
 
 <!-- badges: start -->
 
@@ -11,6 +11,7 @@ status](https://www.r-pkg.org/badges/version/piar)](https://cran.r-project.org/p
 badge](https://marberts.r-universe.dev/badges/piar)](https://marberts.r-universe.dev)
 [![R-CMD-check](https://github.com/marberts/piar/workflows/R-CMD-check/badge.svg)](https://github.com/marberts/piar/actions)
 [![codecov](https://codecov.io/gh/marberts/piar/branch/master/graph/badge.svg?token=lHDHsGHsLd)](https://app.codecov.io/gh/marberts/piar)
+[![DOI](https://zenodo.org/badge/370889275.svg)](https://zenodo.org/doi/10.5281/zenodo.10110046)
 <!-- badges: end -->
 
 Most price indexes are made with a two-step procedure, where
@@ -26,14 +27,22 @@ manual (2020) for bilateral price indexes.
 
 ## Installation
 
+Get the stable version from CRAN.
+
 ``` r
 install.packages("piar")
 ```
 
-The development version is available on Github.
+The development version can be installed from R-Universe
 
 ``` r
-devtools::install_github("marberts/piar")
+install.packages("piar", repos = c("https://marberts.r-universe.dev", "https://cloud.r-project.org"))
+```
+
+or directly from Github.
+
+``` r
+pak::pak("marberts/piar")
 ```
 
 ## Usage
@@ -96,6 +105,7 @@ index <- aggregate(elementals, pias, na.rm = TRUE)
 # Chain them to get a time series
 
 chain(index)
+#> Aggregate fixed-base price index for 8 levels over 4 time periods 
 #>    202001    202002    202003    202004
 #> 1       1 1.3007239 1.3827662 3.7815355
 #> 11      1 1.3007239 1.3827662 2.1771866
@@ -111,6 +121,10 @@ chain(index)
 
 Balk, B. M. (2008). *Price and Quantity Index Numbers*. Cambridge
 University Press.
+
+Chiru, R., Huang, N., Lequain, M. Smith, P., and Wright, A. (2015). *The
+Canadian Consumer Price Index Reference Paper*, Statistics Canada
+catalogue 62-553-X. Statistics Canada.
 
 ILO, IMF, OECD, Eurostat, UN, and World Bank. (2020). *Consumer Price
 Index Manual: Theory and Practice*. International Monetary Fund.

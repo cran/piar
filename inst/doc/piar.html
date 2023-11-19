@@ -400,12 +400,14 @@ the <code>price_relative()</code> function can make the necessary
 conversion.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>relative <span class="ot">&lt;-</span> <span class="fu">with</span>(ms_prices, <span class="fu">price_relative</span>(price, period, product))</span>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>(ms_epr <span class="ot">&lt;-</span> <span class="fu">with</span>(ms_prices, <span class="fu">elemental_index</span>(relative, period, business, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)))</span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#&gt;    202001    202002    202003   202004</span></span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt; B1      1 0.8949097 0.3342939      NaN</span></span>
-<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#&gt; B2      1       NaN       NaN 2.770456</span></span>
-<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co">#&gt; B3      1 2.0200036 1.6353355 0.537996</span></span>
-<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt; B4    NaN       NaN       NaN 4.576286</span></span></code></pre></div>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>(ms_epr <span class="ot">&lt;-</span> <span class="fu">with</span>(ms_prices,</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>                <span class="fu">elemental_index</span>(relative, period, business, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)))</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt; Period-over-period price index for 4 levels over 4 time periods </span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#&gt;    202001    202002    202003   202004</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co">#&gt; B1      1 0.8949097 0.3342939      NaN</span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt; B2      1       NaN       NaN 2.770456</span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="co">#&gt; B3      1 2.0200036 1.6353355 0.537996</span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="co">#&gt; B4    NaN       NaN       NaN 4.576286</span></span></code></pre></div>
 <p>(Homogeneous elemental aggregates often leads to unit-value elemental
 indexes that are not based on price relatives. These cases can be dealt
 with by first aggregating prices for each elemental aggregate,
@@ -429,23 +431,26 @@ because the fifth business never reports any prices; an elemental index
 can be made for this business with a small change to the call to
 <code>elemental_index()</code>.)</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>ms_epr[, <span class="st">&quot;202004&quot;</span>]</span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co">#&gt;      202004</span></span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt; B1      NaN</span></span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#&gt; B2 2.770456</span></span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt; B3 0.537996</span></span>
-<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="co">#&gt; B4 4.576286</span></span>
-<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>ms_epr[<span class="st">&quot;B1&quot;</span>, ]</span>
-<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="co">#&gt;    202001    202002    202003 202004</span></span>
-<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="co">#&gt; B1      1 0.8949097 0.3342939    NaN</span></span></code></pre></div>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co">#&gt; Period-over-period price index for 4 levels over 1 time periods </span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt;      202004</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#&gt; B1      NaN</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt; B2 2.770456</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="co">#&gt; B3 0.537996</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="co">#&gt; B4 4.576286</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>ms_epr[<span class="st">&quot;B1&quot;</span>, ]</span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="co">#&gt; Period-over-period price index for 1 levels over 4 time periods </span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="co">#&gt;    202001    202002    202003 202004</span></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="co">#&gt; B1      1 0.8949097 0.3342939    NaN</span></span></code></pre></div>
 <p>With the elemental indexes out of the way, it’s time to make a
 price-index aggregation structure that maps each business to its
 position in the aggregation hierarchy. The only hiccup is unpacking the
 digit-wise classification for each businesses that defines the
 hierarchy. That’s the job of the <code>expand_classification()</code>
 function.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>hierarchy <span class="ot">&lt;-</span> <span class="fu">with</span>(ms_weights, <span class="fu">c</span>(<span class="fu">expand_classification</span>(classification), <span class="fu">list</span>(business)))</span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a></span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>pias <span class="ot">&lt;-</span> <span class="fu">aggregation_structure</span>(hierarchy, ms_weights<span class="sc">$</span>weight)</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>hierarchy <span class="ot">&lt;-</span> <span class="fu">with</span>(ms_weights, </span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>                  <span class="fu">c</span>(<span class="fu">expand_classification</span>(classification), <span class="fu">list</span>(business)))</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>pias <span class="ot">&lt;-</span> <span class="fu">aggregation_structure</span>(hierarchy, ms_weights<span class="sc">$</span>weight)</span></code></pre></div>
 <p>It is now simple to aggregate the elemental indexes according to this
 aggregation structure with the <code>aggregate()</code> function. As
 with the elemental indexes, missing values are ignored by setting
@@ -453,15 +458,16 @@ with the elemental indexes, missing values are ignored by setting
 missing values. Note that, unlike the elemental indexes, missing values
 are filled in to ensure the index can be chained over time.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>(ms_index <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(ms_epr, pias, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt;    202001    202002    202003   202004</span></span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt; 1       1 1.3007239 1.0630743 2.734761</span></span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt; 11      1 1.3007239 1.0630743 1.574515</span></span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; 12      1 1.3007239 1.0630743 4.576286</span></span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt; B1      1 0.8949097 0.3342939 1.574515</span></span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt; B2      1 1.3007239 1.0630743 2.770456</span></span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt; B3      1 2.0200036 1.6353355 0.537996</span></span>
-<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt; B4      1 1.3007239 1.0630743 4.576286</span></span>
-<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt; B5      1 1.3007239 1.0630743 4.576286</span></span></code></pre></div>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt; Aggregate period-over-period price index for 8 levels over 4 time periods </span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt;    202001    202002    202003   202004</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt; 1       1 1.3007239 1.0630743 2.734761</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; 11      1 1.3007239 1.0630743 1.574515</span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt; 12      1 1.3007239 1.0630743 4.576286</span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt; B1      1 0.8949097 0.3342939 1.574515</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt; B2      1 1.3007239 1.0630743 2.770456</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt; B3      1 2.0200036 1.6353355 0.537996</span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt; B4      1 1.3007239 1.0630743 4.576286</span></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="co">#&gt; B5      1 1.3007239 1.0630743 4.576286</span></span></code></pre></div>
 <p>Although simple, this example covers the core functionality of
 <strong>piar</strong>. The remaining examples in the vignette build on
 this one by adding complexities that often arise in practice.</p>
@@ -476,15 +482,16 @@ time series that compares prices to a fixed base period.</p>
 <p>The <code>chain()</code> function can be used to chain the values in
 an index object.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>(ms_index_chained <span class="ot">&lt;-</span> <span class="fu">chain</span>(ms_index))</span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co">#&gt;    202001    202002    202003    202004</span></span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt; 1       1 1.3007239 1.3827662 3.7815355</span></span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; 11      1 1.3007239 1.3827662 2.1771866</span></span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt; 12      1 1.3007239 1.3827662 6.3279338</span></span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; B1      1 0.8949097 0.2991629 0.4710366</span></span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; B2      1 1.3007239 1.3827662 3.8308934</span></span>
-<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt; B3      1 2.0200036 3.3033836 1.7772072</span></span>
-<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt; B4      1 1.3007239 1.3827662 6.3279338</span></span>
-<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt; B5      1 1.3007239 1.3827662 6.3279338</span></span></code></pre></div>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co">#&gt; Aggregate fixed-base price index for 8 levels over 4 time periods </span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt;    202001    202002    202003    202004</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; 1       1 1.3007239 1.3827662 3.7815355</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt; 11      1 1.3007239 1.3827662 2.1771866</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; 12      1 1.3007239 1.3827662 6.3279338</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; B1      1 0.8949097 0.2991629 0.4710366</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt; B2      1 1.3007239 1.3827662 3.8308934</span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt; B3      1 2.0200036 3.3033836 1.7772072</span></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt; B4      1 1.3007239 1.3827662 6.3279338</span></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt; B5      1 1.3007239 1.3827662 6.3279338</span></span></code></pre></div>
 <p>This gives almost the same result as directly manipulating the index
 as a matrix, except that the former returns an index object (not a
 matrix).</p>
@@ -503,28 +510,31 @@ the <code>rebase()</code> function. For example, rebasing the index so
 that 202004 is the base period just requires dividing the chained index
 by the slice for 202004.</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">rebase</span>(ms_index_chained, ms_index_chained[, <span class="st">&quot;202004&quot;</span>])</span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="co">#&gt;       202001    202002    202003 202004</span></span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="co">#&gt; 1  0.2644428 0.3439671 0.3656626      1</span></span>
-<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="co">#&gt; 11 0.4593084 0.5974334 0.6351161      1</span></span>
-<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="co">#&gt; 12 0.1580295 0.2055527 0.2185178      1</span></span>
-<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="co">#&gt; B1 2.1229774 1.8998731 0.6351161      1</span></span>
-<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co">#&gt; B2 0.2610357 0.3395354 0.3609514      1</span></span>
-<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="co">#&gt; B3 0.5626806 1.1366169 1.8587499      1</span></span>
-<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="co">#&gt; B4 0.1580295 0.2055527 0.2185178      1</span></span>
-<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="co">#&gt; B5 0.1580295 0.2055527 0.2185178      1</span></span></code></pre></div>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="co">#&gt; Aggregate fixed-base price index for 8 levels over 4 time periods </span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="co">#&gt;       202001    202002    202003 202004</span></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="co">#&gt; 1  0.2644428 0.3439671 0.3656626      1</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="co">#&gt; 11 0.4593084 0.5974334 0.6351161      1</span></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="co">#&gt; 12 0.1580295 0.2055527 0.2185178      1</span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co">#&gt; B1 2.1229774 1.8998731 0.6351161      1</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="co">#&gt; B2 0.2610357 0.3395354 0.3609514      1</span></span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="co">#&gt; B3 0.5626806 1.1366169 1.8587499      1</span></span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="co">#&gt; B4 0.1580295 0.2055527 0.2185178      1</span></span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co">#&gt; B5 0.1580295 0.2055527 0.2185178      1</span></span></code></pre></div>
 <p>In some cases the base period is the average of several periods;
 setting the base period to the second half of 2020 just requires
 dividing by the row-wise mean.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">rebase</span>(ms_index_chained, <span class="fu">rowMeans</span>(<span class="fu">as.matrix</span>(ms_index_chained)[, <span class="fu">c</span>(<span class="st">&quot;202003&quot;</span>, <span class="st">&quot;202004&quot;</span>)]))</span>
-<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="co">#&gt;       202001    202002    202003    202004</span></span>
-<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="co">#&gt; 1  0.3872740 0.5037366 0.5355095 1.4644905</span></span>
-<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="co">#&gt; 11 0.5618052 0.7307535 0.7768452 1.2231548</span></span>
-<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="co">#&gt; 12 0.2593798 0.3373815 0.3586616 1.6413384</span></span>
-<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="co">#&gt; B1 2.5967299 2.3238388 0.7768452 1.2231548</span></span>
-<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="co">#&gt; B2 0.3836077 0.4989677 0.5304398 1.4695602</span></span>
-<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="co">#&gt; B3 0.3936550 0.7951845 1.3003935 0.6996065</span></span>
-<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a><span class="co">#&gt; B4 0.2593798 0.3373815 0.3586616 1.6413384</span></span>
-<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a><span class="co">#&gt; B5 0.2593798 0.3373815 0.3586616 1.6413384</span></span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">rebase</span>(ms_index_chained,</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>       <span class="fu">rowMeans</span>(<span class="fu">as.matrix</span>(ms_index_chained)[, <span class="fu">c</span>(<span class="st">&quot;202003&quot;</span>, <span class="st">&quot;202004&quot;</span>)]))</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="co">#&gt; Aggregate fixed-base price index for 8 levels over 4 time periods </span></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="co">#&gt;       202001    202002    202003    202004</span></span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="co">#&gt; 1  0.3872740 0.5037366 0.5355095 1.4644905</span></span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="co">#&gt; 11 0.5618052 0.7307535 0.7768452 1.2231548</span></span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="co">#&gt; 12 0.2593798 0.3373815 0.3586616 1.6413384</span></span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="co">#&gt; B1 2.5967299 2.3238388 0.7768452 1.2231548</span></span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a><span class="co">#&gt; B2 0.3836077 0.4989677 0.5304398 1.4695602</span></span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a><span class="co">#&gt; B3 0.3936550 0.7951845 1.3003935 0.6996065</span></span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a><span class="co">#&gt; B4 0.2593798 0.3373815 0.3586616 1.6413384</span></span>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a><span class="co">#&gt; B5 0.2593798 0.3373815 0.3586616 1.6413384</span></span></code></pre></div>
 </div>
 <div id="multi-dimensional-aggregation-structures" class="section level2">
 <h2>Multi-dimensional aggregation structures</h2>
@@ -549,34 +559,36 @@ of parental imputation.</p>
 <code>expand_classification()</code> function as before, just with an
 extra instruction to say that the last “digit” in the classification is
 two characters wide, not one.</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>(classification_sps <span class="ot">&lt;-</span> <span class="fu">expand_classification</span>(classification_sps, <span class="at">width =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">2</span>)))</span>
-<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="co">#&gt; [[1]]</span></span>
-<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a><span class="co">#&gt; [1] &quot;1&quot; &quot;1&quot; &quot;1&quot; &quot;1&quot; &quot;1&quot;</span></span>
-<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a><span class="co">#&gt; [[2]]</span></span>
-<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a><span class="co">#&gt; [1] &quot;11&quot; &quot;11&quot; &quot;11&quot; &quot;12&quot; &quot;12&quot;</span></span>
-<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a><span class="co">#&gt; [[3]]</span></span>
-<span id="cb12-9"><a href="#cb12-9" tabindex="-1"></a><span class="co">#&gt; [1] &quot;11TS&quot; &quot;11TA&quot; &quot;11TS&quot; &quot;12TS&quot; &quot;12TS&quot;</span></span>
-<span id="cb12-10"><a href="#cb12-10" tabindex="-1"></a>pias_sps <span class="ot">&lt;-</span> <span class="fu">with</span>(</span>
-<span id="cb12-11"><a href="#cb12-11" tabindex="-1"></a>  ms_weights, </span>
-<span id="cb12-12"><a href="#cb12-12" tabindex="-1"></a>  <span class="fu">aggregation_structure</span>(<span class="fu">c</span>(classification_sps, <span class="fu">list</span>(business)), weight)</span>
-<span id="cb12-13"><a href="#cb12-13" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>(classification_sps <span class="ot">&lt;-</span> <span class="fu">expand_classification</span>(classification_sps,</span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a>                                             <span class="at">width =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">2</span>)))</span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a><span class="co">#&gt; [[1]]</span></span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a><span class="co">#&gt; [1] &quot;1&quot; &quot;1&quot; &quot;1&quot; &quot;1&quot; &quot;1&quot;</span></span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a><span class="co">#&gt; [[2]]</span></span>
+<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a><span class="co">#&gt; [1] &quot;11&quot; &quot;11&quot; &quot;11&quot; &quot;12&quot; &quot;12&quot;</span></span>
+<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb12-9"><a href="#cb12-9" tabindex="-1"></a><span class="co">#&gt; [[3]]</span></span>
+<span id="cb12-10"><a href="#cb12-10" tabindex="-1"></a><span class="co">#&gt; [1] &quot;11TS&quot; &quot;11TA&quot; &quot;11TS&quot; &quot;12TS&quot; &quot;12TS&quot;</span></span>
+<span id="cb12-11"><a href="#cb12-11" tabindex="-1"></a>pias_sps <span class="ot">&lt;-</span> <span class="fu">with</span>(</span>
+<span id="cb12-12"><a href="#cb12-12" tabindex="-1"></a>  ms_weights, </span>
+<span id="cb12-13"><a href="#cb12-13" tabindex="-1"></a>  <span class="fu">aggregation_structure</span>(<span class="fu">c</span>(classification_sps, <span class="fu">list</span>(business)), weight)</span>
+<span id="cb12-14"><a href="#cb12-14" tabindex="-1"></a>)</span></code></pre></div>
 <p>The elemental indexes can now be aggregated according to this new
 aggregation structure.</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="fu">aggregate</span>(ms_epr, pias_sps, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a><span class="co">#&gt;      202001    202002    202003   202004</span></span>
-<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a><span class="co">#&gt; 1         1 1.3007239 1.0630743 2.684412</span></span>
-<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a><span class="co">#&gt; 11        1 1.3007239 1.0630743 1.492443</span></span>
-<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a><span class="co">#&gt; 12        1 1.3007239 1.0630743 4.576286</span></span>
-<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a><span class="co">#&gt; 11TA      1 1.3007239 1.0630743 2.770456</span></span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a><span class="co">#&gt; Aggregate period-over-period price index for 11 levels over 4 time periods </span></span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a><span class="co">#&gt;      202001    202002    202003   202004</span></span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a><span class="co">#&gt; 1         1 1.3007239 1.0630743 2.684412</span></span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a><span class="co">#&gt; 11        1 1.3007239 1.0630743 1.492443</span></span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a><span class="co">#&gt; 12        1 1.3007239 1.0630743 4.576286</span></span>
 <span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a><span class="co">#&gt; 11TS      1 1.3007239 1.0630743 0.537996</span></span>
-<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a><span class="co">#&gt; 12TS      1 1.3007239 1.0630743 4.576286</span></span>
-<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a><span class="co">#&gt; B1        1 0.8949097 0.3342939 0.537996</span></span>
-<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a><span class="co">#&gt; B2        1 1.3007239 1.0630743 2.770456</span></span>
-<span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a><span class="co">#&gt; B3        1 2.0200036 1.6353355 0.537996</span></span>
-<span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a><span class="co">#&gt; B4        1 1.3007239 1.0630743 4.576286</span></span>
-<span id="cb13-13"><a href="#cb13-13" tabindex="-1"></a><span class="co">#&gt; B5        1 1.3007239 1.0630743 4.576286</span></span></code></pre></div>
+<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a><span class="co">#&gt; 11TA      1 1.3007239 1.0630743 2.770456</span></span>
+<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a><span class="co">#&gt; 12TS      1 1.3007239 1.0630743 4.576286</span></span>
+<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a><span class="co">#&gt; B1        1 0.8949097 0.3342939 0.537996</span></span>
+<span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a><span class="co">#&gt; B2        1 1.3007239 1.0630743 2.770456</span></span>
+<span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a><span class="co">#&gt; B3        1 2.0200036 1.6353355 0.537996</span></span>
+<span id="cb13-13"><a href="#cb13-13" tabindex="-1"></a><span class="co">#&gt; B4        1 1.3007239 1.0630743 4.576286</span></span>
+<span id="cb13-14"><a href="#cb13-14" tabindex="-1"></a><span class="co">#&gt; B5        1 1.3007239 1.0630743 4.576286</span></span></code></pre></div>
 </div>
 <div id="non-parental-imputation-during-aggregation" class="section level2">
 <h2>Non-parental imputation during aggregation</h2>
@@ -594,22 +606,24 @@ as if the index was a matrix.</p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a>ms_epr2 <span class="ot">&lt;-</span> ms_epr</span>
 <span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>ms_epr2[<span class="st">&quot;B2&quot;</span>, <span class="dv">2</span><span class="sc">:</span><span class="dv">3</span>] <span class="ot">&lt;-</span> <span class="dv">1</span></span>
 <span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a>ms_epr2</span>
-<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="co">#&gt;    202001    202002    202003   202004</span></span>
-<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a><span class="co">#&gt; B1      1 0.8949097 0.3342939      NaN</span></span>
-<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a><span class="co">#&gt; B2      1 1.0000000 1.0000000 2.770456</span></span>
-<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a><span class="co">#&gt; B3      1 2.0200036 1.6353355 0.537996</span></span>
-<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a><span class="co">#&gt; B4    NaN       NaN       NaN 4.576286</span></span></code></pre></div>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="co">#&gt; Period-over-period price index for 4 levels over 4 time periods </span></span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a><span class="co">#&gt;    202001    202002    202003   202004</span></span>
+<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a><span class="co">#&gt; B1      1 0.8949097 0.3342939      NaN</span></span>
+<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a><span class="co">#&gt; B2      1 1.0000000 1.0000000 2.770456</span></span>
+<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a><span class="co">#&gt; B3      1 2.0200036 1.6353355 0.537996</span></span>
+<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a><span class="co">#&gt; B4    NaN       NaN       NaN 4.576286</span></span></code></pre></div>
 <p>The index can now be aggregated as usual.</p>
 <div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="fu">aggregate</span>(ms_epr2, pias, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a><span class="co">#&gt;    202001    202002    202003   202004</span></span>
-<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a><span class="co">#&gt; 1       1 1.1721550 1.0400686 2.626560</span></span>
-<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="co">#&gt; 11      1 1.1721550 1.0400686 1.398142</span></span>
-<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a><span class="co">#&gt; 12      1 1.1721550 1.0400686 4.576286</span></span>
-<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a><span class="co">#&gt; B1      1 0.8949097 0.3342939 1.398142</span></span>
-<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a><span class="co">#&gt; B2      1 1.0000000 1.0000000 2.770456</span></span>
-<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a><span class="co">#&gt; B3      1 2.0200036 1.6353355 0.537996</span></span>
-<span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a><span class="co">#&gt; B4      1 1.1721550 1.0400686 4.576286</span></span>
-<span id="cb15-10"><a href="#cb15-10" tabindex="-1"></a><span class="co">#&gt; B5      1 1.1721550 1.0400686 4.576286</span></span></code></pre></div>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a><span class="co">#&gt; Aggregate period-over-period price index for 8 levels over 4 time periods </span></span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a><span class="co">#&gt;    202001    202002    202003   202004</span></span>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="co">#&gt; 1       1 1.1721550 1.0400686 2.626560</span></span>
+<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a><span class="co">#&gt; 11      1 1.1721550 1.0400686 1.398142</span></span>
+<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a><span class="co">#&gt; 12      1 1.1721550 1.0400686 4.576286</span></span>
+<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a><span class="co">#&gt; B1      1 0.8949097 0.3342939 1.398142</span></span>
+<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a><span class="co">#&gt; B2      1 1.0000000 1.0000000 2.770456</span></span>
+<span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a><span class="co">#&gt; B3      1 2.0200036 1.6353355 0.537996</span></span>
+<span id="cb15-10"><a href="#cb15-10" tabindex="-1"></a><span class="co">#&gt; B4      1 1.1721550 1.0400686 4.576286</span></span>
+<span id="cb15-11"><a href="#cb15-11" tabindex="-1"></a><span class="co">#&gt; B5      1 1.1721550 1.0400686 4.576286</span></span></code></pre></div>
 </div>
 <div id="alternate-index-number-formulas" class="section level2">
 <h2>Alternate index-number formulas</h2>
@@ -621,22 +635,26 @@ relatives) is the main competitor to the Jevons, and requires specifying
 the order of the index <code>r</code> when calling
 <code>elemental_index()</code>. An order of 1 corresponds to an
 arithmetic mean.</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="fu">with</span>(ms_prices, <span class="fu">elemental_index</span>(relative, period, business, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">r =</span> <span class="dv">1</span>))</span>
-<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a><span class="co">#&gt;    202001     202002    202003   202004</span></span>
-<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a><span class="co">#&gt; B1      1  0.8949097 0.3342939      NaN</span></span>
-<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a><span class="co">#&gt; B2      1        NaN       NaN 5.155942</span></span>
-<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a><span class="co">#&gt; B3      1 23.7480455 2.4900997 0.607197</span></span>
-<span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a><span class="co">#&gt; B4    NaN        NaN       NaN 9.368610</span></span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="fu">with</span>(ms_prices, </span>
+<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a>     <span class="fu">elemental_index</span>(relative, period, business, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">r =</span> <span class="dv">1</span>))</span>
+<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a><span class="co">#&gt; Period-over-period price index for 4 levels over 4 time periods </span></span>
+<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a><span class="co">#&gt;    202001     202002    202003   202004</span></span>
+<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a><span class="co">#&gt; B1      1  0.8949097 0.3342939      NaN</span></span>
+<span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a><span class="co">#&gt; B2      1        NaN       NaN 5.155942</span></span>
+<span id="cb16-7"><a href="#cb16-7" tabindex="-1"></a><span class="co">#&gt; B3      1 23.7480455 2.4900997 0.607197</span></span>
+<span id="cb16-8"><a href="#cb16-8" tabindex="-1"></a><span class="co">#&gt; B4    NaN        NaN       NaN 9.368610</span></span></code></pre></div>
 <p>The Coggeshall index (equally-weighted harmonic mean of price
 relatives) is another competitor to the Jevons, but is seldom used in
 practice. Despite it being more exotic, it is just as easy to make by
 specifying an order <code>r</code> of -1.</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a><span class="fu">with</span>(ms_prices, <span class="fu">elemental_index</span>(relative, period, business, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">r =</span> <span class="sc">-</span><span class="dv">1</span>))</span>
-<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a><span class="co">#&gt;    202001    202002    202003    202004</span></span>
-<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a><span class="co">#&gt; B1      1 0.8949097 0.3342939       NaN</span></span>
-<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a><span class="co">#&gt; B2      1       NaN       NaN 1.7205750</span></span>
-<span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a><span class="co">#&gt; B3      1 0.6591433 0.8185743 0.4746769</span></span>
-<span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a><span class="co">#&gt; B4    NaN       NaN       NaN 2.2353790</span></span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a><span class="fu">with</span>(ms_prices,</span>
+<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a>     <span class="fu">elemental_index</span>(relative, period, business, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">r =</span> <span class="sc">-</span><span class="dv">1</span>))</span>
+<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a><span class="co">#&gt; Period-over-period price index for 4 levels over 4 time periods </span></span>
+<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a><span class="co">#&gt;    202001    202002    202003    202004</span></span>
+<span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a><span class="co">#&gt; B1      1 0.8949097 0.3342939       NaN</span></span>
+<span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a><span class="co">#&gt; B2      1       NaN       NaN 1.7205750</span></span>
+<span id="cb17-7"><a href="#cb17-7" tabindex="-1"></a><span class="co">#&gt; B3      1 0.6591433 0.8185743 0.4746769</span></span>
+<span id="cb17-8"><a href="#cb17-8" tabindex="-1"></a><span class="co">#&gt; B4    NaN       NaN       NaN 2.2353790</span></span></code></pre></div>
 <p>The type of mean used to aggregate elemental indexes can be
 controlled in the same way in the call to <code>aggregate()</code>. The
 default makes an arithmetic index, but any type of generalized-mean
@@ -654,33 +672,39 @@ prices and quantities.</p>
 <span id="cb19-3"><a href="#cb19-3" tabindex="-1"></a>tw <span class="ot">&lt;-</span> <span class="fu">grouped</span>(<span class="fu">index_weights</span>(<span class="st">&quot;Tornqvist&quot;</span>))</span>
 <span id="cb19-4"><a href="#cb19-4" tabindex="-1"></a></span>
 <span id="cb19-5"><a href="#cb19-5" tabindex="-1"></a>ms_prices2[<span class="fu">c</span>(<span class="st">&quot;back_price&quot;</span>, <span class="st">&quot;back_quantity&quot;</span>)] <span class="ot">&lt;-</span> </span>
-<span id="cb19-6"><a href="#cb19-6" tabindex="-1"></a>  ms_prices2[<span class="fu">back_period</span>(ms_prices2<span class="sc">$</span>period, ms_prices2<span class="sc">$</span>product), <span class="fu">c</span>(<span class="st">&quot;price&quot;</span>, <span class="st">&quot;quantity&quot;</span>)]</span>
-<span id="cb19-7"><a href="#cb19-7" tabindex="-1"></a></span>
-<span id="cb19-8"><a href="#cb19-8" tabindex="-1"></a>ms_prices2 <span class="ot">&lt;-</span> <span class="fu">na.omit</span>(ms_prices2) <span class="co"># can&#39;t have NAs for Tornqvist weights</span></span>
-<span id="cb19-9"><a href="#cb19-9" tabindex="-1"></a></span>
-<span id="cb19-10"><a href="#cb19-10" tabindex="-1"></a>ms_prices2<span class="sc">$</span>weight <span class="ot">&lt;-</span> <span class="fu">with</span>(</span>
-<span id="cb19-11"><a href="#cb19-11" tabindex="-1"></a>  ms_prices2,</span>
-<span id="cb19-12"><a href="#cb19-12" tabindex="-1"></a>  <span class="fu">tw</span>(price, back_price, quantity, back_quantity, <span class="at">group =</span> <span class="fu">interaction</span>(period, business))</span>
-<span id="cb19-13"><a href="#cb19-13" tabindex="-1"></a>)</span></code></pre></div>
+<span id="cb19-6"><a href="#cb19-6" tabindex="-1"></a>  ms_prices2[<span class="fu">back_period</span>(ms_prices2<span class="sc">$</span>period, ms_prices2<span class="sc">$</span>product),</span>
+<span id="cb19-7"><a href="#cb19-7" tabindex="-1"></a>             <span class="fu">c</span>(<span class="st">&quot;price&quot;</span>, <span class="st">&quot;quantity&quot;</span>)]</span>
+<span id="cb19-8"><a href="#cb19-8" tabindex="-1"></a></span>
+<span id="cb19-9"><a href="#cb19-9" tabindex="-1"></a>ms_prices2 <span class="ot">&lt;-</span> <span class="fu">na.omit</span>(ms_prices2) <span class="co"># can&#39;t have NAs for Tornqvist weights</span></span>
+<span id="cb19-10"><a href="#cb19-10" tabindex="-1"></a></span>
+<span id="cb19-11"><a href="#cb19-11" tabindex="-1"></a>ms_prices2<span class="sc">$</span>weight <span class="ot">&lt;-</span> <span class="fu">with</span>(</span>
+<span id="cb19-12"><a href="#cb19-12" tabindex="-1"></a>  ms_prices2,</span>
+<span id="cb19-13"><a href="#cb19-13" tabindex="-1"></a>  <span class="fu">tw</span>(price, back_price, quantity, back_quantity,</span>
+<span id="cb19-14"><a href="#cb19-14" tabindex="-1"></a>     <span class="at">group =</span> <span class="fu">interaction</span>(period, business))</span>
+<span id="cb19-15"><a href="#cb19-15" tabindex="-1"></a>)</span></code></pre></div>
 <p>As <code>elemental_index()</code> makes a geometric index by default,
 all that is needed to make a Tornqvist index is to provide the
 weights.</p>
 <div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a><span class="fu">with</span>(ms_prices2, <span class="fu">elemental_index</span>(price <span class="sc">/</span> back_price, period, business, weight))</span>
-<span id="cb20-2"><a href="#cb20-2" tabindex="-1"></a><span class="co">#&gt;    202001    202002    202003   202004</span></span>
-<span id="cb20-3"><a href="#cb20-3" tabindex="-1"></a><span class="co">#&gt; B1      1 0.8949097 0.3342939      NaN</span></span>
-<span id="cb20-4"><a href="#cb20-4" tabindex="-1"></a><span class="co">#&gt; B2      1       NaN       NaN 2.165152</span></span>
-<span id="cb20-5"><a href="#cb20-5" tabindex="-1"></a><span class="co">#&gt; B3      1 0.9520982 1.5913929 0.542372</span></span>
-<span id="cb20-6"><a href="#cb20-6" tabindex="-1"></a><span class="co">#&gt; B4    NaN       NaN       NaN 5.904237</span></span></code></pre></div>
+<span id="cb20-2"><a href="#cb20-2" tabindex="-1"></a><span class="co">#&gt; Period-over-period price index for 4 levels over 4 time periods </span></span>
+<span id="cb20-3"><a href="#cb20-3" tabindex="-1"></a><span class="co">#&gt;    202001    202002    202003   202004</span></span>
+<span id="cb20-4"><a href="#cb20-4" tabindex="-1"></a><span class="co">#&gt; B1      1 0.8949097 0.3342939      NaN</span></span>
+<span id="cb20-5"><a href="#cb20-5" tabindex="-1"></a><span class="co">#&gt; B2      1       NaN       NaN 2.165152</span></span>
+<span id="cb20-6"><a href="#cb20-6" tabindex="-1"></a><span class="co">#&gt; B3      1 0.9520982 1.5913929 0.542372</span></span>
+<span id="cb20-7"><a href="#cb20-7" tabindex="-1"></a><span class="co">#&gt; B4    NaN       NaN       NaN 5.904237</span></span></code></pre></div>
 </div>
 <div id="percent-change-contributions" class="section level2">
 <h2>Percent-change contributions</h2>
 <p>It’s often convenient to decompose an index into the (additive)
-contribution of each price relative, also known as the Percent-change
+contribution of each price relative, also known as the percent-change
 contributions. This can be done with the same work flow as in the
 previous examples, specifying <code>contrib = TRUE</code> when calling
 <code>elemental_index()</code>.</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a>ms_epr <span class="ot">&lt;-</span> <span class="fu">with</span>(ms_prices, <span class="fu">elemental_index</span>(relative, period, business, <span class="at">contrib =</span> <span class="cn">TRUE</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span></code></pre></div>
-<p>As with index values, Percent-change contributions for a given level
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a>ms_epr <span class="ot">&lt;-</span> <span class="fu">with</span>(</span>
+<span id="cb21-2"><a href="#cb21-2" tabindex="-1"></a>  ms_prices,</span>
+<span id="cb21-3"><a href="#cb21-3" tabindex="-1"></a>  <span class="fu">elemental_index</span>(relative, period, business, <span class="at">contrib =</span> <span class="cn">TRUE</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb21-4"><a href="#cb21-4" tabindex="-1"></a>)</span></code></pre></div>
+<p>As with index values, percent-change contributions for a given level
 of the index can be extracted as a matrix.</p>
 <div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a><span class="fu">contrib</span>(ms_epr)</span>
 <span id="cb22-2"><a href="#cb22-2" tabindex="-1"></a><span class="co">#&gt;   202001     202002     202003 202004</span></span>
@@ -688,7 +712,7 @@ of the index can be extracted as a matrix.</p>
 <span id="cb22-4"><a href="#cb22-4" tabindex="-1"></a><span class="co">#&gt; 2     NA         NA -0.6657061      0</span></span>
 <span id="cb22-5"><a href="#cb22-5" tabindex="-1"></a><span class="co">#&gt; 3      0 -0.1050903         NA     NA</span></span></code></pre></div>
 <p>Aggregating the elemental indexes automatically aggregates
-Percent-change contributions, so no extra steps are needed after the
+percent-change contributions, so no extra steps are needed after the
 elemental indexes are made.</p>
 </div>
 <div id="updating-a-basket" class="section level2">
@@ -706,52 +730,57 @@ example that just splits the <code>ms_prices</code> data in two.</p>
 <p>The index for the first basket can be calculate as usual.</p>
 <div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" tabindex="-1"></a>ms_epr1 <span class="ot">&lt;-</span> <span class="fu">with</span>(</span>
 <span id="cb24-2"><a href="#cb24-2" tabindex="-1"></a>  ms_prices1, </span>
-<span id="cb24-3"><a href="#cb24-3" tabindex="-1"></a>  <span class="fu">elemental_index</span>(<span class="fu">price_relative</span>(price, period, product), period, business, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb24-4"><a href="#cb24-4" tabindex="-1"></a>)</span>
-<span id="cb24-5"><a href="#cb24-5" tabindex="-1"></a></span>
-<span id="cb24-6"><a href="#cb24-6" tabindex="-1"></a>(ms_index1 <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(ms_epr1, pias, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
-<span id="cb24-7"><a href="#cb24-7" tabindex="-1"></a><span class="co">#&gt;    202001    202002    202003</span></span>
-<span id="cb24-8"><a href="#cb24-8" tabindex="-1"></a><span class="co">#&gt; 1       1 1.3007239 1.0630743</span></span>
-<span id="cb24-9"><a href="#cb24-9" tabindex="-1"></a><span class="co">#&gt; 11      1 1.3007239 1.0630743</span></span>
-<span id="cb24-10"><a href="#cb24-10" tabindex="-1"></a><span class="co">#&gt; 12      1 1.3007239 1.0630743</span></span>
-<span id="cb24-11"><a href="#cb24-11" tabindex="-1"></a><span class="co">#&gt; B1      1 0.8949097 0.3342939</span></span>
-<span id="cb24-12"><a href="#cb24-12" tabindex="-1"></a><span class="co">#&gt; B2      1 1.3007239 1.0630743</span></span>
-<span id="cb24-13"><a href="#cb24-13" tabindex="-1"></a><span class="co">#&gt; B3      1 2.0200036 1.6353355</span></span>
-<span id="cb24-14"><a href="#cb24-14" tabindex="-1"></a><span class="co">#&gt; B4      1 1.3007239 1.0630743</span></span>
-<span id="cb24-15"><a href="#cb24-15" tabindex="-1"></a><span class="co">#&gt; B5      1 1.3007239 1.0630743</span></span></code></pre></div>
+<span id="cb24-3"><a href="#cb24-3" tabindex="-1"></a>  <span class="fu">elemental_index</span>(<span class="fu">price_relative</span>(price, period, product), period, business,</span>
+<span id="cb24-4"><a href="#cb24-4" tabindex="-1"></a>                  <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb24-5"><a href="#cb24-5" tabindex="-1"></a>)</span>
+<span id="cb24-6"><a href="#cb24-6" tabindex="-1"></a></span>
+<span id="cb24-7"><a href="#cb24-7" tabindex="-1"></a>(ms_index1 <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(ms_epr1, pias, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb24-8"><a href="#cb24-8" tabindex="-1"></a><span class="co">#&gt; Aggregate period-over-period price index for 8 levels over 3 time periods </span></span>
+<span id="cb24-9"><a href="#cb24-9" tabindex="-1"></a><span class="co">#&gt;    202001    202002    202003</span></span>
+<span id="cb24-10"><a href="#cb24-10" tabindex="-1"></a><span class="co">#&gt; 1       1 1.3007239 1.0630743</span></span>
+<span id="cb24-11"><a href="#cb24-11" tabindex="-1"></a><span class="co">#&gt; 11      1 1.3007239 1.0630743</span></span>
+<span id="cb24-12"><a href="#cb24-12" tabindex="-1"></a><span class="co">#&gt; 12      1 1.3007239 1.0630743</span></span>
+<span id="cb24-13"><a href="#cb24-13" tabindex="-1"></a><span class="co">#&gt; B1      1 0.8949097 0.3342939</span></span>
+<span id="cb24-14"><a href="#cb24-14" tabindex="-1"></a><span class="co">#&gt; B2      1 1.3007239 1.0630743</span></span>
+<span id="cb24-15"><a href="#cb24-15" tabindex="-1"></a><span class="co">#&gt; B3      1 2.0200036 1.6353355</span></span>
+<span id="cb24-16"><a href="#cb24-16" tabindex="-1"></a><span class="co">#&gt; B4      1 1.3007239 1.0630743</span></span>
+<span id="cb24-17"><a href="#cb24-17" tabindex="-1"></a><span class="co">#&gt; B5      1 1.3007239 1.0630743</span></span></code></pre></div>
 <p>Nothing special needs to be done to make the elemental indexes for
 the new basket, but it’s easier to remove the index values of 1 for
 quarter 3 2020.</p>
 <div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" tabindex="-1"></a>ms_epr2 <span class="ot">&lt;-</span> <span class="fu">with</span>(</span>
-<span id="cb25-2"><a href="#cb25-2" tabindex="-1"></a>  <span class="fu">subset</span>(<span class="fu">transform</span>(ms_prices2, <span class="at">rel =</span> <span class="fu">price_relative</span>(price, period, product)), period <span class="sc">&gt;</span> <span class="st">&quot;202003&quot;</span>),</span>
-<span id="cb25-3"><a href="#cb25-3" tabindex="-1"></a>  <span class="fu">elemental_index</span>(rel, period, business, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb25-4"><a href="#cb25-4" tabindex="-1"></a>)</span></code></pre></div>
+<span id="cb25-2"><a href="#cb25-2" tabindex="-1"></a>  <span class="fu">subset</span>(<span class="fu">transform</span>(ms_prices2, <span class="at">rel =</span> <span class="fu">price_relative</span>(price, period, product)),</span>
+<span id="cb25-3"><a href="#cb25-3" tabindex="-1"></a>         period <span class="sc">&gt;</span> <span class="st">&quot;202003&quot;</span>),</span>
+<span id="cb25-4"><a href="#cb25-4" tabindex="-1"></a>  <span class="fu">elemental_index</span>(rel, period, business, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb25-5"><a href="#cb25-5" tabindex="-1"></a>)</span></code></pre></div>
 <p>Aggregating these elemental indexes, however, requires an aggregation
 structure. The results of the first example can be reproduced by simply
 “price updating” the original weights, then building the aggregation
 structure as usual.</p>
 <div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" tabindex="-1"></a>(ms_index2 <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(ms_epr2, <span class="fu">update</span>(pias, ms_index1), <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
-<span id="cb26-2"><a href="#cb26-2" tabindex="-1"></a><span class="co">#&gt;      202004</span></span>
-<span id="cb26-3"><a href="#cb26-3" tabindex="-1"></a><span class="co">#&gt; 1  2.734761</span></span>
-<span id="cb26-4"><a href="#cb26-4" tabindex="-1"></a><span class="co">#&gt; 11 1.574515</span></span>
-<span id="cb26-5"><a href="#cb26-5" tabindex="-1"></a><span class="co">#&gt; 12 4.576286</span></span>
-<span id="cb26-6"><a href="#cb26-6" tabindex="-1"></a><span class="co">#&gt; B1 1.574515</span></span>
-<span id="cb26-7"><a href="#cb26-7" tabindex="-1"></a><span class="co">#&gt; B2 2.770456</span></span>
-<span id="cb26-8"><a href="#cb26-8" tabindex="-1"></a><span class="co">#&gt; B3 0.537996</span></span>
-<span id="cb26-9"><a href="#cb26-9" tabindex="-1"></a><span class="co">#&gt; B4 4.576286</span></span>
-<span id="cb26-10"><a href="#cb26-10" tabindex="-1"></a><span class="co">#&gt; B5 4.576286</span></span></code></pre></div>
+<span id="cb26-2"><a href="#cb26-2" tabindex="-1"></a><span class="co">#&gt; Aggregate period-over-period price index for 8 levels over 1 time periods </span></span>
+<span id="cb26-3"><a href="#cb26-3" tabindex="-1"></a><span class="co">#&gt;      202004</span></span>
+<span id="cb26-4"><a href="#cb26-4" tabindex="-1"></a><span class="co">#&gt; 1  2.734761</span></span>
+<span id="cb26-5"><a href="#cb26-5" tabindex="-1"></a><span class="co">#&gt; 11 1.574515</span></span>
+<span id="cb26-6"><a href="#cb26-6" tabindex="-1"></a><span class="co">#&gt; 12 4.576286</span></span>
+<span id="cb26-7"><a href="#cb26-7" tabindex="-1"></a><span class="co">#&gt; B1 1.574515</span></span>
+<span id="cb26-8"><a href="#cb26-8" tabindex="-1"></a><span class="co">#&gt; B2 2.770456</span></span>
+<span id="cb26-9"><a href="#cb26-9" tabindex="-1"></a><span class="co">#&gt; B3 0.537996</span></span>
+<span id="cb26-10"><a href="#cb26-10" tabindex="-1"></a><span class="co">#&gt; B4 4.576286</span></span>
+<span id="cb26-11"><a href="#cb26-11" tabindex="-1"></a><span class="co">#&gt; B5 4.576286</span></span></code></pre></div>
 <p>This produces two sets of period-over-period indexes that can be
 stacked together and then chained.</p>
 <div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" tabindex="-1"></a><span class="fu">chain</span>(<span class="fu">stack</span>(ms_index1, ms_index2))</span>
-<span id="cb27-2"><a href="#cb27-2" tabindex="-1"></a><span class="co">#&gt;    202001    202002    202003    202004</span></span>
-<span id="cb27-3"><a href="#cb27-3" tabindex="-1"></a><span class="co">#&gt; 1       1 1.3007239 1.3827662 3.7815355</span></span>
-<span id="cb27-4"><a href="#cb27-4" tabindex="-1"></a><span class="co">#&gt; 11      1 1.3007239 1.3827662 2.1771866</span></span>
-<span id="cb27-5"><a href="#cb27-5" tabindex="-1"></a><span class="co">#&gt; 12      1 1.3007239 1.3827662 6.3279338</span></span>
-<span id="cb27-6"><a href="#cb27-6" tabindex="-1"></a><span class="co">#&gt; B1      1 0.8949097 0.2991629 0.4710366</span></span>
-<span id="cb27-7"><a href="#cb27-7" tabindex="-1"></a><span class="co">#&gt; B2      1 1.3007239 1.3827662 3.8308934</span></span>
-<span id="cb27-8"><a href="#cb27-8" tabindex="-1"></a><span class="co">#&gt; B3      1 2.0200036 3.3033836 1.7772072</span></span>
-<span id="cb27-9"><a href="#cb27-9" tabindex="-1"></a><span class="co">#&gt; B4      1 1.3007239 1.3827662 6.3279338</span></span>
-<span id="cb27-10"><a href="#cb27-10" tabindex="-1"></a><span class="co">#&gt; B5      1 1.3007239 1.3827662 6.3279338</span></span></code></pre></div>
+<span id="cb27-2"><a href="#cb27-2" tabindex="-1"></a><span class="co">#&gt; Aggregate fixed-base price index for 8 levels over 4 time periods </span></span>
+<span id="cb27-3"><a href="#cb27-3" tabindex="-1"></a><span class="co">#&gt;    202001    202002    202003    202004</span></span>
+<span id="cb27-4"><a href="#cb27-4" tabindex="-1"></a><span class="co">#&gt; 1       1 1.3007239 1.3827662 3.7815355</span></span>
+<span id="cb27-5"><a href="#cb27-5" tabindex="-1"></a><span class="co">#&gt; 11      1 1.3007239 1.3827662 2.1771866</span></span>
+<span id="cb27-6"><a href="#cb27-6" tabindex="-1"></a><span class="co">#&gt; 12      1 1.3007239 1.3827662 6.3279338</span></span>
+<span id="cb27-7"><a href="#cb27-7" tabindex="-1"></a><span class="co">#&gt; B1      1 0.8949097 0.2991629 0.4710366</span></span>
+<span id="cb27-8"><a href="#cb27-8" tabindex="-1"></a><span class="co">#&gt; B2      1 1.3007239 1.3827662 3.8308934</span></span>
+<span id="cb27-9"><a href="#cb27-9" tabindex="-1"></a><span class="co">#&gt; B3      1 2.0200036 3.3033836 1.7772072</span></span>
+<span id="cb27-10"><a href="#cb27-10" tabindex="-1"></a><span class="co">#&gt; B4      1 1.3007239 1.3827662 6.3279338</span></span>
+<span id="cb27-11"><a href="#cb27-11" tabindex="-1"></a><span class="co">#&gt; B5      1 1.3007239 1.3827662 6.3279338</span></span></code></pre></div>
 </div>
 <div id="carry-forward-imputation" class="section level2">
 <h2>Carry-forward imputation</h2>
@@ -766,28 +795,31 @@ input, other types of imputations can be done prior to passing price
 relatives to this function.</p>
 <div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" tabindex="-1"></a>(ms_epr2 <span class="ot">&lt;-</span> <span class="fu">with</span>(</span>
 <span id="cb28-2"><a href="#cb28-2" tabindex="-1"></a>  ms_prices, </span>
-<span id="cb28-3"><a href="#cb28-3" tabindex="-1"></a>  <span class="fu">elemental_index</span>(<span class="fu">price_relative</span>(<span class="fu">carry_forward</span>(price, period, product), period, product), </span>
-<span id="cb28-4"><a href="#cb28-4" tabindex="-1"></a>                  period, business, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb28-5"><a href="#cb28-5" tabindex="-1"></a>  )</span>
-<span id="cb28-6"><a href="#cb28-6" tabindex="-1"></a>)</span>
-<span id="cb28-7"><a href="#cb28-7" tabindex="-1"></a><span class="co">#&gt;    202001    202002    202003   202004</span></span>
-<span id="cb28-8"><a href="#cb28-8" tabindex="-1"></a><span class="co">#&gt; B1      1 0.8949097 0.5781816 1.000000</span></span>
-<span id="cb28-9"><a href="#cb28-9" tabindex="-1"></a><span class="co">#&gt; B2      1 1.0000000 0.1777227 2.770456</span></span>
-<span id="cb28-10"><a href="#cb28-10" tabindex="-1"></a><span class="co">#&gt; B3      1 2.0200036 1.6353355 0.537996</span></span>
-<span id="cb28-11"><a href="#cb28-11" tabindex="-1"></a><span class="co">#&gt; B4    NaN       NaN       NaN 4.576286</span></span></code></pre></div>
+<span id="cb28-3"><a href="#cb28-3" tabindex="-1"></a>  <span class="fu">elemental_index</span>(</span>
+<span id="cb28-4"><a href="#cb28-4" tabindex="-1"></a>    <span class="fu">price_relative</span>(<span class="fu">carry_forward</span>(price, period, product),period, product),</span>
+<span id="cb28-5"><a href="#cb28-5" tabindex="-1"></a>    period, business, <span class="at">na.rm =</span> <span class="cn">TRUE</span></span>
+<span id="cb28-6"><a href="#cb28-6" tabindex="-1"></a>  )</span>
+<span id="cb28-7"><a href="#cb28-7" tabindex="-1"></a>))</span>
+<span id="cb28-8"><a href="#cb28-8" tabindex="-1"></a><span class="co">#&gt; Period-over-period price index for 4 levels over 4 time periods </span></span>
+<span id="cb28-9"><a href="#cb28-9" tabindex="-1"></a><span class="co">#&gt;    202001    202002    202003   202004</span></span>
+<span id="cb28-10"><a href="#cb28-10" tabindex="-1"></a><span class="co">#&gt; B1      1 0.8949097 0.5781816 1.000000</span></span>
+<span id="cb28-11"><a href="#cb28-11" tabindex="-1"></a><span class="co">#&gt; B2      1 1.0000000 0.1777227 2.770456</span></span>
+<span id="cb28-12"><a href="#cb28-12" tabindex="-1"></a><span class="co">#&gt; B3      1 2.0200036 1.6353355 0.537996</span></span>
+<span id="cb28-13"><a href="#cb28-13" tabindex="-1"></a><span class="co">#&gt; B4    NaN       NaN       NaN 4.576286</span></span></code></pre></div>
 <p>Aggregation follows the same steps as in the previous examples, with
 missing values set to be ignored in order to parentally impute missing
 elemental indexes.</p>
 <div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" tabindex="-1"></a>(ms_index <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(ms_epr2, pias, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
-<span id="cb29-2"><a href="#cb29-2" tabindex="-1"></a><span class="co">#&gt;    202001    202002    202003    202004</span></span>
-<span id="cb29-3"><a href="#cb29-3" tabindex="-1"></a><span class="co">#&gt; 1       1 1.1721550 0.8082981 2.2653614</span></span>
-<span id="cb29-4"><a href="#cb29-4" tabindex="-1"></a><span class="co">#&gt; 11      1 1.1721550 0.8082981 0.8093718</span></span>
-<span id="cb29-5"><a href="#cb29-5" tabindex="-1"></a><span class="co">#&gt; 12      1 1.1721550 0.8082981 4.5762862</span></span>
-<span id="cb29-6"><a href="#cb29-6" tabindex="-1"></a><span class="co">#&gt; B1      1 0.8949097 0.5781816 1.0000000</span></span>
-<span id="cb29-7"><a href="#cb29-7" tabindex="-1"></a><span class="co">#&gt; B2      1 1.0000000 0.1777227 2.7704563</span></span>
-<span id="cb29-8"><a href="#cb29-8" tabindex="-1"></a><span class="co">#&gt; B3      1 2.0200036 1.6353355 0.5379960</span></span>
-<span id="cb29-9"><a href="#cb29-9" tabindex="-1"></a><span class="co">#&gt; B4      1 1.1721550 0.8082981 4.5762862</span></span>
-<span id="cb29-10"><a href="#cb29-10" tabindex="-1"></a><span class="co">#&gt; B5      1 1.1721550 0.8082981 4.5762862</span></span></code></pre></div>
+<span id="cb29-2"><a href="#cb29-2" tabindex="-1"></a><span class="co">#&gt; Aggregate period-over-period price index for 8 levels over 4 time periods </span></span>
+<span id="cb29-3"><a href="#cb29-3" tabindex="-1"></a><span class="co">#&gt;    202001    202002    202003    202004</span></span>
+<span id="cb29-4"><a href="#cb29-4" tabindex="-1"></a><span class="co">#&gt; 1       1 1.1721550 0.8082981 2.2653614</span></span>
+<span id="cb29-5"><a href="#cb29-5" tabindex="-1"></a><span class="co">#&gt; 11      1 1.1721550 0.8082981 0.8093718</span></span>
+<span id="cb29-6"><a href="#cb29-6" tabindex="-1"></a><span class="co">#&gt; 12      1 1.1721550 0.8082981 4.5762862</span></span>
+<span id="cb29-7"><a href="#cb29-7" tabindex="-1"></a><span class="co">#&gt; B1      1 0.8949097 0.5781816 1.0000000</span></span>
+<span id="cb29-8"><a href="#cb29-8" tabindex="-1"></a><span class="co">#&gt; B2      1 1.0000000 0.1777227 2.7704563</span></span>
+<span id="cb29-9"><a href="#cb29-9" tabindex="-1"></a><span class="co">#&gt; B3      1 2.0200036 1.6353355 0.5379960</span></span>
+<span id="cb29-10"><a href="#cb29-10" tabindex="-1"></a><span class="co">#&gt; B4      1 1.1721550 0.8082981 4.5762862</span></span>
+<span id="cb29-11"><a href="#cb29-11" tabindex="-1"></a><span class="co">#&gt; B5      1 1.1721550 0.8082981 4.5762862</span></span></code></pre></div>
 </div>
 <div id="calculating-an-index-from-multiple-sources" class="section level2">
 <h2>Calculating an index from multiple sources</h2>
@@ -806,32 +838,37 @@ usual recipe. Note that there is no data for business B4 in the first
 two periods, so the time periods need to be made explicit.</p>
 <div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" tabindex="-1"></a>ms_epr1 <span class="ot">&lt;-</span> <span class="fu">with</span>(</span>
 <span id="cb31-2"><a href="#cb31-2" tabindex="-1"></a>  ms_prices1, </span>
-<span id="cb31-3"><a href="#cb31-3" tabindex="-1"></a>  <span class="fu">elemental_index</span>(<span class="fu">price_relative</span>(price, period, product), period, business, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb31-4"><a href="#cb31-4" tabindex="-1"></a>)</span>
-<span id="cb31-5"><a href="#cb31-5" tabindex="-1"></a>ms_epr1</span>
-<span id="cb31-6"><a href="#cb31-6" tabindex="-1"></a><span class="co">#&gt;    202001    202002    202003   202004</span></span>
-<span id="cb31-7"><a href="#cb31-7" tabindex="-1"></a><span class="co">#&gt; B1      1 0.8949097 0.3342939      NaN</span></span>
-<span id="cb31-8"><a href="#cb31-8" tabindex="-1"></a><span class="co">#&gt; B2      1       NaN       NaN 2.770456</span></span>
-<span id="cb31-9"><a href="#cb31-9" tabindex="-1"></a><span class="co">#&gt; B3      1 2.0200036 1.6353355 0.537996</span></span>
-<span id="cb31-10"><a href="#cb31-10" tabindex="-1"></a>ms_epr2 <span class="ot">&lt;-</span> <span class="fu">with</span>(</span>
-<span id="cb31-11"><a href="#cb31-11" tabindex="-1"></a>  <span class="fu">transform</span>(ms_prices2, <span class="at">period =</span> <span class="fu">factor</span>(period, <span class="at">levels =</span> <span class="fu">time</span>(ms_epr1))), </span>
-<span id="cb31-12"><a href="#cb31-12" tabindex="-1"></a>  <span class="fu">elemental_index</span>(<span class="fu">price_relative</span>(price, period, product), period, business, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb31-13"><a href="#cb31-13" tabindex="-1"></a>)</span>
-<span id="cb31-14"><a href="#cb31-14" tabindex="-1"></a>ms_epr2</span>
-<span id="cb31-15"><a href="#cb31-15" tabindex="-1"></a><span class="co">#&gt;    202001 202002 202003   202004</span></span>
-<span id="cb31-16"><a href="#cb31-16" tabindex="-1"></a><span class="co">#&gt; B4    NaN    NaN    NaN 4.576286</span></span></code></pre></div>
+<span id="cb31-3"><a href="#cb31-3" tabindex="-1"></a>  <span class="fu">elemental_index</span>(<span class="fu">price_relative</span>(price, period, product),</span>
+<span id="cb31-4"><a href="#cb31-4" tabindex="-1"></a>                  period, business, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb31-5"><a href="#cb31-5" tabindex="-1"></a>)</span>
+<span id="cb31-6"><a href="#cb31-6" tabindex="-1"></a>ms_epr1</span>
+<span id="cb31-7"><a href="#cb31-7" tabindex="-1"></a><span class="co">#&gt; Period-over-period price index for 3 levels over 4 time periods </span></span>
+<span id="cb31-8"><a href="#cb31-8" tabindex="-1"></a><span class="co">#&gt;    202001    202002    202003   202004</span></span>
+<span id="cb31-9"><a href="#cb31-9" tabindex="-1"></a><span class="co">#&gt; B1      1 0.8949097 0.3342939      NaN</span></span>
+<span id="cb31-10"><a href="#cb31-10" tabindex="-1"></a><span class="co">#&gt; B2      1       NaN       NaN 2.770456</span></span>
+<span id="cb31-11"><a href="#cb31-11" tabindex="-1"></a><span class="co">#&gt; B3      1 2.0200036 1.6353355 0.537996</span></span>
+<span id="cb31-12"><a href="#cb31-12" tabindex="-1"></a>ms_epr2 <span class="ot">&lt;-</span> <span class="fu">with</span>(</span>
+<span id="cb31-13"><a href="#cb31-13" tabindex="-1"></a>  <span class="fu">transform</span>(ms_prices2, <span class="at">period =</span> <span class="fu">factor</span>(period, <span class="at">levels =</span> <span class="fu">time</span>(ms_epr1))), </span>
+<span id="cb31-14"><a href="#cb31-14" tabindex="-1"></a>  <span class="fu">elemental_index</span>(<span class="fu">price_relative</span>(price, period, product),</span>
+<span id="cb31-15"><a href="#cb31-15" tabindex="-1"></a>                  period, business, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb31-16"><a href="#cb31-16" tabindex="-1"></a>)</span>
+<span id="cb31-17"><a href="#cb31-17" tabindex="-1"></a>ms_epr2</span>
+<span id="cb31-18"><a href="#cb31-18" tabindex="-1"></a><span class="co">#&gt; Period-over-period price index for 1 levels over 4 time periods </span></span>
+<span id="cb31-19"><a href="#cb31-19" tabindex="-1"></a><span class="co">#&gt;    202001 202002 202003   202004</span></span>
+<span id="cb31-20"><a href="#cb31-20" tabindex="-1"></a><span class="co">#&gt; B4    NaN    NaN    NaN 4.576286</span></span></code></pre></div>
 <p>Once the elemental indexes are made, they can be merged together and
 then aggregated.</p>
 <div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" tabindex="-1"></a><span class="fu">aggregate</span>(<span class="fu">merge</span>(ms_epr1, ms_epr2), pias, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb32-2"><a href="#cb32-2" tabindex="-1"></a><span class="co">#&gt;    202001    202002    202003   202004</span></span>
-<span id="cb32-3"><a href="#cb32-3" tabindex="-1"></a><span class="co">#&gt; 1       1 1.3007239 1.0630743 2.734761</span></span>
-<span id="cb32-4"><a href="#cb32-4" tabindex="-1"></a><span class="co">#&gt; 11      1 1.3007239 1.0630743 1.574515</span></span>
-<span id="cb32-5"><a href="#cb32-5" tabindex="-1"></a><span class="co">#&gt; 12      1 1.3007239 1.0630743 4.576286</span></span>
-<span id="cb32-6"><a href="#cb32-6" tabindex="-1"></a><span class="co">#&gt; B1      1 0.8949097 0.3342939 1.574515</span></span>
-<span id="cb32-7"><a href="#cb32-7" tabindex="-1"></a><span class="co">#&gt; B2      1 1.3007239 1.0630743 2.770456</span></span>
-<span id="cb32-8"><a href="#cb32-8" tabindex="-1"></a><span class="co">#&gt; B3      1 2.0200036 1.6353355 0.537996</span></span>
-<span id="cb32-9"><a href="#cb32-9" tabindex="-1"></a><span class="co">#&gt; B4      1 1.3007239 1.0630743 4.576286</span></span>
-<span id="cb32-10"><a href="#cb32-10" tabindex="-1"></a><span class="co">#&gt; B5      1 1.3007239 1.0630743 4.576286</span></span></code></pre></div>
+<span id="cb32-2"><a href="#cb32-2" tabindex="-1"></a><span class="co">#&gt; Aggregate period-over-period price index for 8 levels over 4 time periods </span></span>
+<span id="cb32-3"><a href="#cb32-3" tabindex="-1"></a><span class="co">#&gt;    202001    202002    202003   202004</span></span>
+<span id="cb32-4"><a href="#cb32-4" tabindex="-1"></a><span class="co">#&gt; 1       1 1.3007239 1.0630743 2.734761</span></span>
+<span id="cb32-5"><a href="#cb32-5" tabindex="-1"></a><span class="co">#&gt; 11      1 1.3007239 1.0630743 1.574515</span></span>
+<span id="cb32-6"><a href="#cb32-6" tabindex="-1"></a><span class="co">#&gt; 12      1 1.3007239 1.0630743 4.576286</span></span>
+<span id="cb32-7"><a href="#cb32-7" tabindex="-1"></a><span class="co">#&gt; B1      1 0.8949097 0.3342939 1.574515</span></span>
+<span id="cb32-8"><a href="#cb32-8" tabindex="-1"></a><span class="co">#&gt; B2      1 1.3007239 1.0630743 2.770456</span></span>
+<span id="cb32-9"><a href="#cb32-9" tabindex="-1"></a><span class="co">#&gt; B3      1 2.0200036 1.6353355 0.537996</span></span>
+<span id="cb32-10"><a href="#cb32-10" tabindex="-1"></a><span class="co">#&gt; B4      1 1.3007239 1.0630743 4.576286</span></span>
+<span id="cb32-11"><a href="#cb32-11" tabindex="-1"></a><span class="co">#&gt; B5      1 1.3007239 1.0630743 4.576286</span></span></code></pre></div>
 <p>A slightly more complex case is when some of the input data are
 already a price index. For example, suppose the index values for
 businesses B4 and B5 come from some outside process, and are taken as
@@ -851,39 +888,42 @@ inputs.</p>
 <span id="cb33-13"><a href="#cb33-13" tabindex="-1"></a><span class="co">#&gt; 31 202004    B4 4.576286</span></span>
 <span id="cb33-14"><a href="#cb33-14" tabindex="-1"></a><span class="co">#&gt; 32 202004    B5 4.576286</span></span></code></pre></div>
 <p>All that is required is to pass the pre-existing indexes to
-<code>elemental_index()</code> to cast it into the correct form. This
-won’t affect their values, but will allow them to be merged with the
-other elemental indexes, and aggregated.</p>
-<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" tabindex="-1"></a>ms_epr2 <span class="ot">&lt;-</span> <span class="fu">with</span>(ms_prices2, <span class="fu">elemental_index</span>(value, period, level))</span>
+<code>as_index()</code> to cast them into the correct form. This won’t
+affect their values, but will allow them to be merged with the other
+elemental indexes, and aggregated.</p>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" tabindex="-1"></a>ms_epr2 <span class="ot">&lt;-</span> <span class="fu">as_index</span>(ms_prices2)</span>
 <span id="cb34-2"><a href="#cb34-2" tabindex="-1"></a><span class="fu">aggregate</span>(<span class="fu">merge</span>(ms_epr1, ms_epr2), pias, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb34-3"><a href="#cb34-3" tabindex="-1"></a><span class="co">#&gt;    202001    202002    202003   202004</span></span>
-<span id="cb34-4"><a href="#cb34-4" tabindex="-1"></a><span class="co">#&gt; 1       1 1.3007239 1.0630743 2.734761</span></span>
-<span id="cb34-5"><a href="#cb34-5" tabindex="-1"></a><span class="co">#&gt; 11      1 1.3007239 1.0630743 1.574515</span></span>
-<span id="cb34-6"><a href="#cb34-6" tabindex="-1"></a><span class="co">#&gt; 12      1 1.3007239 1.0630743 4.576286</span></span>
-<span id="cb34-7"><a href="#cb34-7" tabindex="-1"></a><span class="co">#&gt; B1      1 0.8949097 0.3342939 1.574515</span></span>
-<span id="cb34-8"><a href="#cb34-8" tabindex="-1"></a><span class="co">#&gt; B2      1 1.3007239 1.0630743 2.770456</span></span>
-<span id="cb34-9"><a href="#cb34-9" tabindex="-1"></a><span class="co">#&gt; B3      1 2.0200036 1.6353355 0.537996</span></span>
-<span id="cb34-10"><a href="#cb34-10" tabindex="-1"></a><span class="co">#&gt; B4      1 1.3007239 1.0630743 4.576286</span></span>
-<span id="cb34-11"><a href="#cb34-11" tabindex="-1"></a><span class="co">#&gt; B5      1 1.3007239 1.0630743 4.576286</span></span></code></pre></div>
+<span id="cb34-3"><a href="#cb34-3" tabindex="-1"></a><span class="co">#&gt; Aggregate period-over-period price index for 8 levels over 4 time periods </span></span>
+<span id="cb34-4"><a href="#cb34-4" tabindex="-1"></a><span class="co">#&gt;    202001    202002    202003   202004</span></span>
+<span id="cb34-5"><a href="#cb34-5" tabindex="-1"></a><span class="co">#&gt; 1       1 1.3007239 1.0630743 2.734761</span></span>
+<span id="cb34-6"><a href="#cb34-6" tabindex="-1"></a><span class="co">#&gt; 11      1 1.3007239 1.0630743 1.574515</span></span>
+<span id="cb34-7"><a href="#cb34-7" tabindex="-1"></a><span class="co">#&gt; 12      1 1.3007239 1.0630743 4.576286</span></span>
+<span id="cb34-8"><a href="#cb34-8" tabindex="-1"></a><span class="co">#&gt; B1      1 0.8949097 0.3342939 1.574515</span></span>
+<span id="cb34-9"><a href="#cb34-9" tabindex="-1"></a><span class="co">#&gt; B2      1 1.3007239 1.0630743 2.770456</span></span>
+<span id="cb34-10"><a href="#cb34-10" tabindex="-1"></a><span class="co">#&gt; B3      1 2.0200036 1.6353355 0.537996</span></span>
+<span id="cb34-11"><a href="#cb34-11" tabindex="-1"></a><span class="co">#&gt; B4      1 1.3007239 1.0630743 4.576286</span></span>
+<span id="cb34-12"><a href="#cb34-12" tabindex="-1"></a><span class="co">#&gt; B5      1 1.3007239 1.0630743 4.576286</span></span></code></pre></div>
 </div>
-<div id="paasche-index" class="section level2">
-<h2>Paasche index</h2>
+<div id="aggregating-a-paasche-index" class="section level2">
+<h2>Aggregating a Paasche index</h2>
 <p>All of the examples so far have used a single set of weights to
 aggregate an index. Although this is by far the most common case, there
-are situations where the weights to aggregate change every period. The
+are situations where the aggregation weights change every period. The
 Paasche index is the notable example, as the weights for aggregation are
 the current-period revenue shares in each period.</p>
-<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" tabindex="-1"></a>weights <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">period =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">&quot;202001&quot;</span>, <span class="st">&quot;202002&quot;</span>, <span class="st">&quot;202003&quot;</span>, <span class="st">&quot;202004&quot;</span>), <span class="at">each =</span> <span class="dv">5</span>),</span>
-<span id="cb35-2"><a href="#cb35-2" tabindex="-1"></a>                      <span class="at">classification =</span> ms_weights<span class="sc">$</span>classification,</span>
-<span id="cb35-3"><a href="#cb35-3" tabindex="-1"></a>                      <span class="at">weight =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">20</span>)</span>
-<span id="cb35-4"><a href="#cb35-4" tabindex="-1"></a><span class="fu">head</span>(weights)</span>
-<span id="cb35-5"><a href="#cb35-5" tabindex="-1"></a><span class="co">#&gt;   period classification weight</span></span>
-<span id="cb35-6"><a href="#cb35-6" tabindex="-1"></a><span class="co">#&gt; 1 202001             11      1</span></span>
-<span id="cb35-7"><a href="#cb35-7" tabindex="-1"></a><span class="co">#&gt; 2 202001             11      2</span></span>
-<span id="cb35-8"><a href="#cb35-8" tabindex="-1"></a><span class="co">#&gt; 3 202001             11      3</span></span>
-<span id="cb35-9"><a href="#cb35-9" tabindex="-1"></a><span class="co">#&gt; 4 202001             12      4</span></span>
-<span id="cb35-10"><a href="#cb35-10" tabindex="-1"></a><span class="co">#&gt; 5 202001             12      5</span></span>
-<span id="cb35-11"><a href="#cb35-11" tabindex="-1"></a><span class="co">#&gt; 6 202002             11      6</span></span></code></pre></div>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" tabindex="-1"></a>weights <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb35-2"><a href="#cb35-2" tabindex="-1"></a>  <span class="at">period =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">&quot;202001&quot;</span>, <span class="st">&quot;202002&quot;</span>, <span class="st">&quot;202003&quot;</span>, <span class="st">&quot;202004&quot;</span>), <span class="at">each =</span> <span class="dv">5</span>),</span>
+<span id="cb35-3"><a href="#cb35-3" tabindex="-1"></a>  <span class="at">classification =</span> ms_weights<span class="sc">$</span>classification,</span>
+<span id="cb35-4"><a href="#cb35-4" tabindex="-1"></a>  <span class="at">weight =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">20</span></span>
+<span id="cb35-5"><a href="#cb35-5" tabindex="-1"></a>)</span>
+<span id="cb35-6"><a href="#cb35-6" tabindex="-1"></a><span class="fu">head</span>(weights)</span>
+<span id="cb35-7"><a href="#cb35-7" tabindex="-1"></a><span class="co">#&gt;   period classification weight</span></span>
+<span id="cb35-8"><a href="#cb35-8" tabindex="-1"></a><span class="co">#&gt; 1 202001             11      1</span></span>
+<span id="cb35-9"><a href="#cb35-9" tabindex="-1"></a><span class="co">#&gt; 2 202001             11      2</span></span>
+<span id="cb35-10"><a href="#cb35-10" tabindex="-1"></a><span class="co">#&gt; 3 202001             11      3</span></span>
+<span id="cb35-11"><a href="#cb35-11" tabindex="-1"></a><span class="co">#&gt; 4 202001             12      4</span></span>
+<span id="cb35-12"><a href="#cb35-12" tabindex="-1"></a><span class="co">#&gt; 5 202001             12      5</span></span>
+<span id="cb35-13"><a href="#cb35-13" tabindex="-1"></a><span class="co">#&gt; 6 202002             11      6</span></span></code></pre></div>
 <p>The only new tools needed to deal with time-varying weights are the
 <code>stack()</code> and <code>unstack()</code> functions.
 <code>stack()</code> appends a later index series onto an earlier one
@@ -895,32 +935,36 @@ make the elemental indexes period-by-period can be dangerous when there
 are missing values.)</p>
 <div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" tabindex="-1"></a>(ms_epr <span class="ot">&lt;-</span> <span class="fu">unstack</span>(ms_epr))</span>
 <span id="cb36-2"><a href="#cb36-2" tabindex="-1"></a><span class="co">#&gt; $`202001`</span></span>
-<span id="cb36-3"><a href="#cb36-3" tabindex="-1"></a><span class="co">#&gt;    202001</span></span>
-<span id="cb36-4"><a href="#cb36-4" tabindex="-1"></a><span class="co">#&gt; B1      1</span></span>
-<span id="cb36-5"><a href="#cb36-5" tabindex="-1"></a><span class="co">#&gt; B2      1</span></span>
-<span id="cb36-6"><a href="#cb36-6" tabindex="-1"></a><span class="co">#&gt; B3      1</span></span>
-<span id="cb36-7"><a href="#cb36-7" tabindex="-1"></a><span class="co">#&gt; B4    NaN</span></span>
-<span id="cb36-8"><a href="#cb36-8" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb36-9"><a href="#cb36-9" tabindex="-1"></a><span class="co">#&gt; $`202002`</span></span>
-<span id="cb36-10"><a href="#cb36-10" tabindex="-1"></a><span class="co">#&gt;       202002</span></span>
-<span id="cb36-11"><a href="#cb36-11" tabindex="-1"></a><span class="co">#&gt; B1 0.8949097</span></span>
-<span id="cb36-12"><a href="#cb36-12" tabindex="-1"></a><span class="co">#&gt; B2       NaN</span></span>
-<span id="cb36-13"><a href="#cb36-13" tabindex="-1"></a><span class="co">#&gt; B3 2.0200036</span></span>
-<span id="cb36-14"><a href="#cb36-14" tabindex="-1"></a><span class="co">#&gt; B4       NaN</span></span>
-<span id="cb36-15"><a href="#cb36-15" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb36-16"><a href="#cb36-16" tabindex="-1"></a><span class="co">#&gt; $`202003`</span></span>
-<span id="cb36-17"><a href="#cb36-17" tabindex="-1"></a><span class="co">#&gt;       202003</span></span>
-<span id="cb36-18"><a href="#cb36-18" tabindex="-1"></a><span class="co">#&gt; B1 0.3342939</span></span>
-<span id="cb36-19"><a href="#cb36-19" tabindex="-1"></a><span class="co">#&gt; B2       NaN</span></span>
-<span id="cb36-20"><a href="#cb36-20" tabindex="-1"></a><span class="co">#&gt; B3 1.6353355</span></span>
-<span id="cb36-21"><a href="#cb36-21" tabindex="-1"></a><span class="co">#&gt; B4       NaN</span></span>
-<span id="cb36-22"><a href="#cb36-22" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb36-23"><a href="#cb36-23" tabindex="-1"></a><span class="co">#&gt; $`202004`</span></span>
-<span id="cb36-24"><a href="#cb36-24" tabindex="-1"></a><span class="co">#&gt;      202004</span></span>
-<span id="cb36-25"><a href="#cb36-25" tabindex="-1"></a><span class="co">#&gt; B1      NaN</span></span>
-<span id="cb36-26"><a href="#cb36-26" tabindex="-1"></a><span class="co">#&gt; B2 2.770456</span></span>
-<span id="cb36-27"><a href="#cb36-27" tabindex="-1"></a><span class="co">#&gt; B3 0.537996</span></span>
-<span id="cb36-28"><a href="#cb36-28" tabindex="-1"></a><span class="co">#&gt; B4 4.576286</span></span></code></pre></div>
+<span id="cb36-3"><a href="#cb36-3" tabindex="-1"></a><span class="co">#&gt; Period-over-period price index for 4 levels over 1 time periods </span></span>
+<span id="cb36-4"><a href="#cb36-4" tabindex="-1"></a><span class="co">#&gt;    202001</span></span>
+<span id="cb36-5"><a href="#cb36-5" tabindex="-1"></a><span class="co">#&gt; B1      1</span></span>
+<span id="cb36-6"><a href="#cb36-6" tabindex="-1"></a><span class="co">#&gt; B2      1</span></span>
+<span id="cb36-7"><a href="#cb36-7" tabindex="-1"></a><span class="co">#&gt; B3      1</span></span>
+<span id="cb36-8"><a href="#cb36-8" tabindex="-1"></a><span class="co">#&gt; B4    NaN</span></span>
+<span id="cb36-9"><a href="#cb36-9" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb36-10"><a href="#cb36-10" tabindex="-1"></a><span class="co">#&gt; $`202002`</span></span>
+<span id="cb36-11"><a href="#cb36-11" tabindex="-1"></a><span class="co">#&gt; Period-over-period price index for 4 levels over 1 time periods </span></span>
+<span id="cb36-12"><a href="#cb36-12" tabindex="-1"></a><span class="co">#&gt;       202002</span></span>
+<span id="cb36-13"><a href="#cb36-13" tabindex="-1"></a><span class="co">#&gt; B1 0.8949097</span></span>
+<span id="cb36-14"><a href="#cb36-14" tabindex="-1"></a><span class="co">#&gt; B2       NaN</span></span>
+<span id="cb36-15"><a href="#cb36-15" tabindex="-1"></a><span class="co">#&gt; B3 2.0200036</span></span>
+<span id="cb36-16"><a href="#cb36-16" tabindex="-1"></a><span class="co">#&gt; B4       NaN</span></span>
+<span id="cb36-17"><a href="#cb36-17" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb36-18"><a href="#cb36-18" tabindex="-1"></a><span class="co">#&gt; $`202003`</span></span>
+<span id="cb36-19"><a href="#cb36-19" tabindex="-1"></a><span class="co">#&gt; Period-over-period price index for 4 levels over 1 time periods </span></span>
+<span id="cb36-20"><a href="#cb36-20" tabindex="-1"></a><span class="co">#&gt;       202003</span></span>
+<span id="cb36-21"><a href="#cb36-21" tabindex="-1"></a><span class="co">#&gt; B1 0.3342939</span></span>
+<span id="cb36-22"><a href="#cb36-22" tabindex="-1"></a><span class="co">#&gt; B2       NaN</span></span>
+<span id="cb36-23"><a href="#cb36-23" tabindex="-1"></a><span class="co">#&gt; B3 1.6353355</span></span>
+<span id="cb36-24"><a href="#cb36-24" tabindex="-1"></a><span class="co">#&gt; B4       NaN</span></span>
+<span id="cb36-25"><a href="#cb36-25" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb36-26"><a href="#cb36-26" tabindex="-1"></a><span class="co">#&gt; $`202004`</span></span>
+<span id="cb36-27"><a href="#cb36-27" tabindex="-1"></a><span class="co">#&gt; Period-over-period price index for 4 levels over 1 time periods </span></span>
+<span id="cb36-28"><a href="#cb36-28" tabindex="-1"></a><span class="co">#&gt;      202004</span></span>
+<span id="cb36-29"><a href="#cb36-29" tabindex="-1"></a><span class="co">#&gt; B1      NaN</span></span>
+<span id="cb36-30"><a href="#cb36-30" tabindex="-1"></a><span class="co">#&gt; B2 2.770456</span></span>
+<span id="cb36-31"><a href="#cb36-31" tabindex="-1"></a><span class="co">#&gt; B3 0.537996</span></span>
+<span id="cb36-32"><a href="#cb36-32" tabindex="-1"></a><span class="co">#&gt; B4 4.576286</span></span></code></pre></div>
 <p>The second step is to make a sequence of aggregation structures for
 each set of weights.</p>
 <div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" tabindex="-1"></a>pias <span class="ot">&lt;-</span> <span class="fu">with</span>(weights, </span>
@@ -933,29 +977,87 @@ mapping the <code>aggregate()</code> function to each elemental index
 and aggregation structure, and then reducing the result with the
 <code>stack()</code> function.</p>
 <div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" tabindex="-1"></a>(paasche <span class="ot">&lt;-</span> <span class="fu">Reduce</span>(stack, <span class="fu">Map</span>(aggregate, ms_epr, pias, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">r =</span> <span class="sc">-</span><span class="dv">1</span>)))</span>
-<span id="cb38-2"><a href="#cb38-2" tabindex="-1"></a><span class="co">#&gt;    202001    202002    202003    202004</span></span>
-<span id="cb38-3"><a href="#cb38-3" tabindex="-1"></a><span class="co">#&gt; 1       1 1.3127080 0.5874490 1.3591916</span></span>
-<span id="cb38-4"><a href="#cb38-4" tabindex="-1"></a><span class="co">#&gt; 11      1 1.3127080 0.5874490 0.8839797</span></span>
-<span id="cb38-5"><a href="#cb38-5" tabindex="-1"></a><span class="co">#&gt; 12      1 1.3127080 0.5874490 4.5762862</span></span>
-<span id="cb38-6"><a href="#cb38-6" tabindex="-1"></a><span class="co">#&gt; B1      1 0.8949097 0.3342939 0.8839797</span></span>
-<span id="cb38-7"><a href="#cb38-7" tabindex="-1"></a><span class="co">#&gt; B2      1 1.3127080 0.5874490 2.7704563</span></span>
-<span id="cb38-8"><a href="#cb38-8" tabindex="-1"></a><span class="co">#&gt; B3      1 2.0200036 1.6353355 0.5379960</span></span>
-<span id="cb38-9"><a href="#cb38-9" tabindex="-1"></a><span class="co">#&gt; B4      1 1.3127080 0.5874490 4.5762862</span></span>
-<span id="cb38-10"><a href="#cb38-10" tabindex="-1"></a><span class="co">#&gt; B5      1 1.3127080 0.5874490 4.5762862</span></span></code></pre></div>
+<span id="cb38-2"><a href="#cb38-2" tabindex="-1"></a><span class="co">#&gt; Aggregate period-over-period price index for 8 levels over 4 time periods </span></span>
+<span id="cb38-3"><a href="#cb38-3" tabindex="-1"></a><span class="co">#&gt;    202001    202002    202003    202004</span></span>
+<span id="cb38-4"><a href="#cb38-4" tabindex="-1"></a><span class="co">#&gt; 1       1 1.3127080 0.5874490 1.3591916</span></span>
+<span id="cb38-5"><a href="#cb38-5" tabindex="-1"></a><span class="co">#&gt; 11      1 1.3127080 0.5874490 0.8839797</span></span>
+<span id="cb38-6"><a href="#cb38-6" tabindex="-1"></a><span class="co">#&gt; 12      1 1.3127080 0.5874490 4.5762862</span></span>
+<span id="cb38-7"><a href="#cb38-7" tabindex="-1"></a><span class="co">#&gt; B1      1 0.8949097 0.3342939 0.8839797</span></span>
+<span id="cb38-8"><a href="#cb38-8" tabindex="-1"></a><span class="co">#&gt; B2      1 1.3127080 0.5874490 2.7704563</span></span>
+<span id="cb38-9"><a href="#cb38-9" tabindex="-1"></a><span class="co">#&gt; B3      1 2.0200036 1.6353355 0.5379960</span></span>
+<span id="cb38-10"><a href="#cb38-10" tabindex="-1"></a><span class="co">#&gt; B4      1 1.3127080 0.5874490 4.5762862</span></span>
+<span id="cb38-11"><a href="#cb38-11" tabindex="-1"></a><span class="co">#&gt; B5      1 1.3127080 0.5874490 4.5762862</span></span></code></pre></div>
+</div>
+<div id="making-a-fisher-index" class="section level2">
+<h2>Making a Fisher index</h2>
 <p>With a Paasche index in hand, it is now trivial to make a Fisher
-index by first making the chained Laspeyres index, and then doing a
-simple matrix operation.</p>
-<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" tabindex="-1"></a>laspeyres <span class="ot">&lt;-</span> <span class="fu">Reduce</span>(stack, <span class="fu">Map</span>(aggregate, ms_epr, pias[<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>)], <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
-<span id="cb39-2"><a href="#cb39-2" tabindex="-1"></a><span class="fu">sqrt</span>(<span class="fu">as.matrix</span>(laspeyres) <span class="sc">*</span> <span class="fu">as.matrix</span>(paasche))</span>
-<span id="cb39-3"><a href="#cb39-3" tabindex="-1"></a><span class="co">#&gt;    202001    202002    202003   202004</span></span>
-<span id="cb39-4"><a href="#cb39-4" tabindex="-1"></a><span class="co">#&gt; 1       1 1.5107763 0.7956890 1.996688</span></span>
-<span id="cb39-5"><a href="#cb39-5" tabindex="-1"></a><span class="co">#&gt; 11      1 1.5107763 0.7956890 1.192826</span></span>
-<span id="cb39-6"><a href="#cb39-6" tabindex="-1"></a><span class="co">#&gt; 12      1 1.5107763 0.7956890 4.576286</span></span>
-<span id="cb39-7"><a href="#cb39-7" tabindex="-1"></a><span class="co">#&gt; B1      1 0.8949097 0.3342939 1.192826</span></span>
-<span id="cb39-8"><a href="#cb39-8" tabindex="-1"></a><span class="co">#&gt; B2      1 1.5107763 0.7956890 2.770456</span></span>
-<span id="cb39-9"><a href="#cb39-9" tabindex="-1"></a><span class="co">#&gt; B3      1 2.0200036 1.6353355 0.537996</span></span>
-<span id="cb39-10"><a href="#cb39-10" tabindex="-1"></a><span class="co">#&gt; B4      1 1.5107763 0.7956890 4.576286</span></span>
-<span id="cb39-11"><a href="#cb39-11" tabindex="-1"></a><span class="co">#&gt; B5      1 1.5107763 0.7956890 4.576286</span></span></code></pre></div>
+index by first making the period-over-period Laspeyres index, and then
+doing a simple matrix operation.</p>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" tabindex="-1"></a>laspeyres <span class="ot">&lt;-</span> <span class="fu">Reduce</span>(stack,</span>
+<span id="cb39-2"><a href="#cb39-2" tabindex="-1"></a>                    <span class="fu">Map</span>(aggregate, ms_epr, pias[<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>)], <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb39-3"><a href="#cb39-3" tabindex="-1"></a></span>
+<span id="cb39-4"><a href="#cb39-4" tabindex="-1"></a>(fisher <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">as.matrix</span>(laspeyres) <span class="sc">*</span> <span class="fu">as.matrix</span>(paasche)))</span>
+<span id="cb39-5"><a href="#cb39-5" tabindex="-1"></a><span class="co">#&gt;    202001    202002    202003   202004</span></span>
+<span id="cb39-6"><a href="#cb39-6" tabindex="-1"></a><span class="co">#&gt; 1       1 1.5107763 0.7956890 1.996688</span></span>
+<span id="cb39-7"><a href="#cb39-7" tabindex="-1"></a><span class="co">#&gt; 11      1 1.5107763 0.7956890 1.192826</span></span>
+<span id="cb39-8"><a href="#cb39-8" tabindex="-1"></a><span class="co">#&gt; 12      1 1.5107763 0.7956890 4.576286</span></span>
+<span id="cb39-9"><a href="#cb39-9" tabindex="-1"></a><span class="co">#&gt; B1      1 0.8949097 0.3342939 1.192826</span></span>
+<span id="cb39-10"><a href="#cb39-10" tabindex="-1"></a><span class="co">#&gt; B2      1 1.5107763 0.7956890 2.770456</span></span>
+<span id="cb39-11"><a href="#cb39-11" tabindex="-1"></a><span class="co">#&gt; B3      1 2.0200036 1.6353355 0.537996</span></span>
+<span id="cb39-12"><a href="#cb39-12" tabindex="-1"></a><span class="co">#&gt; B4      1 1.5107763 0.7956890 4.576286</span></span>
+<span id="cb39-13"><a href="#cb39-13" tabindex="-1"></a><span class="co">#&gt; B5      1 1.5107763 0.7956890 4.576286</span></span></code></pre></div>
+<p>Percent-change contributions can similarly be computed with a matrix
+operation.</p>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" tabindex="-1"></a>geometric_weights <span class="ot">&lt;-</span> <span class="fu">transmute_weights</span>(<span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb40-2"><a href="#cb40-2" tabindex="-1"></a>w <span class="ot">&lt;-</span> <span class="fu">mapply</span>(\(x, y) <span class="fu">scale_weights</span>(<span class="fu">geometric_weights</span>(<span class="fu">c</span>(x, y))),</span>
+<span id="cb40-3"><a href="#cb40-3" tabindex="-1"></a>            <span class="fu">as.numeric</span>(laspeyres[<span class="dv">1</span>]),</span>
+<span id="cb40-4"><a href="#cb40-4" tabindex="-1"></a>            <span class="fu">as.numeric</span>(paasche[<span class="dv">1</span>]))</span>
+<span id="cb40-5"><a href="#cb40-5" tabindex="-1"></a></span>
+<span id="cb40-6"><a href="#cb40-6" tabindex="-1"></a>laspeyres_contrib <span class="ot">&lt;-</span> <span class="fu">contrib</span>(laspeyres)</span>
+<span id="cb40-7"><a href="#cb40-7" tabindex="-1"></a>paasche_contrib <span class="ot">&lt;-</span> <span class="fu">contrib</span>(paasche)</span>
+<span id="cb40-8"><a href="#cb40-8" tabindex="-1"></a></span>
+<span id="cb40-9"><a href="#cb40-9" tabindex="-1"></a>fisher_contrib <span class="ot">&lt;-</span> w[<span class="dv">1</span>, <span class="fu">col</span>(laspeyres_contrib)] <span class="sc">*</span> laspeyres_contrib <span class="sc">+</span></span>
+<span id="cb40-10"><a href="#cb40-10" tabindex="-1"></a>  w[<span class="dv">2</span>, <span class="fu">col</span>(paasche_contrib)] <span class="sc">*</span> paasche_contrib</span>
+<span id="cb40-11"><a href="#cb40-11" tabindex="-1"></a></span>
+<span id="cb40-12"><a href="#cb40-12" tabindex="-1"></a>fisher_contrib</span>
+<span id="cb40-13"><a href="#cb40-13" tabindex="-1"></a><span class="co">#&gt;    202001      202002      202003       202004</span></span>
+<span id="cb40-14"><a href="#cb40-14" tabindex="-1"></a><span class="co">#&gt; 1       0  0.00000000  0.00000000  0.000000000</span></span>
+<span id="cb40-15"><a href="#cb40-15" tabindex="-1"></a><span class="co">#&gt; 10      0 -0.13327742  0.17296129 -0.131946938</span></span>
+<span id="cb40-16"><a href="#cb40-16" tabindex="-1"></a><span class="co">#&gt; 11      0  0.00000000          NA  0.039533034</span></span>
+<span id="cb40-17"><a href="#cb40-17" tabindex="-1"></a><span class="co">#&gt; 12      0  0.00000000          NA  0.880561300</span></span>
+<span id="cb40-18"><a href="#cb40-18" tabindex="-1"></a><span class="co">#&gt; 2      NA          NA -0.42962331  0.000000000</span></span>
+<span id="cb40-19"><a href="#cb40-19" tabindex="-1"></a><span class="co">#&gt; 3       0 -0.04756479          NA           NA</span></span>
+<span id="cb40-20"><a href="#cb40-20" tabindex="-1"></a><span class="co">#&gt; 4       0          NA          NA -0.012019870</span></span>
+<span id="cb40-21"><a href="#cb40-21" tabindex="-1"></a><span class="co">#&gt; 5       0          NA          NA  0.062419211</span></span>
+<span id="cb40-22"><a href="#cb40-22" tabindex="-1"></a><span class="co">#&gt; 6       0          NA          NA  0.282471798</span></span>
+<span id="cb40-23"><a href="#cb40-23" tabindex="-1"></a><span class="co">#&gt; 7       0  0.78379264 -0.13008203 -0.018866231</span></span>
+<span id="cb40-24"><a href="#cb40-24" tabindex="-1"></a><span class="co">#&gt; 8       0  0.02893842  0.11116498 -0.006388331</span></span>
+<span id="cb40-25"><a href="#cb40-25" tabindex="-1"></a><span class="co">#&gt; 9       0 -0.12111255  0.07126804 -0.099076370</span></span></code></pre></div>
+<p>The despite being a matrix, the resulting Fisher index can be chained
+just like any other index.</p>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" tabindex="-1"></a><span class="fu">chain</span>(fisher)</span>
+<span id="cb41-2"><a href="#cb41-2" tabindex="-1"></a><span class="co">#&gt; Fixed-base price index for 8 levels over 4 time periods </span></span>
+<span id="cb41-3"><a href="#cb41-3" tabindex="-1"></a><span class="co">#&gt;    202001    202002    202003    202004</span></span>
+<span id="cb41-4"><a href="#cb41-4" tabindex="-1"></a><span class="co">#&gt; 1       1 1.5107763 1.2021080 2.4002342</span></span>
+<span id="cb41-5"><a href="#cb41-5" tabindex="-1"></a><span class="co">#&gt; 11      1 1.5107763 1.2021080 1.4339054</span></span>
+<span id="cb41-6"><a href="#cb41-6" tabindex="-1"></a><span class="co">#&gt; 12      1 1.5107763 1.2021080 5.5011904</span></span>
+<span id="cb41-7"><a href="#cb41-7" tabindex="-1"></a><span class="co">#&gt; B1      1 0.8949097 0.2991629 0.3568492</span></span>
+<span id="cb41-8"><a href="#cb41-8" tabindex="-1"></a><span class="co">#&gt; B2      1 1.5107763 1.2021080 3.3303878</span></span>
+<span id="cb41-9"><a href="#cb41-9" tabindex="-1"></a><span class="co">#&gt; B3      1 2.0200036 3.3033836 1.7772072</span></span>
+<span id="cb41-10"><a href="#cb41-10" tabindex="-1"></a><span class="co">#&gt; B4      1 1.5107763 1.2021080 5.5011904</span></span>
+<span id="cb41-11"><a href="#cb41-11" tabindex="-1"></a><span class="co">#&gt; B5      1 1.5107763 1.2021080 5.5011904</span></span></code></pre></div>
+<p>A chained Fisher index can also be made by first chaining the
+Laspyeres and Paasche indexes, then taking the geometric mean.</p>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" tabindex="-1"></a><span class="fu">sqrt</span>(<span class="fu">as.matrix</span>(<span class="fu">chain</span>(laspeyres)) <span class="sc">*</span> <span class="fu">as.matrix</span>(<span class="fu">chain</span>(paasche)))</span>
+<span id="cb42-2"><a href="#cb42-2" tabindex="-1"></a><span class="co">#&gt;    202001    202002    202003    202004</span></span>
+<span id="cb42-3"><a href="#cb42-3" tabindex="-1"></a><span class="co">#&gt; 1       1 1.5107763 1.2021080 2.4002342</span></span>
+<span id="cb42-4"><a href="#cb42-4" tabindex="-1"></a><span class="co">#&gt; 11      1 1.5107763 1.2021080 1.4339054</span></span>
+<span id="cb42-5"><a href="#cb42-5" tabindex="-1"></a><span class="co">#&gt; 12      1 1.5107763 1.2021080 5.5011904</span></span>
+<span id="cb42-6"><a href="#cb42-6" tabindex="-1"></a><span class="co">#&gt; B1      1 0.8949097 0.2991629 0.3568492</span></span>
+<span id="cb42-7"><a href="#cb42-7" tabindex="-1"></a><span class="co">#&gt; B2      1 1.5107763 1.2021080 3.3303878</span></span>
+<span id="cb42-8"><a href="#cb42-8" tabindex="-1"></a><span class="co">#&gt; B3      1 2.0200036 3.3033836 1.7772072</span></span>
+<span id="cb42-9"><a href="#cb42-9" tabindex="-1"></a><span class="co">#&gt; B4      1 1.5107763 1.2021080 5.5011904</span></span>
+<span id="cb42-10"><a href="#cb42-10" tabindex="-1"></a><span class="co">#&gt; B5      1 1.5107763 1.2021080 5.5011904</span></span></code></pre></div>
 </div>
 
 

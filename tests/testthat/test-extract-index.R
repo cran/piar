@@ -17,8 +17,10 @@ res <- c(1.41421356237309, 3.46410161513775, 5, NaN,
 test_that("head and tail work", {
   expect_equal(head(epr, 1), epr[1])
   expect_equal(head(epr, 5), epr)
+  expect_equal(head(epr, -1), epr[1:3])
   expect_equal(tail(epr, 1), epr[4])
   expect_equal(tail(epr, 5), epr)
+  expect_equal(tail(epr, -1), epr[2:4])
   expect_equal(head(epr, 2:1), epr[1:2, 1])
   expect_equal(tail(epr, 2:1), epr[3:4, 2])
   expect_equal(head(epr, c(NA, -1)), epr[, 1])
@@ -44,11 +46,20 @@ test_that("subscripting methods work", {
                       contrib = TRUE)
     )
   )
-  expect_equal(epr[[4, "2"]], 8)
+})
+
+test_that("subscripting returns an aggregate index when appropriate", {
+  expect_true(is_aggregate_index(index[, 1:2]))
   expect_false(is_aggregate_index(index[1:2, ]))
+})
+
+test_that("subscripting methods give errors where expected", {
   expect_error(epr[1, NA])
   expect_error(epr[1, 3])
   expect_error(epr[c(1, 2, 1), ])
+  expect_error(epr[NULL])
+  expect_error(epr[integer(0)])
+  expect_error(epr[NA])
 })
 
 test_that("replacement methods work", {
@@ -62,10 +73,10 @@ test_that("replacement methods work", {
   expect_equal(
     contrib(epr),
     matrix(c(0, 0, 2.5962965079607, 2.88444419044716),
-           2, 2, dimnames = list(1:2, 1:2))
+           2, 2, dimnames = list(c("11.1", "11.2"), 1:2))
   )
 
-  epr[[TRUE, 2]] <- "0"
+  epr[1, c(FALSE, TRUE)] <- "0"
   expect_equal(
     as.matrix(epr),
     matrix(c(0, 0, 0, 0, 0, res[6:8]), 4, 2, dimnames = list(11:14, 1:2))
@@ -74,8 +85,33 @@ test_that("replacement methods work", {
     contrib(epr),
     matrix(0, 0, 2, dimnames = list(NULL, 1:2))
   )
-  
+
   # recycling should still happen
-  epr[1, c(1, 2, 1)] <- 1:3
+  epr[1, c(1, 2, 1)] <- setNames(1:3, letters[1:3])
   expect_equal(epr[1, ], as_index(matrix(3:2, 1, dimnames = list("11", 1:2))))
+
+  epr["14"] <- 1
+  expect_equal(
+    as.matrix(epr),
+    matrix(c(3, 0, 0, 1, 2, res[6:7], 1), 4, 2, dimnames = list(11:14, 1:2))
+  )
+  expect_equal(
+    contrib(epr, "14"),
+    matrix(0, 0, 2, dimnames = list(NULL, 1:2))
+  )
+  
+  index[1] <- 0
+  expect_false(is_aggregate_index(index))
+})
+
+test_that("replacement methods give errors where expected", {
+  expect_error(epr[NULL] <- 1)
+  expect_error(epr[NA] <- 1)
+  expect_error(epr[integer(0)] <- 1)
+  expect_error(epr[0] <- 1)
+  expect_error(epr[1, 0] <- 1)
+  expect_error(epr[1] <- 1:3)
+  expect_error(epr[1, NA] <- 1)
+  expect_error(epr[1, 3] <- 1)
+  expect_error(epr[5, 1] <- 1)
 })

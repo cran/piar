@@ -65,7 +65,7 @@ test_that("mse == FALSE works", {
 })
 
 test_that("mse == TRUE case works", {
-  covar <- vcov(index, rw * weights$ew)
+  covar <- vcov(index, rw * weights$ew, sparse = TRUE)
 
   # Variance for higher levels should agree with manual calculation
   # Period 1
@@ -136,5 +136,5 @@ test_that("vcov doesn't depend on order", {
   pias <- with(weights, aggregation_structure(as.list(weights[1:4]), ew * dw))
   index <- aggregate(epr, pias)
   rw <- rw[ord, ]
-  expect_equal(vcov(index, rw * weights$ew, mse = FALSE), covar)
+  expect_equal(vcov(index, rw * weights$ew, mse = FALSE), covar[c(1:5, 7, 6), ])
 })

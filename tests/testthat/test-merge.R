@@ -31,7 +31,7 @@ test_that("merge returns the correct result", {
   expect_identical(levels(epr3), letters[1:8])
   expect_identical(time(epr3), time(epr1))
   expect_equal(contrib(epr3, "a"),
-               matrix(c(0, 4), 1, 2, dimnames = list(1, 1:2)))
+               matrix(c(0, 4), 1, 2, dimnames = list("a.1", 1:2)))
   expect_equal(contrib(epr3, "e"),
                matrix(numeric(0), 0, 2, dimnames = list(NULL, 1:2)))
   expect_equal(
@@ -39,6 +39,12 @@ test_that("merge returns the correct result", {
     rbind(matrix(1:8, 4, 2, dimnames = list(letters[5:8], 1:2)),
           matrix(1:8, 4, 2, dimnames = list(letters[1:4], 1:2)))
   )
+})
+
+test_that("merge works with [", {
+  epr3 <- merge(epr1, epr2)
+  expect_equal(epr3[1:4], epr1)
+  expect_equal(epr3[5:8], epr2)
 })
 
 test_that("coercion works as expected", {
