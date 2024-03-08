@@ -12,7 +12,7 @@
 \arguments{
 \item{x}{A price index, as made by, e.g., \code{\link[=elemental_index]{elemental_index()}}.}
 
-\item{...}{Further arguments passed to or used by methods.}
+\item{...}{Not currently used.}
 
 \item{stringsAsFactors}{See \code{\link[=as.data.frame]{as.data.frame()}}.}
 }
@@ -21,22 +21,16 @@
 and \code{value}.
 
 \code{as.matrix()} returns a matrix with a row for each level and a column
-for each period.
+for each time period.
 }
 \description{
 Turn an index into a data frame or a matrix.
 }
 \examples{
-prices <- data.frame(
-  rel = 1:8,
-  period = rep(1:2, each = 4),
-  ea = rep(letters[1:2], 4)
-)
+index <- as_index(matrix(1:6, 2))
 
-epr <- with(prices, elemental_index(rel, period, ea))
-
-as.data.frame(epr)
-as.matrix(epr)
+as.data.frame(index)
+as.matrix(index)
 
 }
 \seealso{
@@ -49,9 +43,11 @@ Other index methods:
 \code{\link{chain}()},
 \code{\link{contrib}()},
 \code{\link{head.piar_index}()},
+\code{\link{is.na.piar_index}()},
 \code{\link{levels.piar_index}()},
 \code{\link{mean.piar_index}()},
 \code{\link{merge.piar_index}()},
+\code{\link{split.piar_index}()},
 \code{\link{stack.piar_index}()},
 \code{\link{time.piar_index}()},
 \code{\link{vcov.aggregate_piar_index}()}

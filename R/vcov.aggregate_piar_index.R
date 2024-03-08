@@ -30,7 +30,7 @@
 #' @param sparse Use sparse matrices from \pkg{Matrix} when aggregating the
 #' index. Faster for indexes with large aggregation structures. The default
 #' uses regular dense matrices.
-#' @param ... Further arguments passed to or used by methods.
+#' @param ... Not currently used.
 #'
 #' @returns
 #' A matrix of variances with a row for each upper-level index and a
@@ -67,11 +67,11 @@
 #'
 #' # Calculate Jevons elemental indexes
 #'
-#' epr <- with(prices, elemental_index(rel, period, ea))
+#' elemental <- with(prices, elemental_index(rel, period, ea))
 #'
 #' # Aggregate
 #'
-#' index <- aggregate(epr, pias, na.rm = TRUE)
+#' index <- aggregate(elemental, pias, na.rm = TRUE)
 #'
 #' # Calculate variance
 #'
@@ -80,10 +80,10 @@
 #' @family index methods
 #' @importFrom stats vcov
 #' @export
-vcov.aggregate_piar_index <- function(object, repweights,
-                                      mse = TRUE, sparse = FALSE, ...) {
+vcov.aggregate_piar_index <- function(object, repweights, ...,
+                                      mse = TRUE, sparse = FALSE) {
   repweights <- as.matrix(repweights)
-  eas <- object$pias$eas
+  eas <- object$pias$levels[[length(object$pias$levels)]]
   if (nrow(repweights) != length(eas)) {
     stop("'repweights' must have a row for each weight in 'pias'")
   }

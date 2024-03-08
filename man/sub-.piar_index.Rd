@@ -15,9 +15,9 @@
 \item{i, j}{Indices for the levels and time periods of a price index. See
 details.}
 
-\item{...}{Ignored.}
+\item{...}{Not currently used.}
 
-\item{value}{A numeric vector.}
+\item{value}{A numeric vector or price index. See details.}
 }
 \value{
 A price index that inherits from \code{\link{chainable_piar_index}} if \code{x} is a
@@ -29,18 +29,24 @@ fixed-base index. If \code{x} inherits from \code{\link{aggregate_piar_index}} t
 Methods to extract and replace index values like a matrix.
 }
 \details{
-The extraction methods treat \code{x} as a matrix of index values with
-(named) rows for each \code{level} and columns for each \code{period} in
+The extraction method treats \code{x} like a matrix of index values with
+(named) rows for each level and columns for each time period in
 \code{x}. Unlike a matrix, dimensions are never dropped as subscripting
 \code{x} always returns an index object. This means that subscripting with a
-matrix is not possible, and only a submatrix can be extracted. As \code{x}
+matrix is not possible, and only a "submatrix" can be extracted. As \code{x}
 is not an atomic vector, subscripting with a single index like \code{x[1]}
 extracts all time periods for that level.
 
-The replacement methods similarly treat \code{x} as a matrix, and behave the
-same as replacing values in a matrix (except that \code{value} is coerced to
-numeric). Note that replacing the values of an index will remove the
-corresponding percent-change contributions (if any).
+The replacement method similarly treat \code{x} like a matrix. If \code{value} is
+an index object with the same number of time periods as \code{x[i, j]} and
+it inherits from the same class as \code{x}, then the index values and
+percent-change contributions of \code{x[i, j]} are replaced with those for the
+corresponding levels of \code{value}. If \code{value} is not an index, then it is
+coerced to a numeric vector and behaves the same as replacing values in a
+matrix. Note that replacing the values of an index will remove the
+corresponding percent-change contributions (if any). Unlike extraction, it
+is possible to replace value in \code{x} using a logical matrix or a two-column
+matrix of indices.
 
 Subscripting an aggregate index cannot generally preserve the aggregation
 structure if any levels are removed or rearranged, and in this case the
@@ -49,24 +55,15 @@ values for an aggregate index generally breaks consistency in aggregation,
 and therefore the result is \emph{not} an aggregate index.
 }
 \examples{
-prices <- data.frame(
-  rel = 1:8,
-  period = rep(1:2, each = 4),
-  ea = rep(letters[1:2], 4)
-)
+index <- as_index(matrix(1:6, 2))
 
-# Calculate Jevons elemental indexes
+index["1", ]
 
-epr <- with(prices, elemental_index(rel, period, ea))
+index[, 2]
 
-# Extract the indexes like a matrix
+index[1, ] <- 1 # can be useful for doing specific imputations
 
-epr["a", ]
-
-epr[, 2]
-
-epr[1, ] <- 1 # can be useful for doing specific imputations
-epr
+index
 
 }
 \seealso{
@@ -76,9 +73,11 @@ Other index methods:
 \code{\link{chain}()},
 \code{\link{contrib}()},
 \code{\link{head.piar_index}()},
+\code{\link{is.na.piar_index}()},
 \code{\link{levels.piar_index}()},
 \code{\link{mean.piar_index}()},
 \code{\link{merge.piar_index}()},
+\code{\link{split.piar_index}()},
 \code{\link{stack.piar_index}()},
 \code{\link{time.piar_index}()},
 \code{\link{vcov.aggregate_piar_index}()}

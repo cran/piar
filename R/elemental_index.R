@@ -1,6 +1,10 @@
 #--- Helpers ----
+which_duplicate_products <- function(x) {
+  vapply(x, anyDuplicated, numeric(1L), incomparables = NA) > 0
+}
+
 duplicate_products <- function(x) {
-  any(vapply(x, anyDuplicated, numeric(1L), incomparables = NA) > 0)
+  any(which_duplicate_products(x))
 }
 
 sequential_names <- function(...) {
@@ -14,11 +18,15 @@ valid_product_names <- function(x, period) {
   if (anyNA(x) || any(x == "")) {
     stop("each product must have a non-missing name")
   }
-  x <- split(x, period)
-  if (duplicate_products(x)) {
+  xs <- split(x, period)
+  dups <- which_duplicate_products(xs)
+  if (any(dups)) {
     warning("product names are not unique in each time period")
+    xs[dups] <- lapply(xs[dups], make.unique)
+    unsplit(xs, period)
+  } else {
+    x
   }
-  unsplit(lapply(x, make.unique), period)
 }
 
 different_length <- function(...) {
@@ -85,13 +93,13 @@ different_length <- function(...) {
 #' @param ea A factor, or something that can be coerced into one, giving the
 #' elemental aggregate associated with each price relative in `x`. The
 #' default assumes that all price relatives belong to one elemental aggregate.
-#' @param weights A numeric vector of weights for the price relatives in `x`.
-#' The default is equal weights.
+#' @param weights A numeric vector of weights for the price relatives in `x`,
+#' or something that can be coerced into one. The default is equal weights.
 #' @param contrib Should percent-change contributions be calculated? The
 #' default does not calculate contributions.
 #' @param chainable Are the price relatives in `x` period-over-period
-#' relatives for a chained calculation (the default)? This should be
-#' `FALSE` when `x` contains fixed-base relatives.
+#' relatives that are suitable for a chained calculation (the default)? This
+#' should be `FALSE` when `x` contains fixed-base relatives.
 #' @param na.rm Should missing values be removed? By default, missing values
 #' are not removed. Setting `na.rm = TRUE` is equivalent to overall mean
 #' imputation.
@@ -119,7 +127,7 @@ different_length <- function(...) {
 #'
 #' [chain()] for chaining period-over-period indexes, and
 #' [rebase()] for rebasing an index.
-#' 
+#'
 #' [`aggregate()`][aggregate.piar_index] to aggregate elemental indexes
 #' according to an aggregation structure.
 #'
@@ -146,7 +154,7 @@ different_length <- function(...) {
 #'
 #' # Calculate Jevons elemental indexes
 #'
-#' (epr <- with(prices, elemental_index(rel, period, ea)))
+#' with(prices, elemental_index(rel, period, ea))
 #'
 #' # Same as using lm() or tapply()
 #'
@@ -191,23 +199,26 @@ elemental_index.default <- function(x, ...) {
 elemental_index.numeric <- function(x,
                                     period = gl(1, length(x)),
                                     ea = gl(1, length(x)),
-                                    weights = NULL,
-                                    contrib = FALSE,
+                                    weights = NULL, ...,
                                     chainable = TRUE,
                                     na.rm = FALSE,
-                                    r = 0,
-                                    ...) {
+                                    contrib = FALSE,
+                                    r = 0) {
+  if (!is.null(weights)) {
+    weights <- as.numeric(weights)
+  }
+  period <- as.factor(period)
+  ea <- as.factor(ea) # ensures elemental aggregates are balanced
+  
+  time <- levels(period)
+  levels <- levels(ea)
+  
   if (different_length(x, period, ea, weights)) {
     stop("input vectors must be the same length")
   }
   if (any(x <= 0, na.rm = TRUE) || any(weights <= 0, na.rm = TRUE)) {
     warning("some elements of 'x or 'weights' are less than or equal to 0")
   }
-
-  period <- as.factor(period)
-  ea <- as.factor(ea) # ensures elemental aggregates are balanced
-  time <- levels(period)
-  levels <- levels(ea)
 
   if (contrib) {
     if (is.null(names(x))) {
@@ -224,7 +235,7 @@ elemental_index.numeric <- function(x,
   if (is.null(weights)) {
     weights <- list(list(NULL))
   } else {
-    weights <- Map(split, split(as.numeric(weights), period), ea)
+    weights <- Map(split, split(weights, period), ea)
   }
 
   index_fun <- Vectorize(gpindex::generalized_mean(r), USE.NAMES = FALSE)

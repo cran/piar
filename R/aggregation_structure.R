@@ -12,8 +12,8 @@
 #' `NA`s, and there should be no duplicates across different levels of
 #' `x`.
 #' @param weights A numeric vector of aggregation weights for the elemental
-#' aggregates (i.e., the last vector in `x`). The default is to give each
-#' elemental aggregate the same weight.
+#' aggregates (i.e., the last vector in `x`), or something that can be coerced
+#' into one. The default is to give each elemental aggregate the same weight.
 #'
 #' @returns
 #' A price index aggregation structure of class `piar_aggregation_structure`.
@@ -25,12 +25,9 @@
 #' \item{parent}{A list that gives the position of the
 #' immediate parent for each node of the aggregation structure below the
 #' initial nodes.}
-#' \item{levels}{A character vector that gives the levels of `x`.}
-#' \item{eas}{A character vector that gives the subset of
-#' `levels` that are elemental aggregates.}
+#' \item{levels}{A list of character vectors that give the levels of `x`.}
 #' \item{weights}{A named vector giving the weight for each elemental
 #' aggregate.}
-#' \item{height}{The length of `x`.}
 #'
 #' @section Warning: The `aggregation_structure()` function does its best
 #' to check its arguments, but there should be no expectation that the result
@@ -73,7 +70,7 @@
 #'   weight = c(1, 3, 4)
 #' )
 #'
-#' pias <- aggregation_structure(
+#' aggregation_structure(
 #'   aggregation_weights[1:3],
 #'   weights = aggregation_weights[[4]]
 #' )
@@ -81,12 +78,9 @@
 #' # The aggregation structure can also be made by expanding the
 #' # elemental aggregates
 #'
-#' all.equal(
-#'   with(
-#'     aggregation_weights,
-#'     aggregation_structure(expand_classification(ea), weight)
-#'   ),
-#'   pias
+#' with(
+#'   aggregation_weights,
+#'   aggregation_structure(expand_classification(ea), weight)
 #' )
 #'
 #' @export
@@ -100,11 +94,16 @@ aggregation_structure <- function(x, weights = NULL) {
   if (anyNA(x, recursive = TRUE)) {
     stop("'x' cannot contain NAs")
   }
-  
+
   if (is.null(weights)) {
     weights <- rep.int(1, length(ea))
+  } else {
+    weights <- as.numeric(weights)
+    if (any(weights <= 0, na.rm = TRUE)) {
+      warning("some elements of 'w' are less than or equal to 0")
+    }
   }
-  
+
   # basic argument checking to make sure inputs can make an
   # aggregation structure
   if (any(lengths(x) != length(weights))) {
@@ -142,6 +141,6 @@ aggregation_structure <- function(x, weights = NULL) {
     )
   }
   parent <- lapply(parent, unlist)
-  levels <- unlist(lapply(x, levels), use.names = FALSE)
-  piar_aggregation_structure(child, parent, levels, ea, weights, len)
+  levels <- lapply(x, levels)
+  piar_aggregation_structure(child, parent, levels, weights)
 }

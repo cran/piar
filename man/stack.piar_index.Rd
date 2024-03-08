@@ -13,10 +13,10 @@
 \item{x}{A price index, as made by, e.g., \code{\link[=elemental_index]{elemental_index()}}.}
 
 \item{y}{A price index, or something that can coerced into one. If \code{x}
-is a period-over-period index then \code{y} is coerce into a chainable
+is a period-over-period index then \code{y} is coerced into a chainable
 index; otherwise, \code{y} is coerced into a direct index.}
 
-\item{...}{Further arguments passed to or used by methods.}
+\item{...}{Not currently used.}
 }
 \value{
 A price index that inherits from \code{\link{chainable_piar_index}} if \code{x} is a
@@ -36,30 +36,23 @@ time period.
 These methods can be used in a map-reduce to make an index with multiple
 aggregation structures (like a Paasche index).
 }
+\note{
+It may be necessary to use \code{rebase()} prior to stacking fixed-based price
+indexes to ensure they have the same base period.
+}
 \examples{
-prices <- data.frame(
-  rel = 1:8,
-  period = rep(1:2, each = 4),
-  ea = rep(letters[1:2], 4)
-)
+index1 <- as_index(matrix(1:6, 2))
 
-prices2 <- data.frame(
-  rel = 1:8,
-  period = rep(3:4, each = 4),
-  ea = rep(letters[1:2], 4)
-)
+index2 <- index1
+time(index2) <- 4:6
 
-epr <- with(prices, elemental_index(rel, period, ea))
-
-epr2 <- with(prices2, elemental_index(rel, period, ea))
-
-stack(epr, epr2)
+stack(index1, index2)
 
 # Unstack does the reverse
 
 all.equal(
-  c(unstack(epr), unstack(epr2)),
-  unstack(stack(epr, epr2))
+  c(unstack(index1), unstack(index2)),
+  unstack(stack(index1, index2))
 )
 
 }
@@ -71,9 +64,11 @@ Other index methods:
 \code{\link{chain}()},
 \code{\link{contrib}()},
 \code{\link{head.piar_index}()},
+\code{\link{is.na.piar_index}()},
 \code{\link{levels.piar_index}()},
 \code{\link{mean.piar_index}()},
 \code{\link{merge.piar_index}()},
+\code{\link{split.piar_index}()},
 \code{\link{time.piar_index}()},
 \code{\link{vcov.aggregate_piar_index}()}
 }

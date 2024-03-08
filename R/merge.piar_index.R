@@ -9,9 +9,9 @@
 #'
 #' @param x A price index, as made by, e.g., [elemental_index()].
 #' @param y A price index, or something that can coerced into one. If `x`
-#' is a period-over-period index then `y` is coerce into a chainable
+#' is a period-over-period index then `y` is coerced into a chainable
 #' index; otherwise, `y` is coerced into a direct index.
-#' @param ... Further arguments passed to or used by methods.
+#' @param ... Not currently used.
 #'
 #' @returns
 #' A price index that inherits from [`chainable_piar_index`] if `x` is a
@@ -21,23 +21,12 @@
 #' aggregated index.
 #'
 #' @examples
-#' prices <- data.frame(
-#'   rel = 1:8,
-#'   period = rep(1:2, each = 4),
-#'   ea = rep(letters[1:2], 4)
-#' )
+#' index1 <- as_index(matrix(1:6, 2))
 #'
-#' prices2 <- data.frame(
-#'   rel = 1:8,
-#'   period = rep(1:2, each = 4),
-#'   ea = rep(letters[3:4], 4)
-#' )
+#' index2 <- index1
+#' levels(index2) <- 3:4
 #'
-#' epr <- with(prices, elemental_index(rel, period, ea))
-#'
-#' epr2 <- with(prices2, elemental_index(rel, period, ea))
-#'
-#' merge(epr, epr2)
+#' merge(index1, index2)
 #'
 #' @family index methods
 #' @export

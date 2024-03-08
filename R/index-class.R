@@ -31,7 +31,7 @@
 #' \describe{
 #' \item{r}{The order of the generalized mean used to aggregated the
 #' index (usually 1).}
-#' \item{pias}{A list containing the `child`, `parent`, `eas`, and `height`
+#' \item{pias}{A list containing the `child`, `parent`, and `levels`
 #' components of the aggregation structured used to aggregate the index.}
 #' }
 #'
@@ -197,96 +197,6 @@ print.piar_index <- function(x, ...) {
   invisible(x)
 }
 
-#' Get the levels for a price index
-#'
-#' Methods to get and set the levels for a price index.
-#'
-#' @param x A price index, as made by, e.g., [elemental_index()].
-#' @param value A character vector, or something that can be coerced into one,
-#' giving the replacement levels for `x`.
-#'
-#' @returns
-#' `levels()` returns a character vector with the levels for a price index.
-#'
-#' The replacement method returns a copy of `x` with the levels in `value`.
-#'
-#' It's not generally possible to change the levels of an aggregate price
-#' index, and in this case replacing the levels does not return an aggregate
-#' index.
-#'
-#' @family index methods
-#' @export
-levels.piar_index <- function(x) {
-  x$levels
-}
-
-#' @rdname levels.piar_index
-#' @export
-`levels<-.piar_index` <- function(x, value) {
-  x$levels <- as.character(value)
-  validate_piar_index(x)
-}
-
-#' @export
-`levels<-.aggregate_piar_index` <- function(x, value) {
-  value <- as.character(value)
-  if (identical(value, x$levels)) {
-    x
-  } else {
-    piar_index(x$index, x$contrib, value, x$time, is_chainable_index(x))
-  }
-}
-
-#' Get the time periods for a price index
-#'
-#' Methods to get and set the time periods for a price index.
-#'
-#' @param x A price index, as made by, e.g., [elemental_index()].
-#' @param value A character vector, or something that can be coerced into one,
-#' giving the replacement time periods for `x`.
-#' @param ... Further arguments passed to or used by methods.
-#'
-#' @returns
-#' `time()` return a character vector with the time periods for a price index.
-#' `start()` and `end()` return the first and last time period.
-#'
-#' The replacement method returns a copy of `x` with the time periods in
-#' `value`.
-#'
-#' @importFrom stats time
-#' @family index methods
-#' @export
-time.piar_index <- function(x, ...) {
-  x$time
-}
-
-#' @rdname time.piar_index
-#' @export
-`time<-` <- function(x, value) {
-  UseMethod("time<-")
-}
-
-#' @rdname time.piar_index
-#' @export
-`time<-.piar_index` <- function(x, value) {
-  x$time <- as.character(value)
-  validate_piar_index(x)
-}
-
-#' @rdname time.piar_index
-#' @importFrom stats start
-#' @export
-start.piar_index <- function(x, ...) {
-  x$time[1L]
-}
-
-#' @rdname time.piar_index
-#' @importFrom stats end
-#' @export
-end.piar_index <- function(x, ...) {
-  x$time[length(x$time)]
-}
-
 #' Test if an object is a price index
 #'
 #' Test if an object is a index object, or a subclass of an index object.
@@ -326,4 +236,32 @@ is_chainable_index <- function(x) {
 #' @export
 is_direct_index <- function(x) {
   inherits(x, "direct_piar_index")
+}
+
+#' Group generics
+#' @noRd
+#' @export
+Math.piar_index <- function(x, ...) {
+  stop(gettextf("'%s' not meaningful for index objects", .Generic))
+}
+
+#' @export
+Ops.piar_index <- function(e1, e2) {
+  boolean <- switch(.Generic, `<` = , `>` = , `==` = , `!=` = ,
+                    `<=` = , `>=` = TRUE, FALSE)
+  if (!boolean) {
+    stop(gettextf("'%s' not meaningful for index objects", .Generic))
+  }
+  if (is_index(e1)) {
+    e1 <- as.matrix(e1)
+  }
+  if (is_index(e2)) {
+    e2 <- as.matrix(e2)
+  }
+  NextMethod(.Generic)
+}
+
+#' @export
+Summary.piar_index <- function(..., na.rm) {
+  stop(gettextf("'%s' not meaningful for index objects", .Generic))
 }

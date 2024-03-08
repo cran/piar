@@ -2,7 +2,7 @@
 % Please edit documentation in R/aggregation_structure-class.R
 \name{is_aggregation_structure}
 \alias{is_aggregation_structure}
-\title{Test if an object is a price index aggregation structure}
+\title{Test if an object is an aggregation structure}
 \usage{
 is_aggregation_structure(x)
 }
@@ -10,7 +10,7 @@ is_aggregation_structure(x)
 \item{x}{An object to test.}
 }
 \value{
-Returns \code{TRUE} if \code{x} inherits from \code{\link{piar_aggregation_structure}}
+Returns \code{TRUE} if \code{x} inherits from \code{\link{piar_aggregation_structure}}.
 }
 \description{
 Test if an object is a price index aggregation structure.

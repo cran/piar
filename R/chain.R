@@ -11,15 +11,14 @@
 #' in the new base period.
 #'
 #' @details
-#' The default methods attempts to coerce `x` into an index with
+#' The default methods attempt to coerce `x` into an index with
 #' [as_index()] prior to chaining/unchaining/rebasing.
 #'
 #' Chaining an index takes the cumulative product of the index values for each
 #' level; this is roughly the same as
 #' `t(apply(as.matrix(x), 1, cumprod)) * link`. Unchaining does the opposite,
 #' so these are inverse operations. Note that unchaining a period-over-period
-#' index (i.e., when `is_chainable_index(x) == TRUE`) does nothing, as does
-#' chaining a fixed-base index (i.e., when `is_chainable_index(x) == FALSE`).
+#' index does nothing, as does chaining a fixed-base index.
 #'
 #' Rebasing a fixed-base index divides the values for each level of this index
 #' by the corresponding values for each level in the new base period. It's
@@ -46,30 +45,23 @@
 #' [`chainable_piar_index`].
 #'
 #' @examples
-#' prices <- data.frame(
-#'   rel = 1:8,
-#'   period = rep(1:2, each = 4),
-#'   ea = rep(letters[1:2], 4)
-#' )
-#'
-#' # A simple period-over-period elemental index
-#'
-#' (epr <- with(prices, elemental_index(rel, period, ea)))
+#' index <- as_index(matrix(1:9, 3))
 #'
 #' # Make period 0 the fixed base period
 #'
-#' chain(epr)
+#' chain(index)
 #'
 #' # Chaining and unchaining reverse each other
 #'
-#' all.equal(epr, unchain(chain(epr)))
+#' all.equal(index, unchain(chain(index)))
 #'
 #' # Change the base period to period 2 (note the
 #' # loss of information for period 0)
 #'
-#' epr <- chain(epr)
-#' rebase(epr, epr[, 2])
+#' index <- chain(index)
+#' rebase(index, index[, 2])
 #'
+#' @family index methods
 #' @export chain
 chain <- function(x, ...) {
   UseMethod("chain")
@@ -91,7 +83,6 @@ chain.aggregate_piar_index <- function(x, ...) {
 }
 
 #' @rdname chain
-#' @family index methods
 #' @export
 chain.chainable_piar_index <- function(x, link = rep(1, nlevels(x)), ...) {
   link <- as.numeric(link)
@@ -110,8 +101,6 @@ chain.chainable_piar_index <- function(x, link = rep(1, nlevels(x)), ...) {
   new_piar_index(x$index, x$contrib, x$levels, x$time, chainable = FALSE)
 }
 
-#' @rdname chain
-#' @family index method
 #' @export
 chain.direct_piar_index <- function(x, ...) {
   x
@@ -138,15 +127,12 @@ unchain.aggregate_piar_index <- function(x, ...) {
   )
 }
 
-#' @rdname chain
-#' @family index method
 #' @export
 unchain.chainable_piar_index <- function(x, ...) {
   x
 }
 
 #' @rdname chain
-#' @family index method
 #' @export
 unchain.direct_piar_index <- function(x, ...) {
   x$index[-1L] <- Map(`/`, x$index[-1L], x$index[-length(x$index)])
@@ -167,15 +153,12 @@ rebase.default <- function(x, ...) {
   rebase(as_index(x, chainable = FALSE), ...)
 }
 
-#' @rdname chain
-#' @family index method
 #' @export
 rebase.chainable_piar_index <- function(x, ...) {
   x
 }
 
 #' @rdname chain
-#' @family index method
 #' @export
 rebase.direct_piar_index <- function(x, base = rep(1, nlevels(x)), ...) {
   base <- as.numeric(base)

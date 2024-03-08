@@ -3,9 +3,9 @@
 \name{as.matrix.piar_aggregation_structure}
 \alias{as.matrix.piar_aggregation_structure}
 \alias{as.data.frame.piar_aggregation_structure}
-\title{Coerce a price index aggregation structure into a tabular form}
+\title{Coerce an aggregation structure into a tabular form}
 \usage{
-\method{as.matrix}{piar_aggregation_structure}(x, sparse = FALSE, ...)
+\method{as.matrix}{piar_aggregation_structure}(x, ..., sparse = FALSE)
 
 \method{as.data.frame}{piar_aggregation_structure}(x, ..., stringsAsFactors = FALSE)
 }
@@ -13,11 +13,11 @@
 \item{x}{A price index aggregation structure, as made by
 \code{\link[=aggregation_structure]{aggregation_structure()}}.}
 
+\item{...}{Not currently used.}
+
 \item{sparse}{Should the result be a sparse matrix from \pkg{Matrix}? This
 is faster for large aggregation structures. The default returns an ordinary
 dense matrix.}
-
-\item{...}{Further arguments passed to or used by methods.}
 
 \item{stringsAsFactors}{See \code{\link[=as.data.frame]{as.data.frame()}}.}
 }
@@ -61,6 +61,7 @@ all.equal(as.data.frame(pias), aggregation_weights)
 \code{\link[=as_aggregation_structure]{as_aggregation_structure()}} for coercing into an aggregation structure.
 
 Other aggregation structure methods: 
+\code{\link{levels.piar_aggregation_structure}()},
 \code{\link{update.piar_aggregation_structure}()},
 \code{\link{weights.piar_aggregation_structure}()}
 }

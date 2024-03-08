@@ -15,7 +15,7 @@
 \item{n}{See \code{\link[=head]{head()}}/\code{\link[=tail]{tail()}}. The default takes the
 first/last 6 levels of \code{x}.}
 
-\item{...}{Further arguments passed to or used by methods.}
+\item{...}{Not currently used.}
 }
 \value{
 A price index that inherits from \code{\link{chainable_piar_index}} if \code{x} is a
@@ -26,21 +26,11 @@ fixed-base index.
 Extract the first/last parts of an index as if it were a matrix.
 }
 \examples{
-prices <- data.frame(
-  rel = 1:8,
-  period = rep(1:2, each = 4),
-  ea = rep(letters[1:2], 4)
-)
+index <- as_index(matrix(1:9, 3))
 
-# Calculate Jevons elemental indexes
+head(index, 1)
 
-epr <- with(prices, elemental_index(rel, period, ea))
-
-# Get the first/last time series
-
-head(epr, 1)
-
-tail(epr, 1)
+tail(index, 1)
 
 }
 \seealso{
@@ -50,9 +40,11 @@ Other index methods:
 \code{\link{as.data.frame.piar_index}()},
 \code{\link{chain}()},
 \code{\link{contrib}()},
+\code{\link{is.na.piar_index}()},
 \code{\link{levels.piar_index}()},
 \code{\link{mean.piar_index}()},
 \code{\link{merge.piar_index}()},
+\code{\link{split.piar_index}()},
 \code{\link{stack.piar_index}()},
 \code{\link{time.piar_index}()},
 \code{\link{vcov.aggregate_piar_index}()}

@@ -1,3 +1,60 @@
+# Version 0.7.0
+
+## Significant changes
+
+- Some arguments for `elemental_index()`, `as_index()`, `aggregate(index)`,
+`mean(index)`, `vcov(index)`, `update(aggregation_structure)`, and `weights(aggregation_structure)` now need to be named (e.g., `na.rm`, `contrib`).
+This helps to unify the signatures for several functions that had similar
+arguments in different positions. In all cases these are arguments that are
+not near the beginning of the function and should have probably been named
+anyways.
+
+- There are several bug fixes in this version that make non-backwards compatible
+changes.
+
+## Improvements
+
+- Added examples for finding imputed index values to the vignette.
+
+- `contrib()` gets a new argument `period` to control which time periods get
+included in the contributions matrix (as documented).
+
+- `contrib()` gets a new argument `pad` to control how the contributions matrix
+is padded when products differ over time.
+
+- Added `is.na()` and `anyNA()` methods to find missing values in an index
+object.
+
+- `index[i] <- value` now works when `i` is a matrix.
+
+- `mean()` gets a new argument `contrib` to control if product contributions
+are aggregated over subperiods.
+
+- Added a `split()` method for index objects.
+
+- `levels(aggregation_structure)` now returns a list of levels to denote
+the position of each level in the hierarchy. Use `unlist()` to get the old
+behavior.
+
+## Bug fixes
+
+- The default for `ea_only` has changed to `TRUE` when calling
+`weights(aggregation_structure)` to fix a bug with the replacement method.
+
+- Replacing an index value with `index[] <- value` when `value` is also an index
+object now works correctly when `value` is recycled.
+
+- Setting `stringsAsFactors = TRUE` in `as.data.frame(index)` now keeps the
+correct ordering of the factor levels.
+
+- `mean(index)` no longer returns an aggregate index when `r` differs from that
+used to make `index`.
+
+## Deprecations
+
+- The `cols` argument for `as_index()` is deprecated and will be removed in a
+future version.
+
 # Version 0.6.0
 
 ## Significant changes

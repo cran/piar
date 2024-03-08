@@ -9,7 +9,7 @@ Francis that was first ported to R by Ambuj Dewan, and subsequently
 rewritten by Steve Martin.
 }
 \usage{
-\method{vcov}{aggregate_piar_index}(object, repweights, mse = TRUE, sparse = FALSE, ...)
+\method{vcov}{aggregate_piar_index}(object, repweights, ..., mse = TRUE, sparse = FALSE)
 }
 \arguments{
 \item{object}{An aggregate price index, as made by
@@ -19,14 +19,14 @@ rewritten by Steve Martin.
 bootstrap replicate weights with a row for each elemental aggregate and a
 column for each replicate.}
 
+\item{...}{Not currently used.}
+
 \item{mse}{Should variance be centered off the value of the index in
 \code{object} (the default), or the mean of the replicates?}
 
 \item{sparse}{Use sparse matrices from \pkg{Matrix} when aggregating the
 index. Faster for indexes with large aggregation structures. The default
 uses regular dense matrices.}
-
-\item{...}{Further arguments passed to or used by methods.}
 }
 \value{
 A matrix of variances with a row for each upper-level index and a
@@ -71,11 +71,11 @@ repweights <- matrix(c(0, 2, 3, 1, 2, 4, 2, 3, 3), 3)
 
 # Calculate Jevons elemental indexes
 
-epr <- with(prices, elemental_index(rel, period, ea))
+elemental <- with(prices, elemental_index(rel, period, ea))
 
 # Aggregate
 
-index <- aggregate(epr, pias, na.rm = TRUE)
+index <- aggregate(elemental, pias, na.rm = TRUE)
 
 # Calculate variance
 
@@ -98,9 +98,11 @@ Other index methods:
 \code{\link{chain}()},
 \code{\link{contrib}()},
 \code{\link{head.piar_index}()},
+\code{\link{is.na.piar_index}()},
 \code{\link{levels.piar_index}()},
 \code{\link{mean.piar_index}()},
 \code{\link{merge.piar_index}()},
+\code{\link{split.piar_index}()},
 \code{\link{stack.piar_index}()},
 \code{\link{time.piar_index}()}
 }

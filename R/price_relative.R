@@ -1,21 +1,3 @@
-# new_price_relative <- function(relative, period, product, chainable) {
-#   structure(relative, period = period, product = product, chainable = chainable,
-#             class = "price_relative")
-# }
-#
-# price_relative <- function(x, ...) {
-#   UseMethod("price_relative")
-# }
-#
-# price_relative.default <- function(x, ...) {
-#   price_relative(as.numeric(x), ...)
-# }
-#
-# price_relative.numeric <- function(x, period, product, chainable = TRUE, ...) {
-#   res <- x / x[back_period(period, product)]
-#   new_price_relative(res, period, product, chainable)
-# }
-
 #' Calculate period-over-period price relatives
 #'
 #' Construct period-over-period price relatives from information on prices and
@@ -47,7 +29,14 @@
 #' @export
 price_relative <- function(x, period, product) {
   x <- as.numeric(x)
+  period <- as.factor(period)
+  product <- as.factor(product)
+  
+  if (different_length(x, period, product)) {
+    stop("'x', 'period', and 'product' must be the same length")
+  }
+  
   res <- x / x[gpindex::back_period(period, product)]
-  names(res) <- product
+  names(res) <- as.character(product)
   res
 }

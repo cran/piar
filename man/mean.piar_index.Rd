@@ -4,15 +4,18 @@
 \alias{mean.piar_index}
 \title{Aggregate a price index over subperiods}
 \usage{
-\method{mean}{piar_index}(x, weights = NULL, window = 3L, na.rm = FALSE, r = 1, ...)
+\method{mean}{piar_index}(x, weights = NULL, ..., window = 3L, na.rm = FALSE, contrib = TRUE, r = 1)
 }
 \arguments{
 \item{x}{A price index, as made by, e.g., \code{\link[=elemental_index]{elemental_index()}}.}
 
-\item{weights}{A numeric vector of weights for the index values in \code{x}. The
+\item{weights}{A numeric vector of weights for the index values in \code{x}, or
+something that can be coerced into one. The
 default is equal weights. It is usually easiest to specify these weights as
 a matrix with a row for each index value in \code{x} and a column for each
 time period.}
+
+\item{...}{Not currently used.}
 
 \item{window}{A positive integer giving the size of the window used to
 average index values across subperiods. The default (3) turns a monthly
@@ -22,17 +25,19 @@ index into into a quarterly one. Non-integers are truncated towards 0.}
 are not removed. Setting \code{na.rm = TRUE} is equivalent to overall mean
 imputation.}
 
+\item{contrib}{Aggregate percent-change contributions in \code{x} (if any)?}
+
 \item{r}{Order of the generalized mean to aggregate index values. 0 for a
 geometric index (the default for making elemental indexes), 1 for an
 arithmetic index (the default for aggregating elemental indexes and
 averaging indexes over subperiods), or -1 for a harmonic index (usually for
 a Paasche index). Other values are possible; see
 \code{\link[gpindex:generalized_mean]{gpindex::generalized_mean()}} for details.}
-
-\item{...}{Further arguments passed to or used by methods.}
 }
 \value{
-A price index with the same class as \code{x}.
+A price index with the same class as \code{x}. If \code{x} is an aggregate index
+and \code{r} is different than that used to aggregate \code{x}, then the result is
+not an aggregate index (as it is no longer consistent in aggregation).
 }
 \description{
 Aggregate an index over subperiods by taking the (usually arithmetic) mean
@@ -42,26 +47,24 @@ of index values over consecutive windows of subperiods.
 The \code{mean()} method constructs a set of non-overlapping windows of
 length \code{window}, starting in the first period of the index, and takes
 the mean of each index value in these windows for each level of the index.
-The last window is discarded if it is incomplete, so that index values are
+The last window is discarded if it is incomplete (with a warning), so that
+index values are
 always averaged over \code{window} periods. The names for the first time
 period in each window form the new names for the aggregated time periods.
-Note that percent-change contributions are discarded when aggregating over
-subperiods.
+
+Percent-change contributions are aggregated if \code{contrib = TRUE} by treating
+each product-subperiod pair as a unique product, then following the same
+approach as \code{\link[=aggregate.piar_index]{aggregate()}}. The number of the
+subperiod is appended to product names to make them unique across subperiods.
 
 An optional vector of weights can be specified when aggregating index values
 over subperiods, which is often useful when aggregating a Paasche index; see
 section 4.3 of Balk (2008) for details.
 }
 \examples{
-prices <- data.frame(
-  rel = 1:8,
-  period = rep(1:2, each = 4),
-  ea = rep(letters[1:2], 4)
-)
+index <- as_index(matrix(c(1:12, 12:1), 2, byrow = TRUE))
 
-epr <- with(prices, elemental_index(rel, period, ea))
-
-mean(epr, window = 2)
+mean(index)
 
 }
 \references{
@@ -76,8 +79,10 @@ Other index methods:
 \code{\link{chain}()},
 \code{\link{contrib}()},
 \code{\link{head.piar_index}()},
+\code{\link{is.na.piar_index}()},
 \code{\link{levels.piar_index}()},
 \code{\link{merge.piar_index}()},
+\code{\link{split.piar_index}()},
 \code{\link{stack.piar_index}()},
 \code{\link{time.piar_index}()},
 \code{\link{vcov.aggregate_piar_index}()}

@@ -2,9 +2,9 @@
 % Please edit documentation in R/update.aggregation_structure.R
 \name{update.piar_aggregation_structure}
 \alias{update.piar_aggregation_structure}
-\title{Update a price index aggregation structure}
+\title{Update an aggregation structure}
 \usage{
-\method{update}{piar_aggregation_structure}(object, index, period = end(index), r = NULL, ...)
+\method{update}{piar_aggregation_structure}(object, index, period = end(index), ..., r = NULL)
 }
 \arguments{
 \item{object}{A price index aggregation structure, as made by
@@ -17,11 +17,11 @@ Usually an aggregate price index as made by
 \item{period}{The time period used to price update the weights. The default
 uses the last period in \code{index}.}
 
+\item{...}{Not currently used.}
+
 \item{r}{Order of the generalized mean to update the weights. The default
 uses the order used to aggregate \code{index} if it's an aggregate index;
 otherwise, the default is 1 for an arithmetic index.}
-
-\item{...}{Further arguments passed to or used by methods.}
 }
 \value{
 A copy of \code{object} with price-updated weights using the index
@@ -52,9 +52,9 @@ index <- as_index(
   matrix(1:9, 3, dimnames = list(c("111", "112", "121"), NULL))
 )
 
-weights(pias)
+weights(pias, ea_only = FALSE)
 
-weights(update(pias, index))
+weights(update(pias, index), ea_only = FALSE)
 
 }
 \seealso{
@@ -62,6 +62,7 @@ weights(update(pias, index))
 
 Other aggregation structure methods: 
 \code{\link{as.matrix.piar_aggregation_structure}()},
+\code{\link{levels.piar_aggregation_structure}()},
 \code{\link{weights.piar_aggregation_structure}()}
 }
 \concept{aggregation structure methods}

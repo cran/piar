@@ -7,7 +7,7 @@
 \usage{
 contrib(x, ...)
 
-\method{contrib}{piar_index}(x, level = levels(x), ...)
+\method{contrib}{piar_index}(x, level = levels(x)[1L], period = time(x), ..., pad = 0)
 }
 \arguments{
 \item{x}{A price index, as made by, e.g., \code{\link[=elemental_index]{elemental_index()}}.}
@@ -17,11 +17,17 @@ contrib(x, ...)
 \item{level}{The level of an index for which percent-change contributions
 are desired, defaulting to the first level (usually the top-level for an
 aggregate index).}
+
+\item{period}{The time periods for which percent-change contributions are
+desired, defaulting to all time periods.}
+
+\item{pad}{A numeric value to pad contributions so that they fit into a
+rectangular array when products differ over time. The default is 0.}
 }
 \value{
 A matrix of percent-change contributions with a column for each
 \code{period} and a row for each product (sorted) for which there are
-contributions in \code{level}. Contributions are padded with 0 to fit into a
+contributions in \code{level}. Contributions are padded with \code{pad} to fit into a
 rectangular array when products differ over time.
 }
 \description{
@@ -34,7 +40,7 @@ prices <- data.frame(
   ea = rep(letters[1:2], 4)
 )
 
-epr <- with(
+index <- with(
   prices,
   elemental_index(rel, period, ea, contrib = TRUE)
 )
@@ -43,7 +49,7 @@ pias <- aggregation_structure(
   list(c("top", "top", "top"), c("a", "b", "c")), 1:3
 )
 
-index <- aggregate(epr, pias, na.rm = TRUE)
+index <- aggregate(index, pias, na.rm = TRUE)
 
 # Percent-change contributions for the top-level index
 
@@ -55,7 +61,7 @@ library(gpindex)
 
 arithmetic_contributions(
   as.matrix(chain(index))[c("a", "b", "c"), 2],
-  weights(pias, ea_only = TRUE)
+  weights(pias)
 )
 
 }
@@ -66,9 +72,11 @@ Other index methods:
 \code{\link{as.data.frame.piar_index}()},
 \code{\link{chain}()},
 \code{\link{head.piar_index}()},
+\code{\link{is.na.piar_index}()},
 \code{\link{levels.piar_index}()},
 \code{\link{mean.piar_index}()},
 \code{\link{merge.piar_index}()},
+\code{\link{split.piar_index}()},
 \code{\link{stack.piar_index}()},
 \code{\link{time.piar_index}()},
 \code{\link{vcov.aggregate_piar_index}()}

@@ -37,13 +37,15 @@ test_that("a matched-sample index aggregates correctly", {
   # Lower levels add up
   expect_equal(
     apply(
-      as.matrix(chain(ms_index)[4:8, ]), 2, weighted.mean, weights(ms_pias)[[3]]
+      as.matrix(chain(ms_index)[4:8, ]), 2, weighted.mean,
+      weights(ms_pias, ea_only = FALSE)[[3]]
     ),
     as.matrix(chain(ms_index))[1, ]
   )
   expect_equal(
     apply(
-      as.matrix(chain(ms_index)[2:3, ]), 2, weighted.mean, weights(ms_pias)[[2]]
+      as.matrix(chain(ms_index)[2:3, ]), 2, weighted.mean,
+      weights(ms_pias, ea_only = FALSE)[[2]]
     ),
     as.matrix(chain(ms_index))[1, ]
   )
@@ -64,7 +66,7 @@ test_that("a matched-sample index aggregates correctly", {
 
   # Two step aggregation gives the same result
   pias2 <- aggregation_structure(list(c(1, 1), c(11, 12)),
-                                 weights(ms_pias)[[2]])
+                                 weights(ms_pias, ea_only = FALSE)[[2]])
   expect_equal(as.matrix(aggregate(ms_index, pias2)), as.matrix(ms_index[1:3]))
   expect_equal(
     contrib(aggregate(aggregate(ms_index, ms_pias), pias2)),
@@ -160,7 +162,8 @@ test_that("a weird index aggregates correctly", {
 
   expect_equal(
     apply(as.matrix(chain(ms_index)[2:3, ]), 2,
-          gpindex::generalized_mean(-1.7), weights(ms_pias)[[2]]),
+          gpindex::generalized_mean(-1.7),
+          weights(ms_pias, ea_only = FALSE)[[2]]),
     as.matrix(chain(ms_index))[1, ]
   )
 
@@ -183,7 +186,7 @@ test_that("a fixed-sample index aggregates correctly", {
   fs_epr <- with(
     fs_prices,
     elemental_index(price_relative(price, period, business),
-                    period, classification, w = weight, contrib = TRUE)
+                    period, classification, weights = weight, contrib = TRUE)
   )
 
   fs_pias <- with(
@@ -218,13 +221,13 @@ test_that("a fixed-sample index aggregates correctly", {
   # Check adding up of lower level indexes
   expect_equal(
     apply(as.matrix(chain(fs_index)[5:9, ]), 2,
-          weighted.mean, weights(fs_pias)[[3]]),
+          weighted.mean, weights(fs_pias, ea_only = FALSE)[[3]]),
     as.matrix(chain(fs_index))[1, ]
   )
 
   expect_equal(
     apply(as.matrix(chain(fs_index)[2:4, ]), 2,
-          weighted.mean, weights(fs_pias)[[2]]),
+          weighted.mean, weights(fs_pias, ea_only = FALSE)[[2]]),
     as.matrix(chain(fs_index))[1, ]
   )
 
@@ -252,7 +255,7 @@ test_that("a fixed-based index aggregates correctly", {
   pias <- aggregation_structure(list(c("1", "1"), c("f1", "f2")), 1:2)
 
   epr_pop <- with(prices, elemental_index(pop_rel, period, ea))
-  epr_fx <- with(prices, elemental_index(fx_rel, period, ea, chain = FALSE))
+  epr_fx <- with(prices, elemental_index(fx_rel, period, ea, chainable = FALSE))
 
   index_pop <- aggregate(epr_pop, pias)
   index_fx <- aggregate(epr_fx, pias)
@@ -399,4 +402,25 @@ test_that("reaggregating doesn't introduce incorrect contributions", {
   r <- as.numeric(index[2:3, 1])
   r <- (r / sum(r))[1]
   expect_equal(contrib(index)[, 2] * r, contrib(aggregate(index, pias))[, 2])
+})
+
+test_that("skipping time periods works", {
+  ms_epr <- with(
+    ms_prices,
+    elemental_index(price_relative(price, period, product),
+                    period, business, na.rm = TRUE)
+  )
+  
+  ms_pias <- with(
+    ms_weights,
+    aggregation_structure(
+      c(expand_classification(classification), list(business)), weight
+    )
+  )
+  
+  ms_index <- chain(aggregate(ms_epr, ms_pias, na.rm = TRUE, r = 2))
+  
+  ms_index2 <- unchain(ms_index[, -3])
+  
+  expect_equal(chain(aggregate(ms_index2, ms_pias, r = 2))[, 3], ms_index[, 4])
 })

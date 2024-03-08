@@ -1,4 +1,4 @@
-#' Update a price index aggregation structure
+#' Update an aggregation structure
 #'
 #' Price update the weights in a price index aggregation structure.
 #'
@@ -12,9 +12,9 @@
 #' @param r Order of the generalized mean to update the weights. The default
 #' uses the order used to aggregate `index` if it's an aggregate index;
 #' otherwise, the default is 1 for an arithmetic index.
-#' @param ... Further arguments passed to or used by methods.
+#' @param ... Not currently used.
 #'
-#' @return
+#' @returns
 #' A copy of `object` with price-updated weights using the index
 #' values in `index`.
 #'
@@ -43,24 +43,23 @@
 #'   matrix(1:9, 3, dimnames = list(c("111", "112", "121"), NULL))
 #' )
 #'
-#' weights(pias)
+#' weights(pias, ea_only = FALSE)
 #'
-#' weights(update(pias, index))
+#' weights(update(pias, index), ea_only = FALSE)
 #'
 #' @importFrom stats update
 #' @family aggregation structure methods
 #' @export
 update.piar_aggregation_structure <- function(object, index,
-                                              period = end(index), r = NULL,
-                                              ...) {
+                                              period = end(index), ...,
+                                              r = NULL) {
   index <- as_index(index)
-  period <- as.character(period)
-  period <- match.arg(period, index$time)
+  period <- match.arg(as.character(period), index$time)
   if (is.null(r)) {
     r <- if (is.null(index$r)) 1 else index$r
   }
   price_update <- gpindex::factor_weights(r)
-  eas <- match(object$eas, index$levels)
+  eas <- match(object$levels[[length(object$levels)]], index$levels)
   if (anyNA(eas)) {
     warning("not all weights in 'object' have a corresponding index value")
   }

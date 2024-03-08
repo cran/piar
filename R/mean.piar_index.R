@@ -6,18 +6,23 @@
 #' The `mean()` method constructs a set of non-overlapping windows of
 #' length `window`, starting in the first period of the index, and takes
 #' the mean of each index value in these windows for each level of the index.
-#' The last window is discarded if it is incomplete, so that index values are
+#' The last window is discarded if it is incomplete (with a warning), so that
+#' index values are
 #' always averaged over `window` periods. The names for the first time
 #' period in each window form the new names for the aggregated time periods.
-#' Note that percent-change contributions are discarded when aggregating over
-#' subperiods.
+#'
+#' Percent-change contributions are aggregated if `contrib = TRUE` by treating
+#' each product-subperiod pair as a unique product, then following the same
+#' approach as [`aggregate()`][aggregate.piar_index]. The number of the
+#' subperiod is appended to product names to make them unique across subperiods.
 #'
 #' An optional vector of weights can be specified when aggregating index values
 #' over subperiods, which is often useful when aggregating a Paasche index; see
 #' section 4.3 of Balk (2008) for details.
 #'
 #' @param x A price index, as made by, e.g., [elemental_index()].
-#' @param weights A numeric vector of weights for the index values in `x`. The
+#' @param weights A numeric vector of weights for the index values in `x`, or
+#' something that can be coerced into one. The
 #' default is equal weights. It is usually easiest to specify these weights as
 #' a matrix with a row for each index value in `x` and a column for each
 #' time period.
@@ -33,35 +38,37 @@
 #' averaging indexes over subperiods), or -1 for a harmonic index (usually for
 #' a Paasche index). Other values are possible; see
 #' [gpindex::generalized_mean()] for details.
-#' @param ... Further arguments passed to or used by methods.
+#' @param contrib Aggregate percent-change contributions in `x` (if any)?
+#' @param ... Not currently used.
 #'
 #' @returns
-#' A price index with the same class as `x`.
+#' A price index with the same class as `x`. If `x` is an aggregate index
+#' and `r` is different than that used to aggregate `x`, then the result is
+#' not an aggregate index (as it is no longer consistent in aggregation).
 #'
 #' @references Balk, B. M. (2008). *Price and Quantity Index Numbers*.
 #' Cambridge University Press.
 #'
 #' @examples
-#' prices <- data.frame(
-#'   rel = 1:8,
-#'   period = rep(1:2, each = 4),
-#'   ea = rep(letters[1:2], 4)
-#' )
+#' index <- as_index(matrix(c(1:12, 12:1), 2, byrow = TRUE))
 #'
-#' epr <- with(prices, elemental_index(rel, period, ea))
-#'
-#' mean(epr, window = 2)
+#' mean(index)
 #'
 #' @family index methods
 #' @export
-mean.piar_index <- function(x, weights = NULL, window = 3L, na.rm = FALSE,
-                            r = 1, ...) {
+mean.piar_index <- function(x, weights = NULL, ...,
+                            window = 3L,
+                            na.rm = FALSE,
+                            contrib = TRUE,
+                            r = 1) {
   if (!is.null(weights)) {
+    weights <- as.numeric(weights)
     if (length(weights) != length(x$time) * length(x$levels)) {
       stop("'weights' must have a value for each index value in 'x'")
     }
-    w <- split(as.numeric(weights), gl(length(x$time), length(x$levels)))
+    w <- split(weights, gl(length(x$time), length(x$levels)))
   }
+
   window <- as.integer(window)
   if (length(window) > 1L || window < 1L) {
     stop("'window' must be a positive length 1 integer")
@@ -69,21 +76,52 @@ mean.piar_index <- function(x, weights = NULL, window = 3L, na.rm = FALSE,
   if (window > length(x$time)) {
     stop("'x' must have at least 'window' time periods")
   }
-  len <- length(x$time) %/% window
+
+  # helpful functions
+  gen_mean <- Vectorize(gpindex::generalized_mean(r), USE.NAMES = FALSE)
+  agg_contrib <- Vectorize(aggregate_contrib(r),
+    SIMPLIFY = FALSE, USE.NAMES = FALSE
+  )
+
   # get the starting location for each window
+  if (length(x$time) %% window != 0) {
+    warning("'window' is not a multiple of the number of time periods in 'x'")
+  }
+  len <- length(x$time) %/% window
   loc <- seq.int(1L, by = window, length.out = len)
   periods <- x$time[loc]
-  res <- index_skeleton(x$levels, periods)
+
+  has_contrib <- has_contrib(x) && contrib
+
   # loop over each window and calculate the mean for each level
-  gen_mean <- Vectorize(gpindex::generalized_mean(r))
+  index <- index_skeleton(x$levels, periods)
+  contrib <- contrib_skeleton(x$levels, periods)
   for (i in seq_along(loc)) {
     j <- seq(loc[i], length.out = window)
-    index <- .mapply(c, x$index[j], list())
+    rel <- .mapply(c, x$index[j], list())
     weight <- if (is.null(weights)) list(NULL) else .mapply(c, w[j], list())
-    res[[i]][] <- gen_mean(index, weight, na.rm = na.rm)
+    index[[i]][] <- gen_mean(rel, weight, na.rm = na.rm)
+    if (has_contrib) {
+      con <- .mapply(\(...) c(list(...)), x$contrib[j], list())
+      contrib[[i]][] <- agg_contrib(con, rel, weight)
+    }
   }
-  x$index <- res
-  x$contrib <- contrib_skeleton(x$levels, periods)
+
+  x$index <- index
+  x$contrib <- contrib
   x$time <- periods
   validate_piar_index(x)
+}
+
+#' @export
+mean.aggregate_piar_index <- function(x, weights = NULL, ..., window = 3L,
+                                      na.rm = FALSE, r = 1, contrib = TRUE) {
+  res <- NextMethod("mean")
+  if (r != res$r) {
+    res <- new_piar_index(
+      res$index, res$contrib, res$levels, res$time,
+      is_chainable_index(res)
+    )
+  }
+  res
 }
