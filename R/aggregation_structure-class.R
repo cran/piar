@@ -13,7 +13,6 @@ new_piar_aggregation_structure <- function(child, parent, levels, weights) {
 piar_aggregation_structure <- function(child, parent, levels, weights) {
   levels <- lapply(as.list(levels), as.character)
   weights <- as.numeric(weights)
-  names(weights) <- levels[[length(levels)]]
   validate_piar_aggregation_structure(
     new_piar_aggregation_structure(child, parent, levels, weights)
   )
@@ -21,7 +20,7 @@ piar_aggregation_structure <- function(child, parent, levels, weights) {
 
 #---- Validator ----
 validate_pias_levels <- function(x) {
-  lev = unlist(x$levels, use.names = FALSE)
+  lev <- unlist(x$levels, use.names = FALSE)
   if (anyNA(lev) || any(lev == "")) {
     stop("cannot make an aggregation structure with missing levels")
   }
@@ -65,12 +64,19 @@ validate_piar_aggregation_structure <- function(x) {
 }
 
 #' @export
-print.piar_aggregation_structure <- function(x, ...) {
+summary.piar_aggregation_structure <- function(object, ...) {
+  chkDots(...)
   cat(
-    "Aggregation structure for", length(x$levels[[length(x$levels)]]),
+    "Aggregation structure for", length(object$levels[[length(object$levels)]]),
     "elemental aggregates with",
-    length(x$levels) - 1L, "levels above the elemental aggregates", "\n"
+    length(object$levels) - 1L, "levels above the elemental aggregates", "\n"
   )
+  invisible()
+}
+
+#' @export
+print.piar_aggregation_structure <- function(x, ...) {
+  summary(x)
   print(as.data.frame(x), ...)
   invisible(x)
 }

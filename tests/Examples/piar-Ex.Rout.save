@@ -1,7 +1,7 @@
 
-R version 4.3.2 (2023-10-31) -- "Eye Holes"
-Copyright (C) 2023 The R Foundation for Statistical Computing
-Platform: x86_64-pc-linux-gnu (64-bit)
+R version 4.4.1 (2024-06-14) -- "Race for Your Life"
+Copyright (C) 2024 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -46,12 +46,12 @@ Type 'q()' to quit R.
 > # A two-level aggregation structure
 > 
 > pias <- aggregation_structure(
-+   list(c("top", "top", "top"), c("a", "b", "c")), 1:3
++   list(c("top", "top", "top"), c("a", "b", "c")), weights = 1:3
 + )
 > 
 > # Calculate Jevons elemental indexes
 > 
-> (elemental <- with(prices, elemental_index(rel, period, ea)))
+> (elemental <- elemental_index(prices, rel ~ period + ea))
 Period-over-period price index for 2 levels over 2 time periods 
          1        2
 a 1.732051 5.916080
@@ -60,7 +60,7 @@ b 2.828427 6.928203
 > # Aggregate (note the imputation for elemental index 'c')
 > 
 > (index <- aggregate(elemental, pias, na.rm = TRUE))
-Aggregate period-over-period price index for 4 levels over 2 time periods 
+Period-over-period price index for 4 levels over 2 time periods 
            1        2
 top 2.462968 6.690949
 a   1.732051 5.916080
@@ -151,6 +151,7 @@ Aggregation structure for 3 elemental aggregates with 2 levels above the element
 4      2     2     4
 5      3     1     5
 6      3     2     6
+> 
 > as.matrix(index)
   1 2 3
 1 1 3 5
@@ -211,7 +212,6 @@ Aggregation structure for 3 elemental aggregates with 2 levels above the element
 > ### Title: Coerce to an aggregation structure
 > ### Aliases: as_aggregation_structure as_aggregation_structure.default
 > ###   as_aggregation_structure.data.frame as_aggregation_structure.matrix
-> ###   as_aggregation_structure.aggregate_piar_index
 > 
 > ### ** Examples
 > 
@@ -269,7 +269,7 @@ Aggregation structure for 3 elemental aggregates with 2 levels above the element
 +   ea = rep(letters[1:2], 4)
 + )
 > 
-> index <- with(prices, elemental_index(rel, period, ea))
+> index <- elemental_index(prices, rel ~ period + ea)
 > 
 > all.equal(as_index(as.data.frame(index)), index)
 [1] TRUE
@@ -331,7 +331,7 @@ Fixed-base price index for 3 levels over 3 time periods
 > 
 > ### Name: contrib
 > ### Title: Extract percent-change contributions
-> ### Aliases: contrib contrib.piar_index
+> ### Aliases: contrib contrib.piar_index contrib2DF contrib2DF.piar_index
 > 
 > ### ** Examples
 > 
@@ -341,13 +341,10 @@ Fixed-base price index for 3 levels over 3 time periods
 +   ea = rep(letters[1:2], 4)
 + )
 > 
-> index <- with(
-+   prices,
-+   elemental_index(rel, period, ea, contrib = TRUE)
-+ )
+> index <- elemental_index(prices, rel ~ period + ea, contrib = TRUE)
 > 
 > pias <- aggregation_structure(
-+   list(c("top", "top", "top"), c("a", "b", "c")), 1:3
++   list(c("top", "top", "top"), c("a", "b", "c")), weights = 1:3
 + )
 > 
 > index <- aggregate(index, pias, na.rm = TRUE)
@@ -360,6 +357,17 @@ a.1 0.0000000 0.5081686
 a.2 0.2440169 0.6442213
 b.1 0.3905243 2.0513858
 b.2 0.8284271 2.4871732
+> 
+> contrib2DF(index)
+  period level product     value
+1      1   top     a.1 0.0000000
+2      1   top     a.2 0.2440169
+3      1   top     b.1 0.3905243
+4      1   top     b.2 0.8284271
+5      2   top     a.1 0.5081686
+6      2   top     a.2 0.6442213
+7      2   top     b.1 2.0513858
+8      2   top     b.2 2.4871732
 > 
 > # Calculate EA contributions for the chained index
 > 
@@ -387,7 +395,7 @@ detaching ‘package:gpindex’
 > ### Name: elemental_index
 > ### Title: Make elemental price indexes
 > ### Aliases: elemental_index elemental_index.default
-> ###   elemental_index.numeric
+> ###   elemental_index.numeric elemental_index.data.frame
 > 
 > ### ** Examples
 > 
@@ -401,7 +409,7 @@ detaching ‘package:gpindex’
 > 
 > # Calculate Jevons elemental indexes
 > 
-> with(prices, elemental_index(rel, period, ea))
+> elemental_index(prices, rel ~ period + ea)
 Period-over-period price index for 2 levels over 2 time periods 
          1        2
 a 1.732051 5.916080
@@ -430,13 +438,11 @@ b 2.828427 6.928203
 > # Calculate a CSWD index (same as the Jevons in this example)
 > # as an arithmetic index by using the appropriate weights
 > 
-> with(
+> elemental_index(
 +   prices,
-+   elemental_index(
-+     rel, period, ea,
-+     fw(rel, group = interaction(period, ea)),
-+     r = 1
-+   )
++   rel ~ period + ea,
++   weights = fw(rel, group = interaction(period, ea)),
++   r = 1
 + )
 Period-over-period price index for 2 levels over 2 time periods 
          1        2
@@ -457,7 +463,7 @@ detaching ‘package:gpindex’
 > 
 > ### Name: expand_classification
 > ### Title: Expand a hierarchical classification
-> ### Aliases: expand_classification
+> ### Aliases: expand_classification interact_classifications
 > 
 > ### ** Examples
 > 
@@ -560,7 +566,10 @@ Period-over-period price index for 1 levels over 3 time periods
 > 
 > ### Name: impute_prices
 > ### Title: Impute missing prices
-> ### Aliases: impute_prices shadow_price carry_forward carry_backwards
+> ### Aliases: impute_prices shadow_price shadow_price.default
+> ###   shadow_price.data.frame carry_forward carry_forward.default
+> ###   carry_forward.data.frame carry_backward carry_backward.default
+> ###   carry_backward.data.frame
 > 
 > ### ** Examples
 > 
@@ -571,10 +580,10 @@ Period-over-period price index for 1 levels over 3 time periods
 +   ea = rep(letters[1:2], 4)
 + )
 > 
-> with(prices, carry_forward(price, period, product))
+> carry_forward(prices, price ~ period + product)
 [1] 1 2 3 4 5 6 7 4
 > 
-> with(prices, shadow_price(price, period, product, ea))
+> shadow_price(prices, price ~ period + product + ea)
 [1]  1  2  3  4  5  6  7 12
 > 
 > 
@@ -621,13 +630,15 @@ Period-over-period price index for 2 levels over 3 time periods
 > 
 > ### Name: mean.piar_index
 > ### Title: Aggregate a price index over subperiods
-> ### Aliases: mean.piar_index
+> ### Aliases: mean.piar_index mean.chainable_piar_index
+> ###   mean.direct_piar_index
 > 
 > ### ** Examples
 > 
 > index <- as_index(matrix(c(1:12, 12:1), 2, byrow = TRUE))
 > 
-> mean(index)
+> # Turn a monthly index into a quarterly index
+> mean(index, window = 3)
 Period-over-period price index for 2 levels over 4 time periods 
    1 4 7 10
 1  2 5 8 11
@@ -644,7 +655,8 @@ Period-over-period price index for 2 levels over 4 time periods
 > 
 > ### Name: merge.piar_index
 > ### Title: Merge price indexes
-> ### Aliases: merge.piar_index
+> ### Aliases: merge.piar_index merge.chainable_piar_index
+> ###   merge.direct_piar_index
 > 
 > ### ** Examples
 > 
@@ -672,11 +684,16 @@ Period-over-period price index for 4 levels over 3 time periods
 > 
 > ### Name: price_relative
 > ### Title: Calculate period-over-period price relatives
-> ### Aliases: price_relative
+> ### Aliases: price_relative price_relative.default
+> ###   price_relative.data.frame
 > 
 > ### ** Examples
 > 
-> price_relative(1:6, rep(1:2, each = 3), rep(letters[1:3], 2))
+> price_relative(
++   1:6,
++   period = rep(1:2, each = 3),
++   product = rep(letters[1:3], 2)
++ )
   a   b   c   a   b   c 
 1.0 1.0 1.0 4.0 2.5 2.0 
 > 
@@ -734,7 +751,9 @@ Period-over-period price index for 2 levels over 1 time periods
 > 
 > ### Name: stack.piar_index
 > ### Title: Stack price indexes
-> ### Aliases: stack.piar_index unstack.piar_index
+> ### Aliases: stack.piar_index stack.chainable_piar_index
+> ###   stack.direct_piar_index unstack.chainable_piar_index
+> ###   unstack.direct_piar_index
 > 
 > ### ** Examples
 > 
@@ -792,40 +811,6 @@ Period-over-period price index for 2 levels over 3 time periods
   1 2 3
 1 1 1 1
 2 2 4 6
-> 
-> 
-> 
-> 
-> cleanEx()
-> nameEx("summary.piar_index")
-> ### * summary.piar_index
-> 
-> flush(stderr()); flush(stdout())
-> 
-> ### Name: summary.piar_index
-> ### Title: Summarize a price index
-> ### Aliases: summary.piar_index
-> 
-> ### ** Examples
-> 
-> prices <- data.frame(
-+   rel = 1:8,
-+   period = rep(1:2, each = 4),
-+   ea = rep(letters[1:2], 4),
-+   contrib = TRUE
-+ )
-> 
-> elemental <- with(prices, elemental_index(rel, period, ea))
-> 
-> summary(elemental)
-Indexes
-       1               2        
- Min.   :1.732   Min.   :5.916  
- 1st Qu.:2.006   1st Qu.:6.169  
- Median :2.280   Median :6.422  
- Mean   :2.280   Mean   :6.422  
- 3rd Qu.:2.554   3rd Qu.:6.675  
- Max.   :2.828   Max.   :6.928  
 > 
 > 
 > 
@@ -895,49 +880,6 @@ Indexes
 > 
 > 
 > cleanEx()
-> nameEx("vcov.aggregate_piar_index")
-> ### * vcov.aggregate_piar_index
-> 
-> flush(stderr()); flush(stdout())
-> 
-> ### Name: vcov.aggregate_piar_index
-> ### Title: Bootstrap variance for a price index with replicate weights
-> ### Aliases: vcov.aggregate_piar_index
-> 
-> ### ** Examples
-> 
-> prices <- data.frame(
-+   rel = 1:8,
-+   period = rep(1:2, each = 4),
-+   ea = rep(letters[1:2], 4)
-+ )
-> 
-> # A two-level aggregation structure
-> 
-> pias <- aggregation_structure(
-+   list(c("top", "top", "top"), c("a", "b", "c")), 1:3
-+ )
-> 
-> repweights <- matrix(c(0, 2, 3, 1, 2, 4, 2, 3, 3), 3)
-> 
-> # Calculate Jevons elemental indexes
-> 
-> elemental <- with(prices, elemental_index(rel, period, ea))
-> 
-> # Aggregate
-> 
-> index <- aggregate(elemental, pias, na.rm = TRUE)
-> 
-> # Calculate variance
-> 
-> vcov(index, repweights)
-              1           2
-top 0.007818832 0.003929299
-> 
-> 
-> 
-> 
-> cleanEx()
 > nameEx("weights.piar_aggregation_structure")
 > ### * weights.piar_aggregation_structure
 > 
@@ -983,12 +925,44 @@ top 0.007818832 0.003929299
 > 
 > 
 > 
+> cleanEx()
+> nameEx("window.piar_index")
+> ### * window.piar_index
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: window.piar_index
+> ### Title: Index window
+> ### Aliases: window.piar_index window<-.piar_index
+> 
+> ### ** Examples
+> 
+> x <- as_index(matrix(1:9, 3))
+> 
+> window(x, "2")
+Period-over-period price index for 3 levels over 2 time periods 
+  2 3
+1 4 7
+2 5 8
+3 6 9
+> 
+> window(x, "2") <- 1
+> x
+Period-over-period price index for 3 levels over 3 time periods 
+  1 2 3
+1 1 1 1
+2 2 1 1
+3 3 1 1
+> 
+> 
+> 
+> 
 > ### * <FOOTER>
 > ###
 > cleanEx()
 > options(digits = 7L)
 > base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
-Time elapsed:  0.105 0.017 0.121 0 0 
+Time elapsed:  0.117 0.004 0.121 0 0 
 > grDevices::dev.off()
 null device 
           1 

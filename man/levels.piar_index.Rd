@@ -19,10 +19,6 @@ giving the replacement levels for \code{x}.}
 \code{levels()} returns a character vector with the levels for a price index.
 
 The replacement method returns a copy of \code{x} with the levels in \code{value}.
-
-It's not generally possible to change the levels of an aggregate price
-index, and in this case replacing the levels does not return an aggregate
-index.
 }
 \description{
 Methods to get and set the levels for a price index.
@@ -30,17 +26,17 @@ Methods to get and set the levels for a price index.
 \seealso{
 Other index methods: 
 \code{\link{[.piar_index}()},
-\code{\link{aggregate.piar_index}()},
+\code{\link{aggregate.piar_index}},
 \code{\link{as.data.frame.piar_index}()},
 \code{\link{chain}()},
 \code{\link{contrib}()},
 \code{\link{head.piar_index}()},
 \code{\link{is.na.piar_index}()},
-\code{\link{mean.piar_index}()},
+\code{\link{mean.piar_index}},
 \code{\link{merge.piar_index}()},
 \code{\link{split.piar_index}()},
 \code{\link{stack.piar_index}()},
 \code{\link{time.piar_index}()},
-\code{\link{vcov.aggregate_piar_index}()}
+\code{\link{window.piar_index}()}
 }
 \concept{index methods}

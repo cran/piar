@@ -27,8 +27,8 @@
 #'
 #' @name impute_prices
 #' @aliases impute_prices
-#' @param x A numeric vector of prices, or something that can be coerced
-#' into one.
+#' @param x Either a numeric vector (or something that can be coerced into one)
+#' or data frame of prices.
 #' @param period A factor, or something that can be coerced into one, giving
 #' the time period associated with each price in `x`. The ordering of time
 #' periods follows of the levels of `period`, to agree with
@@ -42,7 +42,8 @@
 #' imputes from elemental indexes only (i.e., not recursively).
 #' @param weights A numeric vector of weights for the prices in `x` (i.e.,
 #' product weights), or something that can be coerced into one. The default is
-#' to give each price equal weight.
+#' to give each price equal weight. This is evaluated in `x` for the data frame
+#' method.
 #' @param r1 Order of the generalized-mean price index used to calculate the
 #' elemental price indexes: 0 for a geometric index (the default), 1 for an
 #' arithmetic index, or -1 for a harmonic index. Other values are possible; see
@@ -51,18 +52,24 @@
 #' elemental price indexes: 0 for a geometric index, 1 for an arithmetic index
 #' (the default), or -1 for a harmonic index. Other values are possible; see
 #' [gpindex::generalized_mean()] for details.
+#' @param formula A two-sided formula with prices on the left-hand
+#' side. For `carry_forward()` and `carry_backward()`, the right-hand side
+#' should have time periods and products (in that order); for
+#' `shadow_price()`, the right-hand side should have time period, products, and
+#' elemental aggregates (in that order).
+#' @param ... Further arguments passed to or used by methods.
 #'
 #' @returns
-#' A copy of `x` with missing values replaced (where possible).
+#' A numeric vector of prices with missing values replaced (where possible).
 #'
 #' @seealso
 #' [price_relative()] for making price relatives for the
 #' same products over time.
 #'
 #' @references
-#' ILO, IMF, OECD, Eurostat, UN, and World Bank. (2020).
-#' *Consumer Price Index Manual: Theory and Practice*. International
-#' Monetary Fund.
+#' IMF, ILO, OECD, Eurostat, UNECE, and World Bank. (2020).
+#' *Consumer Price Index Manual: Concepts and Methods*.
+#' International Monetary Fund.
 #'
 #' @examples
 #' prices <- data.frame(
@@ -72,15 +79,29 @@
 #'   ea = rep(letters[1:2], 4)
 #' )
 #'
-#' with(prices, carry_forward(price, period, product))
+#' carry_forward(prices, price ~ period + product)
 #'
-#' with(prices, shadow_price(price, period, product, ea))
+#' shadow_price(prices, price ~ period + product + ea)
 #'
 #' @export
-shadow_price <- function(x, period, product, ea,
-                         pias = NULL, weights = NULL, r1 = 0, r2 = 1) {
-  # this is mostly a combination of gpindex::back_period() and aggregate()
-  # it just does it period-by-period and keeps track of prices to impute
+shadow_price <- function(x, ...) {
+  UseMethod("shadow_price")
+}
+
+#' @rdname impute_prices
+#' @export
+shadow_price.default <- function(x,
+                                 ...,
+                                 period,
+                                 product,
+                                 ea,
+                                 pias = NULL,
+                                 weights = NULL,
+                                 r1 = 0, 
+                                 r2 = 1) {
+  # This is mostly a combination of gpindex::back_period() and aggregate()
+  # it just does it period-by-period and keeps track of prices to impute.
+  chkDots(...)
   x <- as.numeric(x)
   period <- as.factor(period)
   product <- as.factor(product)
@@ -112,31 +133,59 @@ shadow_price <- function(x, period, product, ea,
     pias <- as_aggregation_structure(pias)
   }
   for (t in seq_along(res)[-1L]) {
-    # calculate relatives
+    # Calculate relatives.
     matches <- match(product[[t]], product[[t - 1L]], incomparables = NA)
     back_price <- res[[t - 1L]][matches]
     price <- res[[t]]
-    # calculate indexes
-    epr <- elemental_index(price / back_price,
-      ea = ea[[t]], weights = w[[t]], na.rm = TRUE, r = r1
+    # Calculate indexes.
+    epr <- elemental_index(
+      price / back_price,
+      period = gl(1, length(price)),
+      ea = ea[[t]],
+      weights = w[[t]],
+      na.rm = TRUE, r = r1
     )
     if (!is.null(pias)) {
       epr <- aggregate(epr, pias, na.rm = TRUE, r = r2)
       pias <- update(pias, epr)
     }
-    # add shadow prices to 'x'
+    # Add shadow prices to 'x'.
     impute <- is.na(price)
     eas <- match(as.character(ea[[t]][impute]), epr$levels)
     res[[t]][impute] <- epr$index[[1L]][eas] * back_price[impute]
   }
-  res <- unsplit(res, period)
-  attributes(res) <- attributes(x)
-  res
+  unsplit(res, period)
 }
 
 #' @rdname impute_prices
 #' @export
-carry_forward <- function(x, period, product) {
+shadow_price.data.frame <- function(x, 
+                                    formula, 
+                                    ...,
+                                    weights = NULL) {
+  vars <- formula_vars(formula, x, 3L)
+  weights <- eval(substitute(weights), x, parent.frame())
+  
+  shadow_price(
+    vars[[1L]],
+    period = vars[[2L]],
+    product = vars[[3L]],
+    ea = vars[[4L]],
+    weights = weights,
+    ...
+  )
+}
+
+#' @rdname impute_prices
+#' @export
+carry_forward <- function(x, ...) {
+  UseMethod("carry_forward")
+}
+
+#' @rdname impute_prices
+#' @export
+carry_forward.default <- function(x, ..., period, product) {
+  chkDots(...)
   x <- as.numeric(x)
   period <- as.factor(period)
   product <- as.factor(product)
@@ -162,14 +211,38 @@ carry_forward <- function(x, period, product) {
     )
     res[[t]][impute] <- res[[t - 1L]][matches]
   }
-  res <- unsplit(res, period)
-  attributes(res) <- attributes(x)
-  res
+  unsplit(res, period)
 }
 
 #' @rdname impute_prices
 #' @export
-carry_backwards <- function(x, period, product) {
+carry_forward.data.frame <- function(x, formula, ...) {
+  chkDots(...)
+  vars <- formula_vars(formula, x)
+  
+  carry_forward(vars[[1L]], period = vars[[2L]], product = vars[[3L]])
+}
+
+#' @rdname impute_prices
+#' @export
+carry_backward <- function(x, ...) {
+  UseMethod("carry_backward")
+}
+
+#' @rdname impute_prices
+#' @export
+carry_backward.default <- function(x, ..., period, product) {
+  chkDots(...)
   period <- as.factor(period)
-  carry_forward(x, factor(period, rev(levels(period))), product)
+  levels <- rev(levels(period))
+  carry_forward(x, period = factor(period, levels), product = product)
+}
+
+#' @rdname impute_prices
+#' @export
+carry_backward.data.frame <- function(x, formula, ...) {
+  chkDots(...)
+  vars <- formula_vars(formula, x)
+  
+  carry_backward(vars[[1L]], period = vars[[2L]], product = vars[[3L]])
 }

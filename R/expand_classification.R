@@ -1,11 +1,8 @@
-paste_until <- function(x, i) {
-  paste(x[seq_len(i)], collapse = "")
-}
-
 #' Expand a hierarchical classification
 #'
 #' Expand a character representation of a hierarchical classification to make a
-#' price index aggregation structure.
+#' price index aggregation structure. Expanded classifications be interacted
+#' together to get all combinations of aggregation structures.
 #'
 #' @param x A character vector, or something that can be coerced into one, of
 #' codes/labels for a specific level in a classification (e.g., 5-digit COICOP,
@@ -14,10 +11,18 @@ paste_until <- function(x, i) {
 #' `x`. A single value is recycled to span the longest element in
 #' `x`. This cannot contain NAs. The default assumes each digit has a
 #' width of 1, as in the NAICS, NAPCS, and SIC classifications.
+#' @param ... Lists of character vectors that give the codes/labels for each
+#' level of the classification, ordered so that moving down the list goes down
+#' the hierarchy (as made by `expand_classification()`).
+#' @param sep A character used to combine codes/labels across elements of `...`.
+#' The default uses ":".
 #'
 #' @returns
-#' A list with a entry for each level in `x` giving the "digits"
-#' that represent each level in the hierarchy.
+#' `expand_classification()` returns a list with a entry for each level
+#' in `x` giving the "digits" that represent each level in the hierarchy.
+#' 
+#' `interact_classfications()` returns a list of lists with the same structure
+#' as `expand_classification()`.
 #'
 #' @seealso
 #' [aggregation_structure()] to make a price-index aggregation structure.
@@ -52,11 +57,11 @@ paste_until <- function(x, i) {
 expand_classification <- function(x, width = 1L) {
   x <- as.character(x)
   width <- as.integer(width)
-  if (any(width <= 0L)) {
-    stop("'width' must be strictly positive")
-  }
   if (anyNA(width)) {
     stop("'width' cannot contain NAs")
+  }
+  if (any(width <= 0L)) {
+    stop("'width' must be strictly positive")
   }
 
   if (length(width) == 1L) {
@@ -66,6 +71,32 @@ expand_classification <- function(x, width = 1L) {
   w <- cumsum(width)
   x <- strsplit(x, character(0L), fixed = TRUE)
   lapply(w, function(i) {
-    vapply(x, paste_until, character(1L), i)
+    vapply(x, \(x) paste(x[seq_len(i)], collapse = ""), character(1L))
   })
+}
+
+#' @rdname expand_classification
+#' @export
+interact_classifications <- function(..., sep = ":") {
+  dots <- list(...)
+  if (length(dots) == 0L) {
+    return(list())
+  }
+  len <- unlist(lapply(dots, lengths), use.names = FALSE)
+  n <- len[1L]
+  atomics <- unlist(lapply(dots, \(x) lapply(x, is.atomic)), use.names = FALSE)
+  if (any(len != n) || n == 0L || !all(atomics)) {
+    stop(
+      "each element in '...' must contain a list representing an ",
+      "aggregation structure"
+    )
+  }
+  interact <- function(x, y) {
+    rapply(x, \(ix) lapply(y, \(iy) paste(ix, iy, sep = sep)), how = "replace")
+  }
+  res <- unlist(Reduce(interact, dots), use.names = FALSE)
+  m <- length(dots[[length(dots)]])
+  k <- m * n
+  res <- unname(split(res, gl(length(res) / k, k)))
+  lapply(res, \(x) unname(split(x, gl(m, n))))
 }

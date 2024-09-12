@@ -1,3 +1,66 @@
+# Version 0.8.1
+
+## Significant changes
+
+- `elemental_index()`, `price_relative()`, `shadow_price()`, `carry_forward()`,
+and `carry_backward()` now have a formula interface to select the relevant,
+e.g., price variables from a data frame instead of using `with()`. This
+changes the signature of these functions, and may break old code if argument
+were not named.
+    
+    - `as_aggregation_structure(list)` and `mean(index)` now require the `weights`
+    argument to be named to be consistent with other functions.
+
+- The `aggregate_piar_index` class has been removed. This class was not
+well thought out, and added unnecessary restrictions and complications to
+certain functions. In most cases this has little impact on existing code, but
+does mean that the few functions related to aggregate indexes have been removed.
+
+- The deprecated `cols` argument for `as_index(data.frame)` has been removed.
+
+- The default window size for `mean(index)` now covers the entire index. This
+makes it so that `mean()` doesn't assume an index is monthly, and
+makes it easier to use `mean()` with the new `window()` method for index
+object.
+
+## Improvements
+
+- `as_index()` gains a new argument `contrib` to add contributions to
+pre-computed indexes.
+
+- Added `contrib2DF()` to extract percent-change contributions as a data frame.
+
+- `elemental_index()`, `price_relative()`, `shadow_price()`, `carry_forward()`,
+and `carry_backward()` now require the arguments for time periods, products, and
+elemental aggregates to be named so as to avoid accidentally changing the order
+of these arguments (gh #7).
+
+- Added `interact_classifications()` to get the interaction of different
+dimensions for a hierarchical classification.
+
+- `unchain()` gets an new argument `base` for better interaction with
+`chain()` and `rebase()`.
+
+- `aggregate(index)` gets a new argument `include_ea` to control whether
+elemental indexes are returned when aggregating.
+
+- The `summary()` method for indexes has been changed to simply print a
+summary of the index, rather than try to summarized the index values.
+
+- `aggregate(index)` now imputes percent-change contributions for missing index
+values when `na.rm = TRUE`. The previously undocumented behavior was to simply
+drop them.
+
+- Added `window(index)` to extract a window of price indexes and
+`window(index) <- value` to replace them.
+
+- The base period for `rebase()` can now be a time period specifying a new base
+period. This makes it easier to rebase with pipes; e.g.,
+`index |> mean() |> rebase("202001")`.
+
+- `elemental_index()` gets a new argument `product` to better control product
+names.
+
 # Version 0.7.0
 
 ## Significant changes

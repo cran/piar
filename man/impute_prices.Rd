@@ -3,12 +3,21 @@
 \name{impute_prices}
 \alias{impute_prices}
 \alias{shadow_price}
+\alias{shadow_price.default}
+\alias{shadow_price.data.frame}
 \alias{carry_forward}
-\alias{carry_backwards}
+\alias{carry_forward.default}
+\alias{carry_forward.data.frame}
+\alias{carry_backward}
+\alias{carry_backward.default}
+\alias{carry_backward.data.frame}
 \title{Impute missing prices}
 \usage{
-shadow_price(
+shadow_price(x, ...)
+
+\method{shadow_price}{default}(
   x,
+  ...,
   period,
   product,
   ea,
@@ -18,13 +27,25 @@ shadow_price(
   r2 = 1
 )
 
-carry_forward(x, period, product)
+\method{shadow_price}{data.frame}(x, formula, ..., weights = NULL)
 
-carry_backwards(x, period, product)
+carry_forward(x, ...)
+
+\method{carry_forward}{default}(x, ..., period, product)
+
+\method{carry_forward}{data.frame}(x, formula, ...)
+
+carry_backward(x, ...)
+
+\method{carry_backward}{default}(x, ..., period, product)
+
+\method{carry_backward}{data.frame}(x, formula, ...)
 }
 \arguments{
-\item{x}{A numeric vector of prices, or something that can be coerced
-into one.}
+\item{x}{Either a numeric vector (or something that can be coerced into one)
+or data frame of prices.}
+
+\item{...}{Further arguments passed to or used by methods.}
 
 \item{period}{A factor, or something that can be coerced into one, giving
 the time period associated with each price in \code{x}. The ordering of time
@@ -43,7 +64,8 @@ imputes from elemental indexes only (i.e., not recursively).}
 
 \item{weights}{A numeric vector of weights for the prices in \code{x} (i.e.,
 product weights), or something that can be coerced into one. The default is
-to give each price equal weight.}
+to give each price equal weight. This is evaluated in \code{x} for the data frame
+method.}
 
 \item{r1}{Order of the generalized-mean price index used to calculate the
 elemental price indexes: 0 for a geometric index (the default), 1 for an
@@ -54,9 +76,15 @@ arithmetic index, or -1 for a harmonic index. Other values are possible; see
 elemental price indexes: 0 for a geometric index, 1 for an arithmetic index
 (the default), or -1 for a harmonic index. Other values are possible; see
 \code{\link[gpindex:generalized_mean]{gpindex::generalized_mean()}} for details.}
+
+\item{formula}{A two-sided formula with prices on the left-hand
+side. For \code{carry_forward()} and \code{carry_backward()}, the right-hand side
+should have time periods and products (in that order); for
+\code{shadow_price()}, the right-hand side should have time period, products, and
+elemental aggregates (in that order).}
 }
 \value{
-A copy of \code{x} with missing values replaced (where possible).
+A numeric vector of prices with missing values replaced (where possible).
 }
 \description{
 Impute missing prices using the carry forward or shadow price method.
@@ -93,15 +121,15 @@ prices <- data.frame(
   ea = rep(letters[1:2], 4)
 )
 
-with(prices, carry_forward(price, period, product))
+carry_forward(prices, price ~ period + product)
 
-with(prices, shadow_price(price, period, product, ea))
+shadow_price(prices, price ~ period + product + ea)
 
 }
 \references{
-ILO, IMF, OECD, Eurostat, UN, and World Bank. (2020).
-\emph{Consumer Price Index Manual: Theory and Practice}. International
-Monetary Fund.
+IMF, ILO, OECD, Eurostat, UNECE, and World Bank. (2020).
+\emph{Consumer Price Index Manual: Concepts and Methods}.
+International Monetary Fund.
 }
 \seealso{
 \code{\link[=price_relative]{price_relative()}} for making price relatives for the

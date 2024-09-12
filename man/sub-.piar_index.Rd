@@ -20,10 +20,7 @@ details.}
 \item{value}{A numeric vector or price index. See details.}
 }
 \value{
-A price index that inherits from \code{\link{chainable_piar_index}} if \code{x} is a
-period-over-period index, or \code{\link{direct_piar_index}} if \code{x} is a
-fixed-base index. If \code{x} inherits from \code{\link{aggregate_piar_index}} then
-\code{[} returns an aggregate index if the levels are unchanged.
+A price index that inherits from the same class as \code{x}.
 }
 \description{
 Methods to extract and replace index values like a matrix.
@@ -47,12 +44,6 @@ matrix. Note that replacing the values of an index will remove the
 corresponding percent-change contributions (if any). Unlike extraction, it
 is possible to replace value in \code{x} using a logical matrix or a two-column
 matrix of indices.
-
-Subscripting an aggregate index cannot generally preserve the aggregation
-structure if any levels are removed or rearranged, and in this case the
-resulting index is \emph{not} an aggregate index. Similarly, replacing the
-values for an aggregate index generally breaks consistency in aggregation,
-and therefore the result is \emph{not} an aggregate index.
 }
 \examples{
 index <- as_index(matrix(1:6, 2))
@@ -68,18 +59,18 @@ index
 }
 \seealso{
 Other index methods: 
-\code{\link{aggregate.piar_index}()},
+\code{\link{aggregate.piar_index}},
 \code{\link{as.data.frame.piar_index}()},
 \code{\link{chain}()},
 \code{\link{contrib}()},
 \code{\link{head.piar_index}()},
 \code{\link{is.na.piar_index}()},
 \code{\link{levels.piar_index}()},
-\code{\link{mean.piar_index}()},
+\code{\link{mean.piar_index}},
 \code{\link{merge.piar_index}()},
 \code{\link{split.piar_index}()},
 \code{\link{stack.piar_index}()},
 \code{\link{time.piar_index}()},
-\code{\link{vcov.aggregate_piar_index}()}
+\code{\link{window.piar_index}()}
 }
 \concept{index methods}

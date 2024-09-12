@@ -29,14 +29,12 @@
 #' @param chainable Are the index values in `x` period-over-period
 #' indexes, suitable for a chained calculation (the default)? This should be
 #' `FALSE` when `x` is a fixed-base (direct) index.
-#' @param cols  Deprecated. A vector giving the positions/names of the period,
-#' level, and value columns in `x`. The default assumes that the first column
-#' contains time periods, the second contains levels, and the third contains
-#' index values.
+#' @param contrib Should the index values in `x` be used to construct
+#' percent-change contributions? The default does not make contributions.
 #' @param ... Further arguments passed to or used by methods.
 #'
 #' @returns
-#' `as_index()` returns a price index that inherits from
+#' A price index that inherits from
 #' [`piar_index`]. If `chainable = TRUE` then this is a
 #' period-over-period price index that also inherits from
 #' [`chainable_piar_index`]; otherwise, it is a fixed-base index that
@@ -54,7 +52,7 @@
 #'   ea = rep(letters[1:2], 4)
 #' )
 #'
-#' index <- with(prices, elemental_index(rel, period, ea))
+#' index <- elemental_index(prices, rel ~ period + ea)
 #'
 #' all.equal(as_index(as.data.frame(index)), index)
 #' all.equal(as_index(as.matrix(index)), index)
@@ -66,13 +64,14 @@ as_index <- function(x, ...) {
 
 #' @rdname as_index
 #' @export
-as_index.default <- function(x, ..., chainable = TRUE) {
-  as_index(as.matrix(x), ..., chainable = chainable)
+as_index.default <- function(x, ...) {
+  as_index(as.matrix(x), ...)
 }
 
 #' @rdname as_index
 #' @export
-as_index.matrix <- function(x, ..., chainable = TRUE) {
+as_index.matrix <- function(x, ..., chainable = TRUE, contrib = FALSE) {
+  chkDots(...)
   storage.mode(x) <- "numeric"
   levels <- if (is.null(rownames(x))) seq_len(nrow(x)) else rownames(x)
   periods <- if (is.null(colnames(x))) seq_len(ncol(x)) else colnames(x)
@@ -84,44 +83,49 @@ as_index.matrix <- function(x, ..., chainable = TRUE) {
   for (t in seq_along(periods)) {
     index[[t]][] <- x[, t]
   }
-  contrib <- contrib_skeleton(levels, periods)
-  piar_index(index, contrib, levels, periods, chainable)
+  
+  contributions <- contrib_skeleton(levels, periods)
+  if (contrib) {
+    i <- seq_along(levels)
+    for (t in seq_along(periods)) {
+      con <- index[[t]] - 1
+      names(con) <- levels
+      contributions[[t]][] <- lapply(i, \(x) con[x])
+    }
+  }
+  piar_index(index, contributions, levels, periods, chainable)
 }
 
 #' @rdname as_index
 #' @export
-as_index.data.frame <- function(x, cols = NULL, ..., chainable = TRUE) {
-  if (length(x) < 3L) {
+as_index.data.frame <- function(x, ...) {
+  if (length(x) != 3L) {
     stop(
       "'x' must have a column of time periods, index levels, and index values"
     )
   }
-  if (!is.null(cols)) {
-    warning("'cols' is deprecated and will be removed in a future version")
-    x <- x[cols]
-  } else {
-    x <- x[1:3]
-  }
   x[1:2] <- lapply(x[1:2], as.factor)
   time <- levels(x[[1L]])
   levels <- levels(x[[2L]])
-  # elemental_index() usually gives NaN for missing cells
+  # elemental_index() usually gives NaN for missing cells.
   res <- matrix(NA_real_,
     nrow = length(levels), ncol = length(time),
     dimnames = list(levels, time)
   )
   res[as.matrix(x[2:1])] <- as.numeric(x[[3L]])
-  as_index(res, ..., chainable = chainable)
+  as_index(res, ...)
 }
 
 #' @rdname as_index
 #' @export
 as_index.chainable_piar_index <- function(x, ..., chainable = TRUE) {
+  chkDots(...)
   if (chainable) x else chain(x)
 }
 
 #' @rdname as_index
 #' @export
 as_index.direct_piar_index <- function(x, ..., chainable = FALSE) {
+  chkDots(...)
   if (chainable) unchain(x) else x
 }

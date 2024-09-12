@@ -9,9 +9,8 @@
 #' [`aggregate()`][aggregate.piar_index].
 #' @param period The time period used to price update the weights. The default
 #' uses the last period in `index`.
-#' @param r Order of the generalized mean to update the weights. The default
-#' uses the order used to aggregate `index` if it's an aggregate index;
-#' otherwise, the default is 1 for an arithmetic index.
+#' @param r Order of the generalized mean to update the weights. The default is
+#' 1 for an arithmetic index.
 #' @param ... Not currently used.
 #'
 #' @returns
@@ -50,20 +49,20 @@
 #' @importFrom stats update
 #' @family aggregation structure methods
 #' @export
-update.piar_aggregation_structure <- function(object, index,
-                                              period = end(index), ...,
-                                              r = NULL) {
-  index <- as_index(index)
-  period <- match.arg(as.character(period), index$time)
-  if (is.null(r)) {
-    r <- if (is.null(index$r)) 1 else index$r
-  }
+update.piar_aggregation_structure <- function(object,
+                                              index,
+                                              period = end(index),
+                                              ...,
+                                              r = 1) {
+  chkDots(...)
   price_update <- gpindex::factor_weights(r)
+  index <- as_index(index)
+  period <- match_time(as.character(period), index$time)
   eas <- match(object$levels[[length(object$levels)]], index$levels)
   if (anyNA(eas)) {
     warning("not all weights in 'object' have a corresponding index value")
   }
-  epr <- chain(index)$index[[match(period, index$time)]]
+  epr <- chain(index)$index[[period]]
   weights(object) <- price_update(epr[eas], object$weights)
   object
 }

@@ -3,11 +3,17 @@
 \name{contrib}
 \alias{contrib}
 \alias{contrib.piar_index}
+\alias{contrib2DF}
+\alias{contrib2DF.piar_index}
 \title{Extract percent-change contributions}
 \usage{
 contrib(x, ...)
 
 \method{contrib}{piar_index}(x, level = levels(x)[1L], period = time(x), ..., pad = 0)
+
+contrib2DF(x, ...)
+
+\method{contrib2DF}{piar_index}(x, level = levels(x)[1L], period = time(x), ...)
 }
 \arguments{
 \item{x}{A price index, as made by, e.g., \code{\link[=elemental_index]{elemental_index()}}.}
@@ -16,7 +22,7 @@ contrib(x, ...)
 
 \item{level}{The level of an index for which percent-change contributions
 are desired, defaulting to the first level (usually the top-level for an
-aggregate index).}
+aggregate index). \code{contrib2DF()} can accept multiple levels.}
 
 \item{period}{The time periods for which percent-change contributions are
 desired, defaulting to all time periods.}
@@ -25,13 +31,17 @@ desired, defaulting to all time periods.}
 rectangular array when products differ over time. The default is 0.}
 }
 \value{
-A matrix of percent-change contributions with a column for each
-\code{period} and a row for each product (sorted) for which there are
+\code{contrib()} returns a matrix of percent-change contributions with a column
+for each \code{period} and a row for each product (sorted) for which there are
 contributions in \code{level}. Contributions are padded with \code{pad} to fit into a
 rectangular array when products differ over time.
+
+\code{contrib2DF()} returns a data frame of contributions with four
+columns: \code{period}, \code{level}, \code{product}, and \code{value}.
 }
 \description{
-Extract a matrix of percent-change contributions from a price index.
+Extract a matrix or data frame of percent-change contributions from a price
+index.
 }
 \examples{
 prices <- data.frame(
@@ -40,13 +50,10 @@ prices <- data.frame(
   ea = rep(letters[1:2], 4)
 )
 
-index <- with(
-  prices,
-  elemental_index(rel, period, ea, contrib = TRUE)
-)
+index <- elemental_index(prices, rel ~ period + ea, contrib = TRUE)
 
 pias <- aggregation_structure(
-  list(c("top", "top", "top"), c("a", "b", "c")), 1:3
+  list(c("top", "top", "top"), c("a", "b", "c")), weights = 1:3
 )
 
 index <- aggregate(index, pias, na.rm = TRUE)
@@ -54,6 +61,8 @@ index <- aggregate(index, pias, na.rm = TRUE)
 # Percent-change contributions for the top-level index
 
 contrib(index)
+
+contrib2DF(index)
 
 # Calculate EA contributions for the chained index
 
@@ -68,17 +77,17 @@ arithmetic_contributions(
 \seealso{
 Other index methods: 
 \code{\link{[.piar_index}()},
-\code{\link{aggregate.piar_index}()},
+\code{\link{aggregate.piar_index}},
 \code{\link{as.data.frame.piar_index}()},
 \code{\link{chain}()},
 \code{\link{head.piar_index}()},
 \code{\link{is.na.piar_index}()},
 \code{\link{levels.piar_index}()},
-\code{\link{mean.piar_index}()},
+\code{\link{mean.piar_index}},
 \code{\link{merge.piar_index}()},
 \code{\link{split.piar_index}()},
 \code{\link{stack.piar_index}()},
 \code{\link{time.piar_index}()},
-\code{\link{vcov.aggregate_piar_index}()}
+\code{\link{window.piar_index}()}
 }
 \concept{index methods}

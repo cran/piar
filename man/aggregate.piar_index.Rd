@@ -6,9 +6,25 @@
 \alias{aggregate.direct_piar_index}
 \title{Aggregate elemental price indexes}
 \usage{
-\method{aggregate}{chainable_piar_index}(x, pias, ..., na.rm = FALSE, contrib = TRUE, r = 1)
+\method{aggregate}{chainable_piar_index}(
+  x,
+  pias,
+  ...,
+  na.rm = FALSE,
+  contrib = TRUE,
+  r = 1,
+  include_ea = TRUE
+)
 
-\method{aggregate}{direct_piar_index}(x, pias, ..., na.rm = FALSE, contrib = TRUE, r = 1)
+\method{aggregate}{direct_piar_index}(
+  x,
+  pias,
+  ...,
+  na.rm = FALSE,
+  contrib = TRUE,
+  r = 1,
+  include_ea = TRUE
+)
 }
 \arguments{
 \item{x}{A price index, usually made by \code{\link[=elemental_index]{elemental_index()}}.}
@@ -30,10 +46,12 @@ arithmetic index (the default for aggregating elemental indexes and
 averaging indexes over subperiods), or -1 for a harmonic index (usually for
 a Paasche index). Other values are possible; see
 \code{\link[gpindex:generalized_mean]{gpindex::generalized_mean()}} for details.}
+
+\item{include_ea}{Should indexes for the elemental aggregates be included
+along with the aggregated indexes? By default, all index values are returned.}
 }
 \value{
-An aggregate price index that inherits from \code{\link{aggregate_piar_index}} and
-the class of \code{x}.
+An aggregate price index that inherits from the class of \code{x}.
 }
 \description{
 Aggregate elemental price indexes with a price index aggregation structure.
@@ -88,7 +106,8 @@ aggregate if the elemental indexes are built from several sources (as with
 a price relative in the aggregated index will be correct, but the sum of all
 contributions will not equal the change in the value of the index. This can
 also happen when aggregating an already aggregated index in which missing
-index values have been imputed (i.e., when \code{na.rm = TRUE}).
+index values have been imputed (i.e., when \code{na.rm = TRUE} and
+\code{contrib = FALSE}).
 }
 \note{
 For large indexes it can be much faster to turn the aggregation structure
@@ -107,12 +126,12 @@ prices <- data.frame(
 # A two-level aggregation structure
 
 pias <- aggregation_structure(
-  list(c("top", "top", "top"), c("a", "b", "c")), 1:3
+  list(c("top", "top", "top"), c("a", "b", "c")), weights = 1:3
 )
 
 # Calculate Jevons elemental indexes
 
-(elemental <- with(prices, elemental_index(rel, period, ea)))
+(elemental <- elemental_index(prices, rel ~ period + ea))
 
 # Aggregate (note the imputation for elemental index 'c')
 
@@ -127,9 +146,11 @@ as.matrix(pias) \%*\% as.matrix(chain(index[letters[1:3]]))
 Balk, B. M. (2008). \emph{Price and Quantity Index Numbers}.
 Cambridge University Press.
 
-ILO, IMF, OECD, Eurostat, UN, and World Bank. (2020).
-\emph{Consumer Price Index Manual: Theory and Practice}.
+IMF, ILO, OECD, Eurostat, UNECE, and World Bank. (2020).
+\emph{Consumer Price Index Manual: Concepts and Methods}.
 International Monetary Fund.
+
+von der Lippe, P. (2007). \emph{Index Theory and Price Statistics}. Peter Lang.
 }
 \seealso{
 Other index methods: 
@@ -140,11 +161,11 @@ Other index methods:
 \code{\link{head.piar_index}()},
 \code{\link{is.na.piar_index}()},
 \code{\link{levels.piar_index}()},
-\code{\link{mean.piar_index}()},
+\code{\link{mean.piar_index}},
 \code{\link{merge.piar_index}()},
 \code{\link{split.piar_index}()},
 \code{\link{stack.piar_index}()},
 \code{\link{time.piar_index}()},
-\code{\link{vcov.aggregate_piar_index}()}
+\code{\link{window.piar_index}()}
 }
 \concept{index methods}

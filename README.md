@@ -8,7 +8,7 @@
 [![CRAN
 status](https://www.r-pkg.org/badges/version/piar)](https://cran.r-project.org/package=piar)
 [![piar status
-badge](https://marberts.r-universe.dev/badges/piar)](https://marberts.r-universe.dev)
+badge](https://marberts.r-universe.dev/badges/piar)](https://marberts.r-universe.dev/piar)
 [![Conda
 Version](https://img.shields.io/conda/vn/conda-forge/r-piar.svg)](https://anaconda.org/conda-forge/r-piar)
 [![R-CMD-check](https://github.com/marberts/piar/workflows/R-CMD-check/badge.svg)](https://github.com/marberts/piar/actions)
@@ -16,6 +16,7 @@ Version](https://img.shields.io/conda/vn/conda-forge/r-piar.svg)](https://anacon
 [![DOI](https://zenodo.org/badge/370889275.svg)](https://zenodo.org/doi/10.5281/zenodo.10110046)
 [![Mentioned in Awesome Official
 Statistics](https://awesome.re/mentioned-badge.svg)](https://github.com/SNStatComp/awesome-official-statistics-software)
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.06781/status.svg)](https://doi.org/10.21105/joss.06781)
 <!-- badges: end -->
 
 Most price indexes are made with a two-step procedure, where
@@ -24,10 +25,18 @@ collection of *elemental aggregates* at each point in time, and then
 aggregated according to a *price index aggregation structure*. These
 indexes can then be chained together to form a time series that gives
 the evolution of prices with respect to a fixed base period. This
-package contains a collections of functions that revolve around this
-work flow, making it easy to build standard price indexes, and implement
-the methods described by Balk (2008), von der Lippe (2001), and the CPI
+package contains a collection of functions that revolve around this work
+flow, making it easy to build standard price indexes, and implement the
+methods described by Balk (2008), von der Lippe (2007), and the CPI
 manual (2020) for bilateral price indexes.
+
+The tools in this package are designed to be useful for both researching
+new sources of data and methods to construct price indexes, and the
+regular production of price statistics. It is targeted towards
+economists, statisticians, and data scientists working at national
+statistical agencies, central banks, financial institutions, and in
+academia that want to measure and study the evolution of prices over
+time.
 
 ## Installation
 
@@ -71,13 +80,11 @@ head(ms_prices)
 #> 5 202001       B2       5  8.61
 #> 6 202001       B2       6  6.40
 
-elementals <- with(
-  ms_prices, 
-  elemental_index(
-    price_relative(price, period, product), 
-    period, business, na.rm = TRUE
-  )
-)
+elementals <- ms_prices |>
+  transform(
+    relative = price_relative(price, period = period, product = product)
+  ) |>
+  elemental_index(relative ~ period + business, na.rm = TRUE)
 
 elementals
 #> Period-over-period price index for 4 levels over 4 time periods 
@@ -88,14 +95,13 @@ elementals
 #> B4    NaN       NaN       NaN 4.576286
 ```
 
-And an aggregation structure with the `aggregation_structure()`
-function.
+And an aggregation structure.
 
 ``` r
 # Make an aggregation structure from businesses to higher-level
 # industrial classifications
 
-head(ms_weights)
+ms_weights
 #>   business classification weight
 #> 1       B1             11    553
 #> 2       B2             11    646
@@ -103,28 +109,25 @@ head(ms_weights)
 #> 4       B4             12    622
 #> 5       B5             12    330
 
-pias <- with(
-  ms_weights,
-  aggregation_structure(
-    c(expand_classification(classification), list(business)),
-    weight
-  )
-)
+ms_weights[c("level1", "level2")] <-
+  expand_classification(ms_weights$classification)
+
+pias <- ms_weights[c("level1", "level2", "business", "weight")]
 
 pias
-#> Aggregation structure for 5 elemental aggregates with 2 levels above the elemental aggregates 
-#>   level1 level2 ea weight
-#> 1      1     11 B1    553
-#> 2      1     11 B2    646
-#> 3      1     11 B3    312
-#> 4      1     12 B4    622
-#> 5      1     12 B5    330
+#>   level1 level2 business weight
+#> 1      1     11       B1    553
+#> 2      1     11       B2    646
+#> 3      1     11       B3    312
+#> 4      1     12       B4    622
+#> 5      1     12       B5    330
 ```
 
 The `aggregate()` method can then be used to aggregate the elemental
-indexes according to the aggregation structure. There are a variety of
-methods to work with these index objects, such as chaining them over
-time.
+indexes according to the aggregation structure (the first three rows
+below) and fill in missing elemental indexes while maintaining
+consistency in aggregation. There are a variety of methods to work with
+these index objects, such as chaining them over time.
 
 ``` r
 # Aggregate elemental indexes with an arithmetic index
@@ -134,7 +137,7 @@ index <- aggregate(elementals, pias, na.rm = TRUE)
 # Chain them to get a time series
 
 chain(index)
-#> Aggregate fixed-base price index for 8 levels over 4 time periods 
+#> Fixed-base price index for 8 levels over 4 time periods 
 #>    202001    202002    202003    202004
 #> 1       1 1.3007239 1.3827662 3.7815355
 #> 11      1 1.3007239 1.3827662 2.1771866
@@ -146,6 +149,12 @@ chain(index)
 #> B5      1 1.3007239 1.3827662 6.3279338
 ```
 
+## Contributing
+
+All contributions are welcome. Please start by opening an issue on
+GitHub to report any bugs or suggest improvements and new features. See
+the contribution guidelines for this project for more information.
+
 ## References
 
 Balk, B. M. (2008). *Price and Quantity Index Numbers*. Cambridge
@@ -155,9 +164,8 @@ Chiru, R., Huang, N., Lequain, M. Smith, P., and Wright, A. (2015). *The
 Canadian Consumer Price Index Reference Paper*, Statistics Canada
 catalogue 62-553-X. Statistics Canada.
 
-ILO, IMF, OECD, Eurostat, UN, and World Bank. (2020). *Consumer Price
-Index Manual: Theory and Practice*. International Monetary Fund.
+IMF, ILO, Eurostat, UNECE, OECD, and World Bank. (2020). *Consumer Price
+Index Manual: Concepts and Methods*. International Monetary Fund.
 
-von der Lippe, P. (2001). *Chain Indices: A Study in Price Index
-Theory*, Spectrum of Federal Statistics vol. 16. Federal Statistical
-Office, Wiesbaden.
+von der Lippe, P. (2007). *Index Theory and Price Statistics*. Peter
+Lang.

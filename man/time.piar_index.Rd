@@ -6,6 +6,7 @@
 \alias{time<-.piar_index}
 \alias{start.piar_index}
 \alias{end.piar_index}
+\alias{ntime}
 \title{Get the time periods for a price index}
 \usage{
 \method{time}{piar_index}(x, ...)
@@ -17,6 +18,8 @@ time(x) <- value
 \method{start}{piar_index}(x, ...)
 
 \method{end}{piar_index}(x, ...)
+
+ntime(x)
 }
 \arguments{
 \item{x}{A price index, as made by, e.g., \code{\link[=elemental_index]{elemental_index()}}.}
@@ -27,8 +30,10 @@ time(x) <- value
 giving the replacement time periods for \code{x}.}
 }
 \value{
-\code{time()} return a character vector with the time periods for a price index.
+\code{time()} returns a character vector with the time periods for a price index.
 \code{start()} and \code{end()} return the first and last time period.
+
+\code{ntime()} returns the number of time periods, analogous to \code{nlevels()}.
 
 The replacement method returns a copy of \code{x} with the time periods in
 \code{value}.
@@ -39,17 +44,17 @@ Methods to get and set the time periods for a price index.
 \seealso{
 Other index methods: 
 \code{\link{[.piar_index}()},
-\code{\link{aggregate.piar_index}()},
+\code{\link{aggregate.piar_index}},
 \code{\link{as.data.frame.piar_index}()},
 \code{\link{chain}()},
 \code{\link{contrib}()},
 \code{\link{head.piar_index}()},
 \code{\link{is.na.piar_index}()},
 \code{\link{levels.piar_index}()},
-\code{\link{mean.piar_index}()},
+\code{\link{mean.piar_index}},
 \code{\link{merge.piar_index}()},
 \code{\link{split.piar_index}()},
 \code{\link{stack.piar_index}()},
-\code{\link{vcov.aggregate_piar_index}()}
+\code{\link{window.piar_index}()}
 }
 \concept{index methods}

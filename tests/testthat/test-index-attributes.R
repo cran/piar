@@ -6,8 +6,8 @@ pias <- as_aggregation_structure(
   data.frame(level1 = 1, level2 = c(11, 12, 13, 14), weight = 1)
 )
 
-epr <- with(dat, elemental_index(rel, period, ea, contrib = TRUE))
-epr2 <- with(dat, elemental_index(rel, period, ea, contrib = FALSE))
+epr <- elemental_index(dat, rel ~ period + ea, contrib = TRUE)
+epr2 <- elemental_index(dat, rel ~ period + ea, contrib = FALSE)
 index <- aggregate(epr, pias)
 
 res <- c(1.41421356237309, 3.46410161513775, 5, NaN,
@@ -26,12 +26,6 @@ test_that("setter methods work", {
   expect_identical(levels(epr3), as.character(1:4))
   levels(epr3) <- levels(epr)
   expect_identical(epr, epr3)
-  
-  levels(index) <- levels(index)
-  expect_true(is_aggregate_index(index))
-  
-  levels(index) <- 1:5
-  expect_false(is_aggregate_index(index))
   
   time(epr3) <- 2:1
   expect_identical(time(epr3), as.character(2:1))

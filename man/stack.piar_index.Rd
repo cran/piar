@@ -2,12 +2,19 @@
 % Please edit documentation in R/stack.piar_index.R
 \name{stack.piar_index}
 \alias{stack.piar_index}
-\alias{unstack.piar_index}
+\alias{stack.chainable_piar_index}
+\alias{stack.direct_piar_index}
+\alias{unstack.chainable_piar_index}
+\alias{unstack.direct_piar_index}
 \title{Stack price indexes}
 \usage{
-\method{stack}{piar_index}(x, y, ...)
+\method{stack}{chainable_piar_index}(x, y, ...)
 
-\method{unstack}{piar_index}(x, ...)
+\method{stack}{direct_piar_index}(x, y, ...)
+
+\method{unstack}{chainable_piar_index}(x, ...)
+
+\method{unstack}{direct_piar_index}(x, ...)
 }
 \arguments{
 \item{x}{A price index, as made by, e.g., \code{\link[=elemental_index]{elemental_index()}}.}
@@ -19,10 +26,8 @@ index; otherwise, \code{y} is coerced into a direct index.}
 \item{...}{Not currently used.}
 }
 \value{
-A price index that inherits from \code{\link{chainable_piar_index}} if \code{x} is a
-period-over-period index, or \code{\link{direct_piar_index}} if \code{x} is a fixed-base
-index. If both \code{x} and \code{y} are aggregate indexes then the result will also
-inherit from \code{\link{aggregate_piar_index}}.
+\code{stack()} returns a combined price index that inherits from the same class
+as \code{x}.
 
 \code{unstack()} returns a list of price indexes with the same class as \code{x}.
 }
@@ -59,17 +64,17 @@ all.equal(
 \seealso{
 Other index methods: 
 \code{\link{[.piar_index}()},
-\code{\link{aggregate.piar_index}()},
+\code{\link{aggregate.piar_index}},
 \code{\link{as.data.frame.piar_index}()},
 \code{\link{chain}()},
 \code{\link{contrib}()},
 \code{\link{head.piar_index}()},
 \code{\link{is.na.piar_index}()},
 \code{\link{levels.piar_index}()},
-\code{\link{mean.piar_index}()},
+\code{\link{mean.piar_index}},
 \code{\link{merge.piar_index}()},
 \code{\link{split.piar_index}()},
 \code{\link{time.piar_index}()},
-\code{\link{vcov.aggregate_piar_index}()}
+\code{\link{window.piar_index}()}
 }
 \concept{index methods}

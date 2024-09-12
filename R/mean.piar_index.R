@@ -1,3 +1,57 @@
+#' Internal function to aggregate over subperiods
+#' @noRd
+mean_index <- function(x, weights, window, na.rm, contrib, r, chainable) {
+  if (!is.null(weights)) {
+    weights <- as.numeric(weights)
+    if (length(weights) != length(x$time) * length(x$levels)) {
+      stop("'weights' must have a value for each index value in 'x'")
+    }
+    w <- split(weights, gl(length(x$time), length(x$levels)))
+  }
+
+  window <- as.integer(window)
+  if (length(window) > 1L || window < 1L) {
+    stop("'window' must be a positive length 1 integer")
+  }
+  if (window > length(x$time)) {
+    stop("'x' must have at least 'window' time periods")
+  }
+
+  # Helpful functions.
+  gen_mean <- Vectorize(gpindex::generalized_mean(r), USE.NAMES = FALSE)
+  agg_contrib <- Vectorize(
+    aggregate_contrib(r),
+    SIMPLIFY = FALSE,
+    USE.NAMES = FALSE
+  )
+
+  # Get the starting location for each window.
+  if (length(x$time) %% window != 0) {
+    warning("'window' is not a multiple of the number of time periods in 'x'")
+  }
+  len <- length(x$time) %/% window
+  loc <- seq.int(1L, by = window, length.out = len)
+  periods <- x$time[loc]
+
+  has_contrib <- has_contrib(x) && contrib
+
+  # Loop over each window and calculate the mean for each level.
+  index <- index_skeleton(x$levels, periods)
+  contrib <- contrib_skeleton(x$levels, periods)
+  for (i in seq_along(loc)) {
+    j <- seq(loc[i], length.out = window)
+    rel <- .mapply(c, x$index[j], list())
+    weight <- if (is.null(weights)) list(NULL) else .mapply(c, w[j], list())
+    index[[i]][] <- gen_mean(rel, weight, na.rm = na.rm)
+    if (has_contrib) {
+      con <- .mapply(\(...) c(list(...)), x$contrib[j], list())
+      contrib[[i]][] <- agg_contrib(con, rel, weight)
+    }
+  }
+
+  piar_index(index, contrib, x$levels, periods, chainable)
+}
+
 #' Aggregate a price index over subperiods
 #'
 #' Aggregate an index over subperiods by taking the (usually arithmetic) mean
@@ -20,6 +74,9 @@
 #' over subperiods, which is often useful when aggregating a Paasche index; see
 #' section 4.3 of Balk (2008) for details.
 #'
+#' @name mean.piar_index
+#' @aliases mean.piar_index
+#' 
 #' @param x A price index, as made by, e.g., [elemental_index()].
 #' @param weights A numeric vector of weights for the index values in `x`, or
 #' something that can be coerced into one. The
@@ -27,8 +84,8 @@
 #' a matrix with a row for each index value in `x` and a column for each
 #' time period.
 #' @param window A positive integer giving the size of the window used to
-#' average index values across subperiods. The default (3) turns a monthly
-#' index into into a quarterly one. Non-integers are truncated towards 0.
+#' average index values across subperiods. The default averages over all periods
+#' in `x`. Non-integers are truncated towards 0.
 #' @param na.rm Should missing values be removed? By default, missing values
 #' are not removed. Setting `na.rm = TRUE` is equivalent to overall mean
 #' imputation.
@@ -42,9 +99,8 @@
 #' @param ... Not currently used.
 #'
 #' @returns
-#' A price index with the same class as `x`. If `x` is an aggregate index
-#' and `r` is different than that used to aggregate `x`, then the result is
-#' not an aggregate index (as it is no longer consistent in aggregation).
+#' A price index, averaged over subperiods, that inherits from the same
+#' class as `x`.
 #'
 #' @references Balk, B. M. (2008). *Price and Quantity Index Numbers*.
 #' Cambridge University Press.
@@ -52,76 +108,32 @@
 #' @examples
 #' index <- as_index(matrix(c(1:12, 12:1), 2, byrow = TRUE))
 #'
-#' mean(index)
+#' # Turn a monthly index into a quarterly index
+#' mean(index, window = 3)
 #'
 #' @family index methods
 #' @export
-mean.piar_index <- function(x, weights = NULL, ...,
-                            window = 3L,
-                            na.rm = FALSE,
-                            contrib = TRUE,
-                            r = 1) {
-  if (!is.null(weights)) {
-    weights <- as.numeric(weights)
-    if (length(weights) != length(x$time) * length(x$levels)) {
-      stop("'weights' must have a value for each index value in 'x'")
-    }
-    w <- split(weights, gl(length(x$time), length(x$levels)))
-  }
-
-  window <- as.integer(window)
-  if (length(window) > 1L || window < 1L) {
-    stop("'window' must be a positive length 1 integer")
-  }
-  if (window > length(x$time)) {
-    stop("'x' must have at least 'window' time periods")
-  }
-
-  # helpful functions
-  gen_mean <- Vectorize(gpindex::generalized_mean(r), USE.NAMES = FALSE)
-  agg_contrib <- Vectorize(aggregate_contrib(r),
-    SIMPLIFY = FALSE, USE.NAMES = FALSE
-  )
-
-  # get the starting location for each window
-  if (length(x$time) %% window != 0) {
-    warning("'window' is not a multiple of the number of time periods in 'x'")
-  }
-  len <- length(x$time) %/% window
-  loc <- seq.int(1L, by = window, length.out = len)
-  periods <- x$time[loc]
-
-  has_contrib <- has_contrib(x) && contrib
-
-  # loop over each window and calculate the mean for each level
-  index <- index_skeleton(x$levels, periods)
-  contrib <- contrib_skeleton(x$levels, periods)
-  for (i in seq_along(loc)) {
-    j <- seq(loc[i], length.out = window)
-    rel <- .mapply(c, x$index[j], list())
-    weight <- if (is.null(weights)) list(NULL) else .mapply(c, w[j], list())
-    index[[i]][] <- gen_mean(rel, weight, na.rm = na.rm)
-    if (has_contrib) {
-      con <- .mapply(\(...) c(list(...)), x$contrib[j], list())
-      contrib[[i]][] <- agg_contrib(con, rel, weight)
-    }
-  }
-
-  x$index <- index
-  x$contrib <- contrib
-  x$time <- periods
-  validate_piar_index(x)
+mean.chainable_piar_index <- function(x,
+                                      ...,
+                                      weights = NULL,
+                                      window = ntime(x),
+                                      na.rm = FALSE,
+                                      contrib = TRUE,
+                                      r = 1) {
+  chkDots(...)
+  mean_index(x, weights, window, na.rm, contrib, r, TRUE)
 }
 
+#' @rdname mean.piar_index
 #' @export
-mean.aggregate_piar_index <- function(x, weights = NULL, ..., window = 3L,
-                                      na.rm = FALSE, r = 1, contrib = TRUE) {
-  res <- NextMethod("mean")
-  if (r != res$r) {
-    res <- new_piar_index(
-      res$index, res$contrib, res$levels, res$time,
-      is_chainable_index(res)
-    )
-  }
-  res
+mean.direct_piar_index <- function(x,
+                                   ...,
+                                   weights = NULL,
+                                   window = ntime(x),
+                                   na.rm = FALSE,
+                                   contrib = TRUE,
+                                   r = 1) {
+  chkDots(...)
+  mean_index(x, weights, window, na.rm, contrib, r, FALSE)
 }
+

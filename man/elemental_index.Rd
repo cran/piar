@@ -4,6 +4,7 @@
 \alias{elemental_index}
 \alias{elemental_index.default}
 \alias{elemental_index.numeric}
+\alias{elemental_index.data.frame}
 \title{Make elemental price indexes}
 \usage{
 elemental_index(x, ...)
@@ -12,35 +13,44 @@ elemental_index(x, ...)
 
 \method{elemental_index}{numeric}(
   x,
+  ...,
   period = gl(1, length(x)),
   ea = gl(1, length(x)),
   weights = NULL,
-  ...,
+  product = NULL,
   chainable = TRUE,
   na.rm = FALSE,
   contrib = FALSE,
   r = 0
 )
+
+\method{elemental_index}{data.frame}(x, formula, ..., weights = NULL, product = NULL)
 }
 \arguments{
 \item{x}{Period-over-period or fixed-base price relatives. Currently there
-is only a method for numeric vectors; these can be made with
-\code{\link[=price_relative]{price_relative()}}.}
+are methods for numeric vectors (which can be made with
+\code{\link[=price_relative]{price_relative()}}) and data frames.}
 
 \item{...}{Further arguments passed to or used by methods.}
 
 \item{period}{A factor, or something that can be coerced into one, giving
 the time period associated with each price relative in \code{x}. The
 ordering of time periods follows of the levels of \code{period}, to agree
-with \code{\link[=cut.Date]{cut()}}. The default assumes that all price
-relatives belong to one time period.}
+with \code{\link[=cut.Date]{cut()}}. The default makes an index for one time period.}
 
 \item{ea}{A factor, or something that can be coerced into one, giving the
 elemental aggregate associated with each price relative in \code{x}. The
-default assumes that all price relatives belong to one elemental aggregate.}
+default makes an index for one elemental aggregate.}
 
 \item{weights}{A numeric vector of weights for the price relatives in \code{x},
-or something that can be coerced into one. The default is equal weights.}
+or something that can be coerced into one. The default is equal weights.
+This is evaluated in \code{x} for the data frame method.}
+
+\item{product}{A character vector of product names, or something that can
+be coerced into one, for each price relative in \code{x} when making
+percent-change contributions. The default uses the names of \code{x}, if any;
+otherwise, elements of \code{x} are given sequential names within each elemental
+aggregate. This is evaluated in \code{x} for the data frame method.}
 
 \item{chainable}{Are the price relatives in \code{x} period-over-period
 relatives that are suitable for a chained calculation (the default)? This
@@ -59,6 +69,10 @@ arithmetic index (the default for aggregating elemental indexes and
 averaging indexes over subperiods), or -1 for a harmonic index (usually for
 a Paasche index). Other values are possible; see
 \code{\link[gpindex:generalized_mean]{gpindex::generalized_mean()}} for details.}
+
+\item{formula}{A two-sided formula with price relatives on the left-hand
+side, and time periods and elemental aggregates (in that order) on the
+right-hand side.}
 }
 \value{
 A price index that inherits from \code{\link{piar_index}}. If
@@ -68,7 +82,8 @@ fixed-based index that inherits from \code{\link{direct_piar_index}}.
 }
 \description{
 Compute period-over-period (chainable) or fixed-base (direct) elemental
-price indexes, with optional percent-change contributions.
+price indexes, with optional percent-change contributions for each
+product.
 }
 \details{
 When supplied with a numeric vector, \code{elemental_index()} is a simple
@@ -78,19 +93,17 @@ wrapper that applies
 to \code{x} and \code{weights} grouped by \code{ea} and \code{period}. That
 is, for every combination of elemental aggregate and time period,
 \code{elemental_index()} calculates an index based on a generalized mean of
-order \code{r} and, optionally, percent-change contributions. The default
+order \code{r} and, optionally, percent-change contributions. Product names should
+be unique within each time period when making contributions, and, if not, are
+passed to \code{\link[=make.unique]{make.unique()}} with a warning. The default
 (\code{r = 0} and no weights) makes Jevons elemental indexes. See chapter 8
 (pp. 175--190) of the CPI manual (2020) for more detail about making
 elemental indexes, and chapter 5 of Balk (2008).
 
 The default method simply coerces \code{x} to a numeric vector prior to
-calling the method above.
-
-Names for \code{x} are used as product names when calculating percent-change
-contributions. Product names should be unique within each time period, and,
-if not, are passed to \code{\link[=make.unique]{make.unique()}} with a
-warning. If \code{x} has no names then elements of \code{x} are given
-sequential names within each elemental aggregate.
+calling the method above. The data frame method provides a formula interface
+to specify columns of price relatives, time periods, and elemental
+aggregates and call the method above.
 
 The interpretation of the index depends on how the price relatives in
 \code{x} are made. If these are period-over-period relatives, then the
@@ -125,7 +138,7 @@ prices <- data.frame(
 
 # Calculate Jevons elemental indexes
 
-with(prices, elemental_index(rel, period, ea))
+elemental_index(prices, rel ~ period + ea)
 
 # Same as using lm() or tapply()
 
@@ -145,13 +158,11 @@ fw <- grouped(nested_transmute(0, c(1, -1), 1))
 # Calculate a CSWD index (same as the Jevons in this example)
 # as an arithmetic index by using the appropriate weights
 
-with(
+elemental_index(
   prices,
-  elemental_index(
-    rel, period, ea,
-    fw(rel, group = interaction(period, ea)),
-    r = 1
-  )
+  rel ~ period + ea,
+  weights = fw(rel, group = interaction(period, ea)),
+  r = 1
 )
 
 }
@@ -159,9 +170,11 @@ with(
 Balk, B. M. (2008). \emph{Price and Quantity Index Numbers}.
 Cambridge University Press.
 
-ILO, IMF, OECD, Eurostat, UN, and World Bank. (2020).
-\emph{Consumer Price Index Manual: Theory and Practice}.
+IMF, ILO, OECD, Eurostat, UNECE, and World Bank. (2020).
+\emph{Consumer Price Index Manual: Concepts and Methods}.
 International Monetary Fund.
+
+von der Lippe, P. (2007). \emph{Index Theory and Price Statistics}. Peter Lang.
 }
 \seealso{
 \code{\link[=price_relative]{price_relative()}} for making price relatives for the same products over

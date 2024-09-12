@@ -11,11 +11,11 @@
 \usage{
 as_index(x, ...)
 
-\method{as_index}{default}(x, ..., chainable = TRUE)
+\method{as_index}{default}(x, ...)
 
-\method{as_index}{matrix}(x, ..., chainable = TRUE)
+\method{as_index}{matrix}(x, ..., chainable = TRUE, contrib = FALSE)
 
-\method{as_index}{data.frame}(x, cols = NULL, ..., chainable = TRUE)
+\method{as_index}{data.frame}(x, ...)
 
 \method{as_index}{chainable_piar_index}(x, ..., chainable = TRUE)
 
@@ -30,13 +30,11 @@ as_index(x, ...)
 indexes, suitable for a chained calculation (the default)? This should be
 \code{FALSE} when \code{x} is a fixed-base (direct) index.}
 
-\item{cols}{Deprecated. A vector giving the positions/names of the period,
-level, and value columns in \code{x}. The default assumes that the first column
-contains time periods, the second contains levels, and the third contains
-index values.}
+\item{contrib}{Should the index values in \code{x} be used to construct
+percent-change contributions? The default does not make contributions.}
 }
 \value{
-\code{as_index()} returns a price index that inherits from
+A price index that inherits from
 \code{\link{piar_index}}. If \code{chainable = TRUE} then this is a
 period-over-period price index that also inherits from
 \code{\link{chainable_piar_index}}; otherwise, it is a fixed-base index that
@@ -76,7 +74,7 @@ prices <- data.frame(
   ea = rep(letters[1:2], 4)
 )
 
-index <- with(prices, elemental_index(rel, period, ea))
+index <- elemental_index(prices, rel ~ period + ea)
 
 all.equal(as_index(as.data.frame(index)), index)
 all.equal(as_index(as.matrix(index)), index)

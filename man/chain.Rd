@@ -22,7 +22,7 @@ unchain(x, ...)
 
 \method{unchain}{default}(x, ...)
 
-\method{unchain}{direct_piar_index}(x, ...)
+\method{unchain}{direct_piar_index}(x, base = rep(1, nlevels(x)), ...)
 
 rebase(x, ...)
 
@@ -41,7 +41,9 @@ that no linking is done.}
 
 \item{base}{A numeric vector, or something that can coerced into one, of
 base-period index values for each level in \code{x}. The default is a vector
-of 1s so that the base period remains the same.}
+of 1s so that the base period remains the same. If \code{base} is a length-one
+character vector giving a time period of \code{x} then the index values for this
+time period are used as the base-period values.}
 }
 \value{
 \code{chain()} and \code{rebase()} return a fixed-base index that inherits
@@ -76,7 +78,7 @@ roughly the same as \code{as.matrix(x) / base}. Like unchaining, rebasing a
 period-over-period index does nothing.
 
 Percent-change contributions are removed when chaining/unchaining/rebasing
-an index, as it's not usually possible to update them correctly.
+an index as it's not usually possible to update them correctly.
 }
 \examples{
 index <- as_index(matrix(1:9, 3))
@@ -99,17 +101,17 @@ rebase(index, index[, 2])
 \seealso{
 Other index methods: 
 \code{\link{[.piar_index}()},
-\code{\link{aggregate.piar_index}()},
+\code{\link{aggregate.piar_index}},
 \code{\link{as.data.frame.piar_index}()},
 \code{\link{contrib}()},
 \code{\link{head.piar_index}()},
 \code{\link{is.na.piar_index}()},
 \code{\link{levels.piar_index}()},
-\code{\link{mean.piar_index}()},
+\code{\link{mean.piar_index}},
 \code{\link{merge.piar_index}()},
 \code{\link{split.piar_index}()},
 \code{\link{stack.piar_index}()},
 \code{\link{time.piar_index}()},
-\code{\link{vcov.aggregate_piar_index}()}
+\code{\link{window.piar_index}()}
 }
 \concept{index methods}

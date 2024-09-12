@@ -1,5 +1,7 @@
-epr1 <- elemental_index(1:8, rep(1:2, each = 4), rep(letters[1:4], 2),
-                        contrib = TRUE)
+epr1 <- elemental_index(1:8,
+  period = rep(1:2, each = 4), ea = rep(letters[1:4], 2),
+  contrib = TRUE
+)
 epr2 <- as_index(matrix(1:8, 4, 2, dimnames = list(letters[1:4], 3:4)))
 pias1 <- as_aggregation_structure(
   data.frame(level1 = "0", level2 = letters[1:4], weight = 1:4)
@@ -13,12 +15,9 @@ index2 <- aggregate(epr2, pias2)
 test_that("stack returns the correct type of index", {
   expect_true(is_chainable_index(stack(epr1, epr2)))
   expect_true(is_chainable_index(stack(index1, index2)))
-  expect_true(is_aggregate_index(stack(index1, index2)))
-  expect_false(is_aggregate_index(stack(index1, as_index(as.matrix(index2)))))
-  expect_false(is_aggregate_index(stack(as_index(as.matrix(index2)), index1)))
   expect_true(is_chainable_index(stack(epr1, chain(epr2))))
   expect_true(is_direct_index(stack(chain(epr1), epr2)))
-  expect_error(stack(index1, epr1))
+  expect_error(suppressWarnings(stack(index1, epr1)))
   time(epr2) <- time(epr1)
   expect_error(stack(epr1, epr2))
   expect_error(stack(index1, aggregate(epr2, pias2, r = 0)))
@@ -33,14 +32,20 @@ test_that("stacking and unstacking are opposite operations", {
 
 test_that("stacking returns the correct result", {
   epr3 <- stack(epr1, epr2)
-  expect_equal(as.matrix(epr3),
-               matrix(1:8, 4, 4, dimnames = list(letters[1:4], 1:4)))
+  expect_equal(
+    as.matrix(epr3),
+    matrix(1:8, 4, 4, dimnames = list(letters[1:4], 1:4))
+  )
   expect_identical(levels(epr3), levels(epr1))
   expect_identical(time(epr3), as.character(1:4))
-  expect_equal(contrib(epr3),
-               matrix(c(0, 4, 0, 0), 1, 4, dimnames = list("a.1", 1:4)))
-  expect_equal(as.matrix(stack(epr2, epr1)),
-               matrix(1:8, 4, 4, dimnames = list(letters[1:4], c(3:4, 1:2))))
+  expect_equal(
+    contrib(epr3),
+    matrix(c(0, 4, 0, 0), 1, 4, dimnames = list("a.1", 1:4))
+  )
+  expect_equal(
+    as.matrix(stack(epr2, epr1)),
+    matrix(1:8, 4, 4, dimnames = list(letters[1:4], c(3:4, 1:2)))
+  )
 })
 
 test_that("stack works with [", {
@@ -58,4 +63,8 @@ test_that("price updating works with a stacked index", {
   index <- stack(index1, index2)
   expect_equal(aggregate(index[, 2], update(pias1, index, 1)), index[, 2])
   expect_equal(aggregate(index[, 4], update(pias2, index[, 3:4], 3)), index[, 4])
+})
+
+test_that("stack matches y to x", {
+  expect_equal(stack(epr1, epr2), stack(epr1, epr2[4:1]))
 })

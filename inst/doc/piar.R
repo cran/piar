@@ -12,11 +12,14 @@ head(ms_prices)
 ms_weights
 
 ## -----------------------------------------------------------------------------
-relative <- with(ms_prices, price_relative(price, period, product))
+relatives <- with(
+  ms_prices,
+  price_relative(price, period = period, product = product)
+)
 
 ms_elemental <- with(
   ms_prices,
-  elemental_index(relative, period, business, na.rm = TRUE)
+  elemental_index(relatives, period = period, ea = business, na.rm = TRUE)
 )
 
 ms_elemental
@@ -32,7 +35,7 @@ hierarchy <- with(
   c(expand_classification(classification), list(business))
 )
 
-pias <- aggregation_structure(hierarchy, ms_weights$weight)
+pias <- aggregation_structure(hierarchy, weights = ms_weights$weight)
 
 ## -----------------------------------------------------------------------------
 ms_index <- aggregate(ms_elemental, pias, na.rm = TRUE)
@@ -53,7 +56,7 @@ rebase(ms_index_chained, ms_index_chained[, "202004"])
 ## -----------------------------------------------------------------------------
 rebase(
   ms_index_chained,
-  mean(ms_index_chained, window = 2)[, "202003"]
+  mean(window(ms_index_chained, "202003"))
 )
 
 ## -----------------------------------------------------------------------------
@@ -78,15 +81,40 @@ pias_sps <- with(
 )
 
 ## -----------------------------------------------------------------------------
-aggregate(ms_elemental, pias_sps, na.rm = TRUE)
+index_sps <- aggregate(ms_elemental, pias_sps, na.rm = TRUE)
+index_sps
 
 ## -----------------------------------------------------------------------------
-ms_elemental2 <- with(
-  ms_prices,
-  elemental_index(
-    relative, period, factor(business, ms_weights$business),
-    na.rm = TRUE
+interacted_hierarchy <- with(
+  ms_weights,
+  interact_classifications(
+    expand_classification(classification),
+    expand_classification(stratum)
   )
+)
+
+pias_sps2 <- lapply(
+  interacted_hierarchy,
+  \(x) aggregation_structure(c(x, ms_weights["business"]), ms_weights$weight)
+)
+
+index_sps2 <- lapply(pias_sps2, \(x) aggregate(index_sps, x, include_ea = FALSE))
+
+## -----------------------------------------------------------------------------
+Reduce(merge, index_sps2)
+
+## -----------------------------------------------------------------------------
+pias_matrix <- as.matrix(pias)
+pias_matrix
+
+## -----------------------------------------------------------------------------
+pias_matrix %*% as.matrix(chain(ms_index[ms_weights$business]))
+
+## -----------------------------------------------------------------------------
+ms_elemental2 <- elemental_index(
+  ms_prices,
+  relatives ~ period + factor(business, ms_weights$business),
+  na.rm = TRUE
 )
 
 ## -----------------------------------------------------------------------------
@@ -102,16 +130,10 @@ ms_elemental2
 aggregate(ms_elemental2, pias, na.rm = TRUE)
 
 ## -----------------------------------------------------------------------------
-with(
-  ms_prices, 
-  elemental_index(relative, period, business, na.rm = TRUE, r = 1)
-)
+elemental_index(ms_prices, relatives ~ period + business, na.rm = TRUE, r = 1)
 
 ## -----------------------------------------------------------------------------
-with(
-  ms_prices,
-  elemental_index(relative, period, business, na.rm = TRUE, r = -1)
-)
+elemental_index(ms_prices, relatives ~ period + business, na.rm = TRUE, r = -1)
 
 ## -----------------------------------------------------------------------------
 ms_prices2 <- transform(ms_prices, quantity = 10 - price)
@@ -136,31 +158,34 @@ ms_prices2$weight <- with(
 )
 
 ## -----------------------------------------------------------------------------
-with(
+elemental_index(
   ms_prices2,
-  elemental_index(price / back_price, period, business, weight)
+  price / back_price ~ period + business,
+  weights = weight
 )
 
 ## -----------------------------------------------------------------------------
-ms_elemental <- with(
+ms_elemental <- elemental_index(
   ms_prices,
-  elemental_index(relative, period, business, contrib = TRUE, na.rm = TRUE)
+  relatives ~ period + business,
+  contrib = TRUE, na.rm = TRUE
 )
 
 ## -----------------------------------------------------------------------------
 contrib(ms_elemental)
 
 ## -----------------------------------------------------------------------------
+contrib(aggregate(ms_elemental, pias, na.rm = TRUE))
+
+## -----------------------------------------------------------------------------
 ms_prices1 <- subset(ms_prices, period <= "202003")
 ms_prices2 <- subset(ms_prices, period >= "202003")
 
 ## -----------------------------------------------------------------------------
-ms_elemental1 <- with(
+ms_elemental1 <- elemental_index(
   ms_prices1, 
-  elemental_index(
-    price_relative(price, period, product),
-    period, business, na.rm = TRUE
-  )
+  price_relative(price, period = period, product = product) ~ period + business,
+  na.rm = TRUE
 )
 
 ms_index1 <- aggregate(ms_elemental1, pias, na.rm = TRUE)
@@ -169,9 +194,9 @@ ms_index1
 
 ## -----------------------------------------------------------------------------
 ms_elemental2 <- ms_prices2 |>
-  transform(rel = price_relative(price, period, product)) |>
+  transform(rel = price_relative(price, period = period, product = product)) |>
   subset(period > "202003") |>
-  with(elemental_index(rel, period, business, na.rm = TRUE))
+  elemental_index(rel ~ period + business, na.rm = TRUE)
 
 ## -----------------------------------------------------------------------------
 ms_index2 <- aggregate(ms_elemental2, update(pias, ms_index1), na.rm = TRUE)
@@ -182,13 +207,13 @@ ms_index2
 chain(stack(ms_index1, ms_index2))
 
 ## -----------------------------------------------------------------------------
-ms_elemental2 <- with(
-  ms_prices, 
+ms_elemental2 <- ms_prices |>
+  transform(imputed_price = carry_forward(price, period = period, product = product)) |>
   elemental_index(
-    price_relative(carry_forward(price, period, product), period, product),
-    period, business, na.rm = TRUE
+    price_relative(imputed_price, period = period, product = product) ~
+      period + business,
+    na.rm = TRUE
   )
-)
 
 ms_elemental2
 
@@ -202,23 +227,19 @@ ms_prices1 <- subset(ms_prices, business %in% c("B1", "B2", "B3"))
 ms_prices2 <- subset(ms_prices, business == "B4")
 
 ## -----------------------------------------------------------------------------
-ms_elemental1 <- with(
-  ms_prices1, 
-  elemental_index(
-    price_relative(price, period, product),
-    period, business, na.rm = TRUE
-  )
+ms_elemental1 <- elemental_index(
+  ms_prices1,
+  price_relative(price, period = period, product = product) ~ period + business,
+  na.rm = TRUE
 )
 
 ms_elemental1
 
 ms_elemental2 <- ms_prices2 |>
   transform(period = factor(period, levels = time(ms_elemental1))) |>
-  with(
-    elemental_index(
-      price_relative(price, period, product),
-      period, business, na.rm = TRUE
-    )
+  elemental_index(
+    price_relative(price, period = period, product = product) ~ period + business,
+    na.rm = TRUE
   )
 
 ms_elemental2

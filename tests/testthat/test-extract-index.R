@@ -6,8 +6,8 @@ pias <- as_aggregation_structure(
   data.frame(level1 = 1, level2 = c(11, 12, 13, 14), weight = 1)
 )
 
-epr <- with(dat, elemental_index(rel, period, ea, contrib = TRUE))
-epr2 <- with(dat, elemental_index(rel, period, ea))
+epr <- elemental_index(dat, rel ~ period + ea, contrib = TRUE)
+epr2 <- elemental_index(dat, rel ~ period + ea)
 
 index <- aggregate(epr, pias)
 
@@ -32,25 +32,13 @@ test_that("subscripting methods work", {
   expect_equal(index[], index)
   expect_equal(
     epr[c(TRUE, FALSE, TRUE, TRUE), 2:1],
-    with(
-      dat,
-      elemental_index(rel, factor(period, 2:1), factor(ea, c(11, 13:14)),
-                      contrib = TRUE)
-    )
+    elemental_index(dat, rel ~ factor(period, 2:1) + factor(ea, c(11, 13:14)),
+                    contrib = TRUE)
   )
   expect_equal(
     epr[c("14", "12"), TRUE],
-    with(
-      dat,
-      elemental_index(rel, period, factor(ea, c(14, 12)),
-                      contrib = TRUE)
-    )
+    elemental_index(dat, rel ~ period + factor(ea, c(14, 12)), contrib = TRUE)
   )
-})
-
-test_that("subscripting returns an aggregate index when appropriate", {
-  expect_true(is_aggregate_index(index[, 1:2]))
-  expect_false(is_aggregate_index(index[1:2, ]))
 })
 
 test_that("subscripting methods give errors where expected", {
@@ -139,9 +127,6 @@ test_that("replacement methods work with a vector", {
     contrib(epr, "14"),
     matrix(0, 0, 2, dimnames = list(NULL, 1:2))
   )
-  
-  index[1] <- 0
-  expect_false(is_aggregate_index(index))
   
   # Errors
   expect_error(epr[0] <- 1:3)

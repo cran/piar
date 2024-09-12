@@ -7,11 +7,11 @@
 #' @param ... Not currently used.
 #'
 #' @returns
-#' `as.data.frame()` returns a data frame with three columns: `period`, `level`,
-#' and `value`.
+#' `as.data.frame()` returns the index values in `x` as a data frame with three
+#' columns: `period`, `level`, and `value`.
 #'
-#' `as.matrix()` returns a matrix with a row for each level and a column
-#' for each time period.
+#' `as.matrix()` returns the index values in `x` as a matrix with a row for
+#' each level and a column for each time period in `x`.
 #'
 #' @seealso
 #' [as_index()] to coerce a matrix/data frame of index values into an index
@@ -21,20 +21,26 @@
 #' index <- as_index(matrix(1:6, 2))
 #'
 #' as.data.frame(index)
+#' 
 #' as.matrix(index)
 #'
 #' @family index methods
 #' @export
 as.data.frame.piar_index <- function(x, ..., stringsAsFactors = FALSE) {
+  chkDots(...)
   value <- unlist(x$index, use.names = FALSE)
   period <- rep(x$time, each = length(x$levels))
   if (stringsAsFactors) {
-    data.frame(period = factor(period, x$time),
-      level = factor(x$levels, x$levels), value
+    data.frame(
+      period = factor(period, x$time),
+      level = factor(x$levels, x$levels),
+      value
     )
   } else {
-    data.frame(period,
-      level = x$levels, value,
+    data.frame(
+      period,
+      level = x$levels,
+      value,
       stringsAsFactors = FALSE
     )
   }
@@ -43,6 +49,7 @@ as.data.frame.piar_index <- function(x, ..., stringsAsFactors = FALSE) {
 #' @rdname as.data.frame.piar_index
 #' @export
 as.matrix.piar_index <- function(x, ...) {
+  chkDots(...)
   res <- do.call(cbind, x$index)
   dimnames(res) <- list(x$levels, x$time)
   res
@@ -50,5 +57,6 @@ as.matrix.piar_index <- function(x, ...) {
 
 #' @export
 as.double.piar_index <- function(x, ...) {
+  chkDots(...)
   as.double(as.matrix(x))
 }

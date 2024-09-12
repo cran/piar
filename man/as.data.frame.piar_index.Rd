@@ -17,11 +17,11 @@
 \item{stringsAsFactors}{See \code{\link[=as.data.frame]{as.data.frame()}}.}
 }
 \value{
-\code{as.data.frame()} returns a data frame with three columns: \code{period}, \code{level},
-and \code{value}.
+\code{as.data.frame()} returns the index values in \code{x} as a data frame with three
+columns: \code{period}, \code{level}, and \code{value}.
 
-\code{as.matrix()} returns a matrix with a row for each level and a column
-for each time period.
+\code{as.matrix()} returns the index values in \code{x} as a matrix with a row for
+each level and a column for each time period in \code{x}.
 }
 \description{
 Turn an index into a data frame or a matrix.
@@ -30,6 +30,7 @@ Turn an index into a data frame or a matrix.
 index <- as_index(matrix(1:6, 2))
 
 as.data.frame(index)
+
 as.matrix(index)
 
 }
@@ -39,17 +40,17 @@ object.
 
 Other index methods: 
 \code{\link{[.piar_index}()},
-\code{\link{aggregate.piar_index}()},
+\code{\link{aggregate.piar_index}},
 \code{\link{chain}()},
 \code{\link{contrib}()},
 \code{\link{head.piar_index}()},
 \code{\link{is.na.piar_index}()},
 \code{\link{levels.piar_index}()},
-\code{\link{mean.piar_index}()},
+\code{\link{mean.piar_index}},
 \code{\link{merge.piar_index}()},
 \code{\link{split.piar_index}()},
 \code{\link{stack.piar_index}()},
 \code{\link{time.piar_index}()},
-\code{\link{vcov.aggregate_piar_index}()}
+\code{\link{window.piar_index}()}
 }
 \concept{index methods}

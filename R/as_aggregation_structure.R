@@ -9,9 +9,6 @@
 #' each elemental aggregate, a column of labels for each level in the
 #' aggregation structure, and a column of weights for the elemental aggregates.
 #'
-#' The method for aggregate indexes reconstructs the aggregation structure used
-#' to generate the index (with optional weights).
-#'
 #' @param x An object to coerce into an aggregation structure.
 #' @param weights A numeric vector of aggregation weights for the elemental
 #' aggregates. The default is to give each elemental aggregate the same weight.
@@ -64,13 +61,15 @@ as_aggregation_structure <- function(x, ...) {
 
 #' @rdname as_aggregation_structure
 #' @export
-as_aggregation_structure.default <- function(x, weights = NULL, ...) {
+as_aggregation_structure.default <- function(x, ..., weights = NULL) {
+  chkDots(...)
   aggregation_structure(as.list(x), weights)
 }
 
 #' @rdname as_aggregation_structure
 #' @export
 as_aggregation_structure.data.frame <- function(x, ...) {
+  chkDots(...)
   x <- as.list(x)
   aggregation_structure(x[-length(x)], x[[length(x)]])
 }
@@ -81,24 +80,8 @@ as_aggregation_structure.matrix <- function(x, ...) {
   as_aggregation_structure(as.data.frame(x), ...)
 }
 
-#' @rdname as_aggregation_structure
-#' @export
-as_aggregation_structure.aggregate_piar_index <- function(x,
-                                                          weights = NULL, ...) {
-  if (is.null(weights)) {
-    weights <- rep.int(1, length(x$pias$levels[[length(x$pias$levels)]]))
-  } else {
-    weights <- as.numeric(weights)
-    if (any(weights <= 0, na.rm = TRUE)) {
-      warning("some elements of 'w' are less than or equal to 0")
-    }
-  }
-  piar_aggregation_structure(
-    x$pias$child, x$pias$parent, x$pias$levels, weights
-  )
-}
-
 #' @export
 as_aggregation_structure.piar_aggregation_structure <- function(x, ...) {
+  chkDots(...)
   x
 }

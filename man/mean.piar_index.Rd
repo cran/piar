@@ -2,12 +2,34 @@
 % Please edit documentation in R/mean.piar_index.R
 \name{mean.piar_index}
 \alias{mean.piar_index}
+\alias{mean.chainable_piar_index}
+\alias{mean.direct_piar_index}
 \title{Aggregate a price index over subperiods}
 \usage{
-\method{mean}{piar_index}(x, weights = NULL, ..., window = 3L, na.rm = FALSE, contrib = TRUE, r = 1)
+\method{mean}{chainable_piar_index}(
+  x,
+  ...,
+  weights = NULL,
+  window = ntime(x),
+  na.rm = FALSE,
+  contrib = TRUE,
+  r = 1
+)
+
+\method{mean}{direct_piar_index}(
+  x,
+  ...,
+  weights = NULL,
+  window = ntime(x),
+  na.rm = FALSE,
+  contrib = TRUE,
+  r = 1
+)
 }
 \arguments{
 \item{x}{A price index, as made by, e.g., \code{\link[=elemental_index]{elemental_index()}}.}
+
+\item{...}{Not currently used.}
 
 \item{weights}{A numeric vector of weights for the index values in \code{x}, or
 something that can be coerced into one. The
@@ -15,11 +37,9 @@ default is equal weights. It is usually easiest to specify these weights as
 a matrix with a row for each index value in \code{x} and a column for each
 time period.}
 
-\item{...}{Not currently used.}
-
 \item{window}{A positive integer giving the size of the window used to
-average index values across subperiods. The default (3) turns a monthly
-index into into a quarterly one. Non-integers are truncated towards 0.}
+average index values across subperiods. The default averages over all periods
+in \code{x}. Non-integers are truncated towards 0.}
 
 \item{na.rm}{Should missing values be removed? By default, missing values
 are not removed. Setting \code{na.rm = TRUE} is equivalent to overall mean
@@ -35,9 +55,8 @@ a Paasche index). Other values are possible; see
 \code{\link[gpindex:generalized_mean]{gpindex::generalized_mean()}} for details.}
 }
 \value{
-A price index with the same class as \code{x}. If \code{x} is an aggregate index
-and \code{r} is different than that used to aggregate \code{x}, then the result is
-not an aggregate index (as it is no longer consistent in aggregation).
+A price index, averaged over subperiods, that inherits from the same
+class as \code{x}.
 }
 \description{
 Aggregate an index over subperiods by taking the (usually arithmetic) mean
@@ -64,7 +83,8 @@ section 4.3 of Balk (2008) for details.
 \examples{
 index <- as_index(matrix(c(1:12, 12:1), 2, byrow = TRUE))
 
-mean(index)
+# Turn a monthly index into a quarterly index
+mean(index, window = 3)
 
 }
 \references{
@@ -74,7 +94,7 @@ Cambridge University Press.
 \seealso{
 Other index methods: 
 \code{\link{[.piar_index}()},
-\code{\link{aggregate.piar_index}()},
+\code{\link{aggregate.piar_index}},
 \code{\link{as.data.frame.piar_index}()},
 \code{\link{chain}()},
 \code{\link{contrib}()},
@@ -85,6 +105,6 @@ Other index methods:
 \code{\link{split.piar_index}()},
 \code{\link{stack.piar_index}()},
 \code{\link{time.piar_index}()},
-\code{\link{vcov.aggregate_piar_index}()}
+\code{\link{window.piar_index}()}
 }
 \concept{index methods}
