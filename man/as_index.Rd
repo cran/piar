@@ -7,6 +7,7 @@
 \alias{as_index.data.frame}
 \alias{as_index.chainable_piar_index}
 \alias{as_index.direct_piar_index}
+\alias{as_index.mts}
 \title{Coerce to a price index}
 \usage{
 as_index(x, ...)
@@ -15,11 +16,13 @@ as_index(x, ...)
 
 \method{as_index}{matrix}(x, ..., chainable = TRUE, contrib = FALSE)
 
-\method{as_index}{data.frame}(x, ...)
+\method{as_index}{data.frame}(x, ..., contrib = FALSE)
 
 \method{as_index}{chainable_piar_index}(x, ..., chainable = TRUE)
 
 \method{as_index}{direct_piar_index}(x, ..., chainable = FALSE)
+
+\method{as_index}{mts}(x, ...)
 }
 \arguments{
 \item{x}{An object to coerce into a price index.}
@@ -28,7 +31,7 @@ as_index(x, ...)
 
 \item{chainable}{Are the index values in \code{x} period-over-period
 indexes, suitable for a chained calculation (the default)? This should be
-\code{FALSE} when \code{x} is a fixed-base (direct) index.}
+\code{FALSE} when \code{x} contains fixed-base (direct) index values.}
 
 \item{contrib}{Should the index values in \code{x} be used to construct
 percent-change contributions? The default does not make contributions.}
@@ -51,8 +54,8 @@ are used to denote time periods, and row names are used to denote levels
 (so they must be unique). This essentially reverses calling
 \code{\link[=as.matrix.piar_index]{as.matrix()}} on an index object. If a
 dimension is unnamed, then it is given a sequential label from 1 to the size
-of that dimension. The default method coerces \code{x} to a matrix prior to
-using the matrix method.
+of that dimension. The default and multiple time series methods coerces \code{x}
+to a matrix prior to using the matrix method.
 
 The data frame method for \code{as_index()} is best understood as reversing
 the effect of \code{\link[=as.data.frame.piar_index]{as.data.frame()}} on an
@@ -60,7 +63,8 @@ index object. It constructs a matrix by taking the levels of
 \code{x[[1]]} as columns and the levels of \code{x[[2]]} as rows
 (coercing to a factor if necessary). It then populates this matrix with the
 corresponding values in \code{x[[3]]}, and uses the matrix method for
-\code{as_index()}.
+\code{as_index()}. If \code{contrib = TRUE} and there is a fourth list column of
+product contributions then these are also included in the resulting index.
 
 If \code{x} is a period-over-period index then it is returned unchanged when
 \code{chainable = TRUE} and chained otherwise. Similarly, if \code{x} is a

@@ -5,20 +5,33 @@
 \alias{as.matrix.piar_index}
 \title{Coerce an index into a tabular form}
 \usage{
-\method{as.data.frame}{piar_index}(x, ..., stringsAsFactors = FALSE)
+\method{as.data.frame}{piar_index}(
+  x,
+  row.names = NULL,
+  optional = FALSE,
+  ...,
+  contrib = FALSE,
+  stringsAsFactors = FALSE
+)
 
 \method{as.matrix}{piar_index}(x, ...)
 }
 \arguments{
 \item{x}{A price index, as made by, e.g., \code{\link[=elemental_index]{elemental_index()}}.}
 
+\item{row.names, stringsAsFactors}{See \code{\link[=as.data.frame]{as.data.frame()}}.}
+
+\item{optional}{Not currently used.}
+
 \item{...}{Not currently used.}
 
-\item{stringsAsFactors}{See \code{\link[=as.data.frame]{as.data.frame()}}.}
+\item{contrib}{Include percent-change contributions (the default does not
+include them).}
 }
 \value{
 \code{as.data.frame()} returns the index values in \code{x} as a data frame with three
-columns: \code{period}, \code{level}, and \code{value}.
+columns: \code{period}, \code{level}, and \code{value}. If \code{contrib = TRUE} then there is
+a fourth (list) column \code{contrib} containing percent-change contributions.
 
 \code{as.matrix()} returns the index values in \code{x} as a matrix with a row for
 each level and a column for each time period in \code{x}.
@@ -41,6 +54,7 @@ object.
 Other index methods: 
 \code{\link{[.piar_index}()},
 \code{\link{aggregate.piar_index}},
+\code{\link{as.ts.piar_index}()},
 \code{\link{chain}()},
 \code{\link{contrib}()},
 \code{\link{head.piar_index}()},

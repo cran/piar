@@ -105,3 +105,54 @@ test_that("product names are correct", {
     )
   )
 })
+
+test_that("replacement works", {
+  # No op.
+  epr2 <- epr
+  contrib(epr) <- contrib(epr)
+  expect_identical(epr, epr2)
+  
+  # Replacing with change in index.
+  contrib(epr) <- matrix(as.numeric(epr[1]) - 1, 1)
+  expect_equal(
+    contrib(epr),
+    matrix(as.numeric(epr[1]) - 1, 1, dimnames = list(1, 1:2))
+  )
+  
+  # Deleting contributions, used to be give an error.
+  contrib(epr, 12) <- numeric(0)
+  expect_equal(
+    contrib2DF(epr, 12),
+    data.frame(
+      period = character(0),
+      level = character(0),
+      product = character(0),
+      value = numeric(0)
+    )
+  )
+  
+  # Adding contributions.
+  contrib(epr, 14) <- matrix(c(NA, 2:3, 6, 1, NA), 3, dimnames = list(letters[1:3], NULL))
+  expect_equal(
+    contrib(epr, 14),
+    matrix(c(NA, 2:3, 6, 1, NA), 3, dimnames = list(letters[1:3], 1:2))
+  )
+  
+  # Errors work.
+  expect_error(contrib(epr, period = 1) <- 1)
+  expect_error(contrib(epr, 14, 1) <- 1:3)
+  expect_error(contrib(epr) <- matrix(0, 0, 0))
+  expect_warning(contrib(epr) <- matrix(c(as.numeric(epr[1]), 3) - 1, 1, 3))
+  expect_warning(contrib(epr, 14, 1) <- c(a = 1, a = NA))
+})
+
+test_that("setting as index works", {
+  reset_contrib <- function(index) {
+    contrib_matrix <- as.matrix(index) - 1
+    for (l in levels(index)) {
+      contrib(index, l) <- contrib_matrix[l, , drop = FALSE]
+    }
+    index
+  }
+  expect_equal(reset_contrib(epr), set_contrib_from_index(epr2))
+})

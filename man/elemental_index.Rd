@@ -5,7 +5,8 @@
 \alias{elemental_index.default}
 \alias{elemental_index.numeric}
 \alias{elemental_index.data.frame}
-\title{Make elemental price indexes}
+\alias{elementary_index}
+\title{Make elemental/elementary price indexes}
 \usage{
 elemental_index(x, ...)
 
@@ -25,6 +26,8 @@ elemental_index(x, ...)
 )
 
 \method{elemental_index}{data.frame}(x, formula, ..., weights = NULL, product = NULL)
+
+elementary_index(x, ...)
 }
 \arguments{
 \item{x}{Period-over-period or fixed-base price relatives. Currently there
@@ -98,7 +101,8 @@ be unique within each time period when making contributions, and, if not, are
 passed to \code{\link[=make.unique]{make.unique()}} with a warning. The default
 (\code{r = 0} and no weights) makes Jevons elemental indexes. See chapter 8
 (pp. 175--190) of the CPI manual (2020) for more detail about making
-elemental indexes, and chapter 5 of Balk (2008).
+elemental indexes, or chapter 9 of the PPI manual (2004), and chapter 5 of
+Balk (2008).
 
 The default method simply coerces \code{x} to a numeric vector prior to
 calling the method above. The data frame method provides a formula interface
@@ -126,6 +130,9 @@ supplying the appropriate weights with \code{\link[gpindex:transmute_weights]{gp
 example below. It is important to note that there are several ways to
 make these weights, and this affects how percent-change contributions
 are calculated.
+
+\code{elementary_index()} is an alias for \code{elemental_index()} as this is more
+common in the literature.
 }
 \examples{
 library(gpindex)
@@ -169,6 +176,10 @@ elemental_index(
 \references{
 Balk, B. M. (2008). \emph{Price and Quantity Index Numbers}.
 Cambridge University Press.
+
+ILO, IMF, UNECE, OECD, and World Bank. (2004).
+\emph{Producer Price Index Manual: Theory and Practice}.
+International Monetary Fund.
 
 IMF, ILO, OECD, Eurostat, UNECE, and World Bank. (2020).
 \emph{Consumer Price Index Manual: Concepts and Methods}.

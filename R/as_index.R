@@ -9,8 +9,8 @@
 #' (so they must be unique). This essentially reverses calling
 #' [`as.matrix()`][as.matrix.piar_index] on an index object. If a
 #' dimension is unnamed, then it is given a sequential label from 1 to the size
-#' of that dimension. The default method coerces `x` to a matrix prior to
-#' using the matrix method.
+#' of that dimension. The default and multiple time series methods coerces `x`
+#' to a matrix prior to using the matrix method.
 #'
 #' The data frame method for `as_index()` is best understood as reversing
 #' the effect of [`as.data.frame()`][as.data.frame.piar_index] on an
@@ -18,7 +18,8 @@
 #' `x[[1]]` as columns and the levels of `x[[2]]` as rows
 #' (coercing to a factor if necessary). It then populates this matrix with the
 #' corresponding values in `x[[3]]`, and uses the matrix method for
-#' `as_index()`.
+#' `as_index()`. If `contrib = TRUE` and there is a fourth list column of
+#' product contributions then these are also included in the resulting index.
 #'
 #' If `x` is a period-over-period index then it is returned unchanged when
 #' `chainable = TRUE` and chained otherwise. Similarly, if `x` is a
@@ -27,10 +28,10 @@
 #'
 #' @param x An object to coerce into a price index.
 #' @param chainable Are the index values in `x` period-over-period
-#' indexes, suitable for a chained calculation (the default)? This should be
-#' `FALSE` when `x` is a fixed-base (direct) index.
+#'   indexes, suitable for a chained calculation (the default)? This should be
+#'   `FALSE` when `x` contains fixed-base (direct) index values.
 #' @param contrib Should the index values in `x` be used to construct
-#' percent-change contributions? The default does not make contributions.
+#'   percent-change contributions? The default does not make contributions.
 #' @param ... Further arguments passed to or used by methods.
 #'
 #' @returns
@@ -83,23 +84,19 @@ as_index.matrix <- function(x, ..., chainable = TRUE, contrib = FALSE) {
   for (t in seq_along(periods)) {
     index[[t]][] <- x[, t]
   }
-  
-  contributions <- contrib_skeleton(levels, periods)
+
   if (contrib) {
-    i <- seq_along(levels)
-    for (t in seq_along(periods)) {
-      con <- index[[t]] - 1
-      names(con) <- levels
-      contributions[[t]][] <- lapply(i, \(x) con[x])
-    }
+    contributions <- index2contrib(index, levels, periods)
+  } else {
+    contributions <- contrib_skeleton(levels, periods)
   }
   piar_index(index, contributions, levels, periods, chainable)
 }
 
 #' @rdname as_index
 #' @export
-as_index.data.frame <- function(x, ...) {
-  if (length(x) != 3L) {
+as_index.data.frame <- function(x, ..., contrib = FALSE) {
+  if (length(x) < 3L) {
     stop(
       "'x' must have a column of time periods, index levels, and index values"
     )
@@ -108,12 +105,33 @@ as_index.data.frame <- function(x, ...) {
   time <- levels(x[[1L]])
   levels <- levels(x[[2L]])
   # elemental_index() usually gives NaN for missing cells.
-  res <- matrix(NA_real_,
-    nrow = length(levels), ncol = length(time),
+  index <- matrix(
+    NA_real_,
+    nrow = length(levels),
+    ncol = length(time),
     dimnames = list(levels, time)
   )
-  res[as.matrix(x[2:1])] <- as.numeric(x[[3L]])
-  as_index(res, ...)
+  index[as.matrix(x[2:1])] <- as.numeric(x[[3L]])
+
+  if (contrib && length(x) > 3L) {
+    contributions <- matrix(
+      list(numeric(0L)),
+      nrow = length(levels),
+      ncol = length(time),
+      dimnames = list(levels, time)
+    )
+    contributions[as.matrix(x[2:1])] <- x[[4L]]
+
+    contributions <- valid_contrib_array(index, contributions)
+    index <- as_index(index, ...)
+    # No need to explicitly validate contrib.
+    for (t in seq_along(time)) {
+      index$contrib[[t]][] <- contributions[, t]
+    }
+  } else {
+    index <- as_index(index, contrib = contrib, ...)
+  }
+  index
 }
 
 #' @rdname as_index
@@ -128,4 +146,11 @@ as_index.chainable_piar_index <- function(x, ..., chainable = TRUE) {
 as_index.direct_piar_index <- function(x, ..., chainable = FALSE) {
   chkDots(...)
   if (chainable) unchain(x) else x
+}
+
+
+#' @rdname as_index
+#' @export
+as_index.mts <- function(x, ...) {
+  as_index(t(as.matrix(x)), ...)
 }

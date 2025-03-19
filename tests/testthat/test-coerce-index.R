@@ -9,10 +9,11 @@ test_that("as.matrix work", {
 
 test_that("as.data.frame works", {
   expect_equal(
-    as.data.frame(as_index(matrix(1:4, 2))),
+    as.data.frame(as_index(matrix(1:4, 2)), row.names = 4:1),
     data.frame(period = as.character(rep(1:2, each = 2)),
                level = as.character(1:2),
-               value = 1:4)
+               value = 1:4,
+               row.names = 4:1)
   )
   expect_equal(
     as.data.frame(as_index(matrix(1:4, 1))),
@@ -40,4 +41,22 @@ test_that("as.data.frame works", {
                level = c("b", "a"),
                value = 1:6)
   )
+})
+
+test_that("as.data.frame works with contribs", {
+  x <- as_index(matrix(1:4, 2), contrib = TRUE)
+  contrib(x, 1, 1) = c(a = -1, b = 1)
+  contrib(x, 2, 2) = numeric(0)
+  res <- data.frame(
+    period = as.character(c(1, 1, 2, 2)),
+    level = as.character(c(1, 2, 1, 2)),
+    value = 1:4
+  )
+  res$contrib <- c(
+    list(c(a = -1, b = 1)),
+    list(c("2" = 1)),
+    list(c("1" = 2)),
+    list(numeric(0))
+  )
+  expect_equal(as.data.frame(x, contrib = TRUE), res)
 })

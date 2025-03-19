@@ -5,20 +5,27 @@
 #'
 #' @param x A price index, as made by, e.g., [elemental_index()].
 #' @param level The level of an index for which percent-change contributions
-#' are desired, defaulting to the first level (usually the top-level for an
-#' aggregate index). `contrib2DF()` can accept multiple levels.
+#'   are desired, defaulting to the first level (usually the top-level for an
+#'   aggregate index). `contrib2DF()` can accept multiple levels.
 #' @param period The time periods for which percent-change contributions are
-#' desired, defaulting to all time periods.
+#'   desired, defaulting to all time periods.
 #' @param pad A numeric value to pad contributions so that they fit into a
-#' rectangular array when products differ over time. The default is 0.
+#'   rectangular array when products differ over time. The default is 0.
 #' @param ... Further arguments passed to or used by methods.
+#' @param value A numeric matrix of replacement contributions with a row for
+#'   each product and a column for each time period. Recycling occurs along time
+#'   periods.
 #'
 #' @returns
 #' `contrib()` returns a matrix of percent-change contributions with a column
 #' for each `period` and a row for each product (sorted) for which there are
 #' contributions in `level`. Contributions are padded with `pad` to fit into a
-#' rectangular array when products differ over time.
-#' 
+#' rectangular array when products differ over time. The replacement methods
+#' returns a copy of `x` with contributions given by the matrix `value`.
+#' (`set_contrib()` is an alias that's easier to use with pipes.)
+#' `set_contrib_from_index()` is a helper to return a copy of `x` with all
+#' contributions set to the corresponding index value minus 1.
+#'
 #' `contrib2DF()` returns a data frame of contributions with four
 #' columns: `period`, `level`, `product`, and `value`.
 #'
@@ -40,7 +47,7 @@
 #' # Percent-change contributions for the top-level index
 #'
 #' contrib(index)
-#' 
+#'
 #' contrib2DF(index)
 #'
 #' # Calculate EA contributions for the chained index
@@ -103,25 +110,84 @@ contrib2DF.piar_index <- function(x,
   chkDots(...)
   level <- match_levels(as.character(level), x$levels, several = TRUE)
   period <- match_time(as.character(period), x$time, several = TRUE)
-  
+
   con <- lapply(x$contrib[period], `[`, level)
-  
+
   products <- lapply(con, lengths)
-  
+
   levels <- x$levels[level]
   levels <- unlist(
     lapply(products, \(z) rep.int(levels, z)),
     use.names = FALSE
   )
-  
+
   periods <- rep.int(x$time[period], vapply(products, sum, numeric(1L)))
-  
+
   contributions <- unlist(con)
   data.frame(
     period = periods,
     level = levels,
     # NULL if there are no contributions.
-    product = as.character(names(contributions)), 
+    product = as.character(names(contributions)),
     value = unname(contributions)
   )
+}
+
+#' @rdname contrib
+#' @export
+`contrib<-` <- function(x, ..., value) {
+  UseMethod("contrib<-")
+}
+
+#' @rdname contrib
+#' @export
+`contrib<-.piar_index` <- function(x,
+                                   level = levels(x)[1L],
+                                   period = time(x),
+                                   ...,
+                                   value) {
+  chkDots(...)
+  level <- match_levels(as.character(level), x$levels)
+  period <- match_time(as.character(period), x$time, several = TRUE)
+
+  value <- as.matrix(value)
+  if (is.null(rownames(value))) {
+    products <- as.character(seq_len(nrow(value)))
+  } else {
+    products <- valid_product_names(rownames(value))
+  }
+
+  if (ncol(value) == 0L) {
+    stop("replacement has length zero")
+  } else if (length(period) %% ncol(value) != 0) {
+    warning(
+      "number of items to replace is not a multiple of replacement length"
+    )
+  }
+
+  j <- 0
+  for (t in period) {
+    j <- j %% ncol(value) + 1
+    con <- as.numeric(value[, j])
+    if (length(con) > 0L) {
+      names(con) <- products
+    }
+    if (!valid_replacement_contrib(x$index[[t]][[level]], con)) {
+      stop("contributions do not add up in each time period")
+    }
+
+    x$contrib[[t]][level] <- list(con)
+  }
+  validate_piar_index(x)
+}
+
+#' @rdname contrib
+#' @export
+set_contrib <- `contrib<-`
+
+#' @rdname contrib
+#' @export
+set_contrib_from_index <- function(x) {
+  x$contrib <- index2contrib(x$index, x$levels, x$time)
+  x
 }

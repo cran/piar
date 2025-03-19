@@ -17,11 +17,35 @@ test_that("factors do nothing", {
 
 test_that("order is preserved", {
   agg <- aggregation_structure(list(x1, x2, x3))
-  expect_identical(unlist(levels(agg)), unique(c(x1, x2, x3)))
+  expect_identical(
+    unlist(levels(agg), use.names = FALSE),
+    unique(c(x1, x2, x3))
+  )
 
   ord <- c(2, 4, 1, 3)
   agg <- aggregation_structure(list(x1[ord], x2[ord], x3[ord]))
-  expect_identical(unlist(levels(agg)), unique(c(x1[ord], x2[ord], x3[ord])))
+  expect_identical(
+    unlist(levels(agg), use.names = FALSE),
+    unique(c(x1[ord], x2[ord], x3[ord]))
+  )
+})
+
+test_that("names are not required", {
+  x <- list(a = as.character(1:3), as.character(4:6), c = as.character(7:9))
+  agg <- aggregation_structure(x)
+  expect_identical(as.list(agg), x)
+  expect_identical(
+    weights(agg, ea_only = FALSE),
+    list(
+      a = c("1" = 1, "2" = 1, "3" = 1),
+      c("4" = 1, "5" = 1, "6" = 1),
+      c = c("7" = 1, "8" = 1, "9" = 1)
+    )
+  )
+  expect_identical(
+    as.data.frame(agg),
+    as.data.frame(c(x, weight = list(c(1, 1, 1))))
+  )
 })
 
 test_that("errors work", {

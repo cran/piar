@@ -10,8 +10,8 @@
 \item{object}{A price index aggregation structure, as made by
 \code{\link[=aggregation_structure]{aggregation_structure()}}.}
 
-\item{index}{A price index, or something that can be coerced into one.
-Usually an aggregate price index as made by
+\item{index}{A fixed-base (direct) price index, or something that can be
+coerced into one. Usually an aggregate price index as made by
 \code{\link[=aggregate.piar_index]{aggregate()}}.}
 
 \item{period}{The time period used to price update the weights. The default
@@ -61,6 +61,7 @@ weights(update(pias, index), ea_only = FALSE)
 
 Other aggregation structure methods: 
 \code{\link{as.matrix.piar_aggregation_structure}()},
+\code{\link{cut.piar_aggregation_structure}()},
 \code{\link{levels.piar_aggregation_structure}()},
 \code{\link{weights.piar_aggregation_structure}()}
 }

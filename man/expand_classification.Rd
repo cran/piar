@@ -11,8 +11,8 @@ interact_classifications(..., sep = ":")
 }
 \arguments{
 \item{x}{A character vector, or something that can be coerced into one, of
-codes/labels for a specific level in a classification (e.g., 5-digit COICOP,
-5-digit NAICS, 4-digit SIC).}
+codes/labels for a specific level in a classification (e.g., 5-digit
+COICOP, 5-digit NAICS, 4-digit SIC).}
 
 \item{width}{An integer vector that gives the width of each digit in
 \code{x}. A single value is recycled to span the longest element in
@@ -67,4 +67,7 @@ expand_classification(c("01.1.1", "01.1.2", "01.2.1"), width = 2)
 }
 \seealso{
 \code{\link[=aggregation_structure]{aggregation_structure()}} to make a price-index aggregation structure.
+
+\code{\link[=split_classification]{split_classification()}} to expand a classification by splitting along
+a delimiter.
 }

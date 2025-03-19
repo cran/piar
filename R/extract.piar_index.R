@@ -1,99 +1,3 @@
-#---- Helpers ----
-dim_indices <- function(x, i) {
-  if (missing(i)) {
-    return(seq_along(x))
-  }
-  if (is.character(i)) {
-    res <- match(i, x)
-  } else {
-    res <- match(x[i], x)
-  }
-  if (length(res) == 0L) {
-    stop("attempted to select less than one element")
-  }
-  if (anyNA(res)) {
-    stop("subscript out of bounds")
-  }
-  res
-}
-
-replace_matrix <- function(x, i, value) {
-  if (is.logical(i)) {
-    if (nrow(i) != length(x$levels) || ncol(i) != length(x$time)) {
-      stop(
-        "'i' must have a row for each level and a column for each ",
-        "time period in 'x'"
-      )
-    }
-    i <- which(i, arr.ind = TRUE)
-    if (nrow(i) == 0L) {
-      return(x)
-    }
-  }
-
-  if (ncol(i) != 2L) {
-    stop("'i' must have exactly two columns")
-  }
-
-  value <- as.numeric(value)
-  n <- length(value)
-  if (n == 0L) {
-    stop("replacement has length zero")
-  }
-
-  levels <- dim_indices(x$levels, i[, 1L])
-  periods <- dim_indices(x$time, i[, 2L])
-  if (length(levels) %% n != 0L) {
-    stop("number of items to replace is not a multiple of replacement length")
-  }
-
-  for (i in seq_along(levels)) {
-    x$index[[periods[i]]][levels[i]] <- value[(i - 1L) %% n + 1]
-    # Drop contributions for replaced values.
-    x$contrib[[periods[i]]][levels[i]] <- list(numeric(0L))
-  }
-  x
-}
-
-replace_index <- function(x, i, j, value) {
-  levels <- dim_indices(x$levels, i)
-  periods <- dim_indices(x$time, j)
-  if (length(value$time) != length(periods)) {
-    stop("'x' and 'value' must have the same number of time periods")
-  }
-  if (length(levels) %% length(value$levels) != 0) {
-    stop("number of items to replace is not a multiple of replacement length")
-  }
-  for (t in seq_along(periods)) {
-    x$index[[periods[t]]][levels] <- value$index[[t]]
-    x$contrib[[periods[t]]][levels] <- value$contrib[[t]]
-  }
-  x
-}
-
-replace_numeric <- function(x, i, j, value) {
-  levels <- dim_indices(x$levels, i)
-  periods <- dim_indices(x$time, j)
-
-  value <- as.numeric(value)
-  n <- length(value)
-  if (n == 0L) {
-    stop("replacement has length zero")
-  }
-
-  m <- length(levels)
-  if ((m * length(periods)) %% n != 0) {
-    stop("number of items to replace is not a multiple of replacement length")
-  }
-
-  s <- seq.int(0L, m - 1L)
-  for (t in seq_along(periods)) {
-    x$index[[periods[t]]][levels] <- value[(s + (t - 1L) * m) %% n + 1]
-    x$contrib[[periods[t]]][levels] <- list(numeric(0L))
-  }
-  x
-}
-
 #' Extract and replace index values
 #'
 #' Methods to extract and replace index values like a matrix.
@@ -119,7 +23,7 @@ replace_numeric <- function(x, i, j, value) {
 #'
 #' @param x A price index, as made by, e.g., [elemental_index()].
 #' @param i,j Indices for the levels and time periods of a price index. See
-#' details.
+#'   details.
 #' @param value A numeric vector or price index. See details.
 #' @param ... Not currently used.
 #'
@@ -191,4 +95,93 @@ replace_numeric <- function(x, i, j, value) {
     stop("'value' must be a fixed-base index")
   }
   NextMethod("[<-")
+}
+
+#' Internal replacement functions
+#' @noRd
+replace_matrix <- function(x, i, value) {
+  if (is.logical(i)) {
+    if (nrow(i) != length(x$levels) || ncol(i) != length(x$time)) {
+      stop(
+        "'i' must have a row for each level and a column for each ",
+        "time period in 'x'"
+      )
+    }
+    if (anyNA(i)) {
+      stop("cannot subscript with missing values")
+    }
+    i <- which(i, arr.ind = TRUE)
+  }
+
+  if (ncol(i) != 2L) {
+    stop("'i' must have exactly two columns")
+  }
+  if (nrow(i) == 0L) {
+    return(x)
+  }
+
+  value <- as.numeric(value)
+  n <- length(value)
+  if (n == 0L) {
+    stop("replacement has length zero")
+  }
+
+  levels <- dim_indices(x$levels, i[, 1L])
+  periods <- dim_indices(x$time, i[, 2L])
+  if (length(levels) %% n != 0L) {
+    stop("number of items to replace is not a multiple of replacement length")
+  }
+
+  for (i in seq_along(levels)) {
+    x$index[[periods[i]]][levels[i]] <- value[(i - 1L) %% n + 1]
+    # Drop contributions for replaced values.
+    x$contrib[[periods[i]]][levels[i]] <- list(numeric(0L))
+  }
+  x
+}
+
+replace_index <- function(x, i, j, value) {
+  levels <- dim_indices(x$levels, i)
+  periods <- dim_indices(x$time, j)
+  if (length(levels) == 0L || length(periods) == 0L) {
+    return(x)
+  }
+
+  if (length(value$time) != length(periods)) {
+    stop("'x' and 'value' must have the same number of time periods")
+  }
+  if (length(levels) %% length(value$levels) != 0) {
+    stop("number of items to replace is not a multiple of replacement length")
+  }
+  for (t in seq_along(periods)) {
+    x$index[[periods[t]]][levels] <- value$index[[t]]
+    x$contrib[[periods[t]]][levels] <- value$contrib[[t]]
+  }
+  x
+}
+
+replace_numeric <- function(x, i, j, value) {
+  levels <- dim_indices(x$levels, i)
+  periods <- dim_indices(x$time, j)
+  if (length(levels) == 0L || length(periods) == 0L) {
+    return(x)
+  }
+
+  value <- as.numeric(value)
+  n <- length(value)
+  if (n == 0L) {
+    stop("replacement has length zero")
+  }
+
+  m <- length(levels)
+  if ((m * length(periods)) %% n != 0) {
+    stop("number of items to replace is not a multiple of replacement length")
+  }
+
+  s <- seq.int(0L, m - 1L)
+  for (t in seq_along(periods)) {
+    x$index[[periods[t]]][levels] <- value[(s + (t - 1L) * m) %% n + 1]
+    x$contrib[[periods[t]]][levels] <- list(numeric(0L))
+  }
+  x
 }

@@ -6,14 +6,15 @@
 #'
 #' @aliases piar_aggregation_structure
 #' @param x A list of character vectors that give the codes/labels for each
-#' level of the classification, ordered so that moving down the list goes down
-#' the hierarchy. The last vector gives the elemental aggregates, which should
-#' have no duplicates. All vectors should be the same length, without
-#' `NA`s, and there should be no duplicates across different levels of
-#' `x`.
+#'   level of the classification, ordered so that moving down the list goes down
+#'   the hierarchy. The last vector gives the elemental aggregates, which should
+#'   have no duplicates. All vectors should be the same length, without
+#'   `NA`s, and there should be no duplicates across different levels of
+#'   `x`. Names for `x` are used as level names; otherwise, levels are named
+#'   level1, level2, ..., ea.
 #' @param weights A numeric vector of aggregation weights for the elemental
-#' aggregates (i.e., the last vector in `x`), or something that can be coerced
-#' into one. The default is to give each elemental aggregate the same weight.
+#'   aggregates (i.e., the last vector in `x`), or something that can be coerced
+#'   into one. The default is to give each elemental aggregate the same weight.
 #'
 #' @returns
 #' A price index aggregation structure of class `piar_aggregation_structure`.
@@ -25,7 +26,7 @@
 #' \item{parent}{A list that gives the position of the
 #' immediate parent for each node of the aggregation structure below the
 #' initial nodes.}
-#' \item{levels}{A list of character vectors that give the levels of `x`.}
+#' \item{levels}{A named list of character vectors that give the levels of `x`.}
 #' \item{weights}{A vector giving the weight for each elemental
 #' aggregate.}
 #'
@@ -142,5 +143,8 @@ aggregation_structure <- function(x, weights = NULL) {
   }
   parent <- lapply(parent, unlist)
   levels <- lapply(x, levels)
+  if (is.null(names(levels))) {
+    names(levels) <- c(paste0("level", seq_along(child), recycle0 = TRUE), "ea")
+  }
   piar_aggregation_structure(child, parent, levels, weights)
 }

@@ -4,6 +4,7 @@
 \alias{weights.piar_aggregation_structure}
 \alias{weights<-}
 \alias{weights<-.piar_aggregation_structure}
+\alias{set_weights}
 \title{Get the weights for an aggregation structure}
 \usage{
 \method{weights}{piar_aggregation_structure}(object, ..., ea_only = TRUE, na.rm = FALSE)
@@ -11,6 +12,8 @@
 weights(object) <- value
 
 \method{weights}{piar_aggregation_structure}(object) <- value
+
+set_weights(object, value)
 }
 \arguments{
 \item{object}{A price index aggregation structure, as made by
@@ -32,7 +35,10 @@ not removed.}
 \value{
 \code{weights()} returns a named vector of weights for the elemental aggregates.
 The replacement method replaces these values without changing the
-aggregation structure. If \code{ea_only = FALSE} then the return value is a list
+aggregation structure. (\code{set_weights()} is an alias that's easier to use with
+pipes.)
+
+If \code{ea_only = FALSE} then the return value is a list
 with a named vector of weights for each level in the aggregation structure.
 }
 \description{
@@ -69,6 +75,7 @@ weights(pias)
 \seealso{
 Other aggregation structure methods: 
 \code{\link{as.matrix.piar_aggregation_structure}()},
+\code{\link{cut.piar_aggregation_structure}()},
 \code{\link{levels.piar_aggregation_structure}()},
 \code{\link{update.piar_aggregation_structure}()}
 }

@@ -3,14 +3,14 @@
 #' Price update the weights in a price index aggregation structure.
 #'
 #' @param object A price index aggregation structure, as made by
-#' [aggregation_structure()].
-#' @param index A price index, or something that can be coerced into one.
-#' Usually an aggregate price index as made by
-#' [`aggregate()`][aggregate.piar_index].
+#'   [aggregation_structure()].
+#' @param index A fixed-base (direct) price index, or something that can be
+#'   coerced into one. Usually an aggregate price index as made by
+#'   [`aggregate()`][aggregate.piar_index].
 #' @param period The time period used to price update the weights. The default
-#' uses the last period in `index`.
+#'   uses the last period in `index`.
 #' @param r Order of the generalized mean to update the weights. The default is
-#' 1 for an arithmetic index.
+#'   1 for an arithmetic index.
 #' @param ... Not currently used.
 #'
 #' @returns
@@ -56,13 +56,12 @@ update.piar_aggregation_structure <- function(object,
                                               r = 1) {
   chkDots(...)
   price_update <- gpindex::factor_weights(r)
-  index <- as_index(index)
+  index <- chain(as_index(index))
   period <- match_time(as.character(period), index$time)
   eas <- match(object$levels[[length(object$levels)]], index$levels)
   if (anyNA(eas)) {
     warning("not all weights in 'object' have a corresponding index value")
   }
-  epr <- chain(index)$index[[period]]
-  weights(object) <- price_update(epr[eas], object$weights)
+  weights(object) <- price_update(index$index[[period]][eas], object$weights)
   object
 }

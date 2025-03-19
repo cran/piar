@@ -4,6 +4,7 @@
 \alias{time.piar_index}
 \alias{time<-}
 \alias{time<-.piar_index}
+\alias{set_time}
 \alias{start.piar_index}
 \alias{end.piar_index}
 \alias{ntime}
@@ -14,6 +15,8 @@
 time(x) <- value
 
 \method{time}{piar_index}(x) <- value
+
+set_time(x, value)
 
 \method{start}{piar_index}(x, ...)
 
@@ -36,7 +39,7 @@ giving the replacement time periods for \code{x}.}
 \code{ntime()} returns the number of time periods, analogous to \code{nlevels()}.
 
 The replacement method returns a copy of \code{x} with the time periods in
-\code{value}.
+\code{value}. (\code{set_time()} is an alias that's easier to use with pipes.)
 }
 \description{
 Methods to get and set the time periods for a price index.
@@ -46,6 +49,7 @@ Other index methods:
 \code{\link{[.piar_index}()},
 \code{\link{aggregate.piar_index}},
 \code{\link{as.data.frame.piar_index}()},
+\code{\link{as.ts.piar_index}()},
 \code{\link{chain}()},
 \code{\link{contrib}()},
 \code{\link{head.piar_index}()},

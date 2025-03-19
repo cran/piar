@@ -7,19 +7,22 @@
 \usage{
 \method{as.matrix}{piar_aggregation_structure}(x, ..., sparse = FALSE)
 
-\method{as.data.frame}{piar_aggregation_structure}(x, ..., stringsAsFactors = FALSE)
+\method{as.data.frame}{piar_aggregation_structure}(x, row.names = NULL, optional = FALSE, ...)
 }
 \arguments{
 \item{x}{A price index aggregation structure, as made by
 \code{\link[=aggregation_structure]{aggregation_structure()}}.}
 
-\item{...}{Not currently used.}
+\item{...}{Not currently used for the matrix method. Extra arguments to
+\code{\link[=as.data.frame.list]{as.data.frame.list()}} for the data frame method.}
 
 \item{sparse}{Should the result be a sparse matrix from \pkg{Matrix}? This
 is faster for large aggregation structures. The default returns an ordinary
 dense matrix.}
 
-\item{stringsAsFactors}{See \code{\link[=as.data.frame]{as.data.frame()}}.}
+\item{row.names}{See \code{\link[=as.data.frame]{as.data.frame()}}.}
+
+\item{optional}{Not currently used.}
 }
 \value{
 \code{as.matrix()} represents an aggregation structure as a matrix,
@@ -27,8 +30,7 @@ such that multiplying with a (column) vector of elemental indexes gives the
 aggregated index.
 
 \code{as.data.frame()} takes an aggregation structure and returns a data
-frame that could have generated it, with columns \code{level1},
-\code{level2}, ..., \code{ea}, and \code{weight}.
+frame that could have generated it.
 }
 \description{
 Coerce a price index aggregation structure into an aggregation matrix, or a
@@ -56,11 +58,32 @@ as.matrix(pias)
 
 all.equal(as.data.frame(pias), aggregation_weights)
 
+\dontrun{
+# Visualize as a treemap.
+treemap::treemap(
+  aggregation_weights,
+  index = names(aggregation_weights)[-4],
+  vSize = "weight",
+  title = "aggregation structure"   
+)
+
+# Or turn into a more genereal tree object and plot.
+aggregation_weights$pathString <- do.call(
+  \(...) paste(..., sep = "/"),
+  aggregation_weights[-4]
+)
+plot(data.tree::as.Node(aggregation_weights))
+}
+
 }
 \seealso{
 \code{\link[=as_aggregation_structure]{as_aggregation_structure()}} for coercing into an aggregation structure.
 
+\code{\link[treemap:treemap]{treemap::treemap()}} and \code{\link[data.tree:as.Node]{data.tree::as.Node()}} for visualizing an
+aggregation structure.
+
 Other aggregation structure methods: 
+\code{\link{cut.piar_aggregation_structure}()},
 \code{\link{levels.piar_aggregation_structure}()},
 \code{\link{update.piar_aggregation_structure}()},
 \code{\link{weights.piar_aggregation_structure}()}

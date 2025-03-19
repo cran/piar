@@ -9,10 +9,10 @@
 #'
 #' These methods can be used in a map-reduce to make an index with multiple
 #' aggregation structures (like a Paasche index).
-#' 
+#'
 #' @name stack.piar_index
 #' @aliases stack.piar_index
-#' 
+#'
 #' @inheritParams merge.piar_index
 #'
 #' @returns
@@ -92,7 +92,11 @@ unstack.piar_index <- function(x, ..., chainable) {
   names(res) <- x$time
   for (t in seq_along(res)) {
     res[[t]] <- new_piar_index(
-      x$index[t], x$contrib[t], x$levels, x$time[t], chainable
+      x$index[t],
+      x$contrib[t],
+      x$levels,
+      x$time[t],
+      chainable
     )
   }
   res

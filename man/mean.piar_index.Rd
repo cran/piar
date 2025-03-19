@@ -38,8 +38,8 @@ a matrix with a row for each index value in \code{x} and a column for each
 time period.}
 
 \item{window}{A positive integer giving the size of the window used to
-average index values across subperiods. The default averages over all periods
-in \code{x}. Non-integers are truncated towards 0.}
+average index values across subperiods. The default averages over all
+periods in \code{x}. Non-integers are truncated towards 0.}
 
 \item{na.rm}{Should missing values be removed? By default, missing values
 are not removed. Setting \code{na.rm = TRUE} is equivalent to overall mean
@@ -96,6 +96,7 @@ Other index methods:
 \code{\link{[.piar_index}()},
 \code{\link{aggregate.piar_index}},
 \code{\link{as.data.frame.piar_index}()},
+\code{\link{as.ts.piar_index}()},
 \code{\link{chain}()},
 \code{\link{contrib}()},
 \code{\link{head.piar_index}()},

@@ -58,6 +58,38 @@ test_that("as_index works for data frames", {
   expect_error(as_index(df[1:2]))
 })
 
+test_that("as_index works for ts", {
+  expect_identical(
+    as_index(ts(matrix(1:6, 2))),
+    as_index(matrix(c(1, 3, 5, 2, 4, 6), 3, dimnames = list(paste("Series", 1:3), 1:2)))
+  )
+})
+
+test_that("as_index works with contribs", {
+  expect_equal(
+    as_index(as.data.frame(epr, contrib = TRUE), contrib = TRUE),
+    epr
+  )
+  expect_equal(
+    as_index(as.data.frame(epr2, contrib = TRUE), contrib = TRUE),
+    epr2
+  )
+  
+  index2 <- aggregate(epr, pias, contrib = FALSE)
+  index2df <- as.data.frame(index2, contrib = TRUE)
+  expect_equal(
+    as_index(index2df[-1, ], contrib = TRUE),
+    index2
+  )
+  
+  index2df[1, 4] <- list(a = 0)
+  expect_error(as_index(index2df, contrib = TRUE))
+  
+  index2df[1, 4][[1]] <- list(c(a = 2, a = 1, b = NA))
+  expect_warning(index2 <- as_index(index2df, contrib = TRUE))
+  expect_identical(rownames(contrib(index2)), c("a", "a.1", "b"))
+})
+
 test_that("as_index works for indexes", {
   expect_equal(as_index(epr), epr)
   expect_equal(as_index(index), index)

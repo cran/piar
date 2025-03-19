@@ -1,52 +1,4 @@
-#---- Helpers ----
-which_duplicate_products <- function(x) {
-  vapply(x, anyDuplicated, numeric(1L), incomparables = NA) > 0
-}
-
-duplicate_products <- function(x) {
-  any(which_duplicate_products(x))
-}
-
-sequential_names <- function(...) {
-  f <- interaction(...)
-  unsplit(Map(seq_len, tabulate(f)), f)
-}
-
-valid_product_names <- function(x, period) {
-  x <- as.character(x)
-  period <- as.factor(period)
-  if (anyNA(x) || any(x == "")) {
-    stop("each product must have a non-missing name")
-  }
-  xs <- split(x, period)
-  dups <- which_duplicate_products(xs)
-  if (any(dups)) {
-    warning("product names are not unique in each time period")
-    xs[dups] <- lapply(xs[dups], make.unique)
-    unsplit(xs, period)
-  } else {
-    x
-  }
-}
-
-different_length <- function(...) {
-  res <- lengths(Filter(Negate(is.null), list(...)))
-  any(res != res[1L])
-}
-
-formula_vars <- function(formula, x, n = 2L) {
-  if (length(formula) != 3L) {
-    stop("'formula' must have a left-hand and right-hand side")
-  }
-  fterms <- stats::terms(formula, data = x)
-  x <- eval(attr(fterms, "variables"), x, environment(formula))
-  if (length(x) != n + 1L) {
-    stop(gettextf("right-hand side of 'formula' must have exactly %s terms", n))
-  }
-  x
-}
-
-#' Make elemental price indexes
+#' Make elemental/elementary price indexes
 #'
 #' Compute period-over-period (chainable) or fixed-base (direct) elemental
 #' price indexes, with optional percent-change contributions for each
@@ -64,7 +16,8 @@ formula_vars <- function(formula, x, n = 2L) {
 #' passed to [make.unique()] with a warning. The default
 #' (\code{r = 0} and no weights) makes Jevons elemental indexes. See chapter 8
 #' (pp. 175--190) of the CPI manual (2020) for more detail about making
-#' elemental indexes, and chapter 5 of Balk (2008).
+#' elemental indexes, or chapter 9 of the PPI manual (2004), and chapter 5 of
+#' Balk (2008).
 #'
 #' The default method simply coerces `x` to a numeric vector prior to
 #' calling the method above. The data frame method provides a formula interface
@@ -93,42 +46,45 @@ formula_vars <- function(formula, x, n = 2L) {
 #' make these weights, and this affects how percent-change contributions
 #' are calculated.
 #'
+#' `elementary_index()` is an alias for `elemental_index()` as this is more
+#' common in the literature.
+#'
 #' @param x Period-over-period or fixed-base price relatives. Currently there
-#' are methods for numeric vectors (which can be made with
-#' [price_relative()]) and data frames.
+#'   are methods for numeric vectors (which can be made with
+#'   [price_relative()]) and data frames.
 #' @param period A factor, or something that can be coerced into one, giving
-#' the time period associated with each price relative in `x`. The
-#' ordering of time periods follows of the levels of `period`, to agree
-#' with [`cut()`][cut.Date]. The default makes an index for one time period.
+#'   the time period associated with each price relative in `x`. The
+#'   ordering of time periods follows of the levels of `period`, to agree
+#'   with [`cut()`][cut.Date]. The default makes an index for one time period.
 #' @param ea A factor, or something that can be coerced into one, giving the
-#' elemental aggregate associated with each price relative in `x`. The
-#' default makes an index for one elemental aggregate.
+#'   elemental aggregate associated with each price relative in `x`. The
+#'   default makes an index for one elemental aggregate.
 #' @param weights A numeric vector of weights for the price relatives in `x`,
-#' or something that can be coerced into one. The default is equal weights.
-#' This is evaluated in `x` for the data frame method.
+#'   or something that can be coerced into one. The default is equal weights.
+#'   This is evaluated in `x` for the data frame method.
 #' @param product A character vector of product names, or something that can
-#' be coerced into one, for each price relative in `x` when making
-#' percent-change contributions. The default uses the names of `x`, if any;
-#' otherwise, elements of `x` are given sequential names within each elemental
-#' aggregate. This is evaluated in `x` for the data frame method.
+#'   be coerced into one, for each price relative in `x` when making
+#'   percent-change contributions. The default uses the names of `x`, if any;
+#'   otherwise, elements of `x` are given sequential names within each elemental
+#'   aggregate. This is evaluated in `x` for the data frame method.
 #' @param contrib Should percent-change contributions be calculated? The
-#' default does not calculate contributions.
+#'   default does not calculate contributions.
 #' @param chainable Are the price relatives in `x` period-over-period
-#' relatives that are suitable for a chained calculation (the default)? This
-#' should be `FALSE` when `x` contains fixed-base relatives.
+#'   relatives that are suitable for a chained calculation (the default)? This
+#'   should be `FALSE` when `x` contains fixed-base relatives.
 #' @param na.rm Should missing values be removed? By default, missing values
-#' are not removed. Setting `na.rm = TRUE` is equivalent to overall mean
-#' imputation.
+#'   are not removed. Setting `na.rm = TRUE` is equivalent to overall mean
+#'   imputation.
 #' @param r Order of the generalized mean to aggregate price relatives. 0 for a
-#' geometric index (the default for making elemental indexes), 1 for an
-#' arithmetic index (the default for aggregating elemental indexes and
-#' averaging indexes over subperiods), or -1 for a harmonic index (usually for
-#' a Paasche index). Other values are possible; see
-#' [gpindex::generalized_mean()] for details.
+#'   geometric index (the default for making elemental indexes), 1 for an
+#'   arithmetic index (the default for aggregating elemental indexes and
+#'   averaging indexes over subperiods), or -1 for a harmonic index (usually for
+#'   a Paasche index). Other values are possible; see
+#'   [gpindex::generalized_mean()] for details.
 #' @param ... Further arguments passed to or used by methods.
 #' @param formula A two-sided formula with price relatives on the left-hand
-#' side, and time periods and elemental aggregates (in that order) on the
-#' right-hand side.
+#'   side, and time periods and elemental aggregates (in that order) on the
+#'   right-hand side.
 #'
 #' @returns
 #' A price index that inherits from [`piar_index`]. If
@@ -158,10 +114,14 @@ formula_vars <- function(formula, x, n = 2L) {
 #' Balk, B. M. (2008). *Price and Quantity Index Numbers*.
 #' Cambridge University Press.
 #'
+#' ILO, IMF, UNECE, OECD, and World Bank. (2004).
+#' *Producer Price Index Manual: Theory and Practice*.
+#' International Monetary Fund.
+#'
 #' IMF, ILO, OECD, Eurostat, UNECE, and World Bank. (2020).
 #' *Consumer Price Index Manual: Concepts and Methods*.
 #' International Monetary Fund.
-#' 
+#'
 #' von der Lippe, P. (2007). *Index Theory and Price Statistics*. Peter Lang.
 #'
 #' @examples
@@ -231,17 +191,17 @@ elemental_index.numeric <- function(x,
   }
   period <- as.factor(period)
   ea <- as.factor(ea) # ensures elemental aggregates are balanced
-  
+
   time <- levels(period)
   levels <- levels(ea)
-  
+
   if (different_length(x, period, ea, weights)) {
     stop("input vectors must be the same length")
   }
   if (any(x <= 0, na.rm = TRUE) || any(weights <= 0, na.rm = TRUE)) {
     warning("some elements of 'x' or 'weights' are less than or equal to 0")
   }
-  
+
   if (contrib) {
     if (!is.null(product)) {
       names(x) <- as.character(product)
@@ -262,14 +222,14 @@ elemental_index.numeric <- function(x,
   } else {
     weights <- Map(split, split(weights, period), ea)
   }
-  
+
   index_fun <- Vectorize(gpindex::generalized_mean(r), USE.NAMES = FALSE)
   contrib_fun <- Vectorize(
     gpindex::contributions(r),
     SIMPLIFY = FALSE,
     USE.NAMES = FALSE
   )
-  
+
   index <- Map(index_fun, x, weights, na.rm = na.rm, USE.NAMES = FALSE)
   if (contrib) {
     contributions <- Map(contrib_fun, x, weights, USE.NAMES = FALSE)
@@ -277,7 +237,7 @@ elemental_index.numeric <- function(x,
     # Mimic contributions structure instead of a NULL.
     contributions <- contrib_skeleton(levels, time)
   }
-  
+
   piar_index(index, contributions, levels, time, chainable)
 }
 
@@ -292,7 +252,7 @@ elemental_index.data.frame <- function(x,
   vars <- formula_vars(formula, x)
   weights <- eval(substitute(weights), x, parent.frame())
   product <- eval(substitute(product), x, parent.frame())
-  
+
   elemental_index(
     vars[[1L]],
     period = vars[[2L]],
@@ -302,3 +262,7 @@ elemental_index.data.frame <- function(x,
     ...
   )
 }
+
+#' @rdname elemental_index
+#' @export
+elementary_index <- elemental_index

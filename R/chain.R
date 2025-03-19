@@ -30,13 +30,13 @@
 #'
 #' @param x A price index, as made by, e.g., [elemental_index()].
 #' @param link A numeric vector, or something that can coerced into one, of
-#' link values for each level in `x`. The default is a vector of 1s so
-#' that no linking is done.
+#'   link values for each level in `x`. The default is a vector of 1s so
+#'   that no linking is done.
 #' @param base A numeric vector, or something that can coerced into one, of
-#' base-period index values for each level in `x`. The default is a vector
-#' of 1s so that the base period remains the same. If `base` is a length-one
-#' character vector giving a time period of `x` then the index values for this
-#' time period are used as the base-period values.
+#'   base-period index values for each level in `x`. The default is a vector
+#'   of 1s so that the base period remains the same. If `base` is a length-one
+#'   character vector giving a time period of `x` then the index values for this
+#'   time period are used as the base-period values.
 #' @param ... Further arguments passed to or used by methods.
 #'
 #' @returns
@@ -84,12 +84,7 @@ chain.chainable_piar_index <- function(x, link = rep(1, nlevels(x)), ...) {
     stop("'link' must have a value for each level of 'x'")
   }
   x$index[[1L]] <- x$index[[1L]] * link
-  # x$index[] <- Reduce(`*`, x$index, accumulate = TRUE) simplifies results
-  # with one level.
-  # TODO: use Reduce once my patch is in a released version of R.
-  for (t in seq_along(x$time)[-1L]) {
-    x$index[[t]] <- x$index[[t]] * x$index[[t - 1L]]
-  }
+  x$index <- Reduce(`*`, x$index, accumulate = TRUE, simplify = FALSE)
   # Contributions are difficult to chain, so remove them.
   x$contrib[] <- empty_contrib(x$levels)
   new_piar_index(x$index, x$contrib, x$levels, x$time, chainable = FALSE)

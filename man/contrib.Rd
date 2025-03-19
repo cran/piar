@@ -5,6 +5,10 @@
 \alias{contrib.piar_index}
 \alias{contrib2DF}
 \alias{contrib2DF.piar_index}
+\alias{contrib<-}
+\alias{contrib<-.piar_index}
+\alias{set_contrib}
+\alias{set_contrib_from_index}
 \title{Extract percent-change contributions}
 \usage{
 contrib(x, ...)
@@ -14,6 +18,14 @@ contrib(x, ...)
 contrib2DF(x, ...)
 
 \method{contrib2DF}{piar_index}(x, level = levels(x)[1L], period = time(x), ...)
+
+contrib(x, ...) <- value
+
+\method{contrib}{piar_index}(x, level = levels(x)[1L], period = time(x), ...) <- value
+
+set_contrib(x, ..., value)
+
+set_contrib_from_index(x)
 }
 \arguments{
 \item{x}{A price index, as made by, e.g., \code{\link[=elemental_index]{elemental_index()}}.}
@@ -29,12 +41,20 @@ desired, defaulting to all time periods.}
 
 \item{pad}{A numeric value to pad contributions so that they fit into a
 rectangular array when products differ over time. The default is 0.}
+
+\item{value}{A numeric matrix of replacement contributions with a row for
+each product and a column for each time period. Recycling occurs along time
+periods.}
 }
 \value{
 \code{contrib()} returns a matrix of percent-change contributions with a column
 for each \code{period} and a row for each product (sorted) for which there are
 contributions in \code{level}. Contributions are padded with \code{pad} to fit into a
-rectangular array when products differ over time.
+rectangular array when products differ over time. The replacement methods
+returns a copy of \code{x} with contributions given by the matrix \code{value}.
+(\code{set_contrib()} is an alias that's easier to use with pipes.)
+\code{set_contrib_from_index()} is a helper to return a copy of \code{x} with all
+contributions set to the corresponding index value minus 1.
 
 \code{contrib2DF()} returns a data frame of contributions with four
 columns: \code{period}, \code{level}, \code{product}, and \code{value}.
@@ -79,6 +99,7 @@ Other index methods:
 \code{\link{[.piar_index}()},
 \code{\link{aggregate.piar_index}},
 \code{\link{as.data.frame.piar_index}()},
+\code{\link{as.ts.piar_index}()},
 \code{\link{chain}()},
 \code{\link{head.piar_index}()},
 \code{\link{is.na.piar_index}()},

@@ -5,27 +5,30 @@
 #' together to get all combinations of aggregation structures.
 #'
 #' @param x A character vector, or something that can be coerced into one, of
-#' codes/labels for a specific level in a classification (e.g., 5-digit COICOP,
-#' 5-digit NAICS, 4-digit SIC).
+#'   codes/labels for a specific level in a classification (e.g., 5-digit
+#'   COICOP, 5-digit NAICS, 4-digit SIC).
 #' @param width An integer vector that gives the width of each digit in
-#' `x`. A single value is recycled to span the longest element in
-#' `x`. This cannot contain NAs. The default assumes each digit has a
-#' width of 1, as in the NAICS, NAPCS, and SIC classifications.
+#'   `x`. A single value is recycled to span the longest element in
+#'   `x`. This cannot contain NAs. The default assumes each digit has a
+#'   width of 1, as in the NAICS, NAPCS, and SIC classifications.
 #' @param ... Lists of character vectors that give the codes/labels for each
-#' level of the classification, ordered so that moving down the list goes down
-#' the hierarchy (as made by `expand_classification()`).
+#'   level of the classification, ordered so that moving down the list goes down
+#'   the hierarchy (as made by `expand_classification()`).
 #' @param sep A character used to combine codes/labels across elements of `...`.
-#' The default uses ":".
+#'   The default uses ":".
 #'
 #' @returns
 #' `expand_classification()` returns a list with a entry for each level
 #' in `x` giving the "digits" that represent each level in the hierarchy.
-#' 
+#'
 #' `interact_classfications()` returns a list of lists with the same structure
 #' as `expand_classification()`.
 #'
 #' @seealso
 #' [aggregation_structure()] to make a price-index aggregation structure.
+#'
+#' [split_classification()] to expand a classification by splitting along
+#' a delimiter.
 #'
 #' @examples
 #' # A simple classification structure
@@ -56,16 +59,19 @@
 #' @export
 expand_classification <- function(x, width = 1L) {
   x <- as.character(x)
+  if (length(x) == 0L) {
+    return(list())
+  }
   width <- as.integer(width)
   if (anyNA(width)) {
     stop("'width' cannot contain NAs")
   }
   if (any(width <= 0L)) {
-    stop("'width' must be strictly positive")
+    stop("'width' must be at least 1")
   }
 
   if (length(width) == 1L) {
-    longest <- max(nchar(x), 0L, na.rm = TRUE)
+    longest <- max(nchar(x), 1L, na.rm = TRUE)
     width <- rep.int(width, ceiling(longest / width))
   }
   w <- cumsum(width)
@@ -79,8 +85,11 @@ expand_classification <- function(x, width = 1L) {
 #' @export
 interact_classifications <- function(..., sep = ":") {
   dots <- list(...)
-  if (length(dots) == 0L) {
+  if (length(dots) == 0L || all(lengths(dots) == 0L)) {
     return(list())
+  }
+  if (any(lengths(dots) == 0L)) {
+    stop("each element in '...' must be a non-empty list")
   }
   len <- unlist(lapply(dots, lengths), use.names = FALSE)
   n <- len[1L]

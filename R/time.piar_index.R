@@ -4,7 +4,7 @@
 #'
 #' @param x A price index, as made by, e.g., [elemental_index()].
 #' @param value A character vector, or something that can be coerced into one,
-#' giving the replacement time periods for `x`.
+#'   giving the replacement time periods for `x`.
 #' @param ... Not currently used.
 #'
 #' @returns
@@ -14,7 +14,7 @@
 #' `ntime()` returns the number of time periods, analogous to `nlevels()`.
 #'
 #' The replacement method returns a copy of `x` with the time periods in
-#' `value`.
+#' `value`. (`set_time()` is an alias that's easier to use with pipes.)
 #'
 #' @importFrom stats time
 #' @family index methods
@@ -36,6 +36,10 @@ time.piar_index <- function(x, ...) {
   x$time <- as.character(value)
   validate_piar_index(x)
 }
+
+#' @rdname time.piar_index
+#' @export
+set_time <- `time<-`
 
 #' @rdname time.piar_index
 #' @importFrom stats start

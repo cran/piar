@@ -1,3 +1,48 @@
+# Version 0.8.2
+
+- The vignette has been re-written, split into small examples that cover more
+topics, and should be easier to follow.
+
+## Improvements
+
+- Added `set_levels()`, `set_time()`, and `set_weights()` to make it easier to
+replace levels, times, and weights with pipes.
+
+- `contrib(index) <- value` can now be used to replace product contributions. The
+alias `set_contrib()` is easier to use with pipes.
+
+- `elementary_index()` is now an alias for `elemental_index()` as this is
+more common in the literature.
+
+- `aggregate()` can now use two aggregation structures to make a superlative
+index.
+
+- `cut(aggregation_structure)` can be used cut off the bottom/top of an
+aggregation structure. Works in conjunction with `set_contrib_from_index()` to
+calculate index-level contributions.
+
+- Aggregation structures now preserve the names of their levels to work
+with `cut()`. This means that `as.data.frame(aggregation_structure)` can produce
+different column names.
+
+- `as.data.frame(index)` gets an option to make a list-column of percent-change
+contributions. `as_index(data.frame)` gets an analogous option to add
+contributions in a table to an index.
+
+- `as.ts(index)` can now be used to turn an index into a regular time series and
+`as_index(ts)` can turn a time series into an index object.
+
+- `split_classification()` gives another way to generate an aggregation structure
+from a character vector.
+
+## Bug fixes
+
+- `as.data.frame()` methods now respect the signature of the generic. This
+allows row names to be set and prevents superfluous warnings when trying to
+use `data.frame()`; e.g., with `write.csv()` (#34).
+
+- Subscripting an index object with a length 0 vector is no longer an error (#48).
+
 # Version 0.8.1
 
 ## Significant changes
@@ -33,7 +78,7 @@ pre-computed indexes.
 - `elemental_index()`, `price_relative()`, `shadow_price()`, `carry_forward()`,
 and `carry_backward()` now require the arguments for time periods, products, and
 elemental aggregates to be named so as to avoid accidentally changing the order
-of these arguments (gh #7).
+of these arguments (#7, @schneiderpy).
 
 - Added `interact_classifications()` to get the interaction of different
 dimensions for a hierarchical classification.

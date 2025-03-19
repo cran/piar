@@ -5,7 +5,10 @@ new_piar_aggregation_structure <- function(child, parent, levels, weights) {
   stopifnot(is.list(levels))
   stopifnot(is.double(weights))
   res <- list(
-    child = child, parent = parent, levels = levels, weights = weights
+    child = child,
+    parent = parent,
+    levels = levels,
+    weights = weights
   )
   structure(res, class = "piar_aggregation_structure")
 }
@@ -37,7 +40,7 @@ validate_pias_structure <- function(x) {
       anyNA(x$child, recursive = TRUE) ||
       anyNA(x$parent, recursive = TRUE) ||
       any(vapply(x$child, \(x) any(lengths(x) == 0L), logical(1L)))
-    ) {
+  ) {
     stop(
       "invalid aggregation structure; the input is likely not a nested ",
       "hierachy"
@@ -63,6 +66,7 @@ validate_piar_aggregation_structure <- function(x) {
   x
 }
 
+#---- Undocumented methods ----
 #' @export
 summary.piar_aggregation_structure <- function(object, ...) {
   chkDots(...)
@@ -77,7 +81,7 @@ summary.piar_aggregation_structure <- function(object, ...) {
 #' @export
 print.piar_aggregation_structure <- function(x, ...) {
   summary(x)
-  print(as.data.frame(x), ...)
+  print(as.data.frame(x, fix.empty.names = FALSE), ...)
   invisible(x)
 }
 

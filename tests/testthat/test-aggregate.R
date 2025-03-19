@@ -508,3 +508,52 @@ test_that("missing weights ignores those index values", {
   )
   expect_equal(contrib(index2), contrib(aggregate(elemental, pias)))
 })
+
+test_that("superlative index aggregates correctly", {
+  epr <- as_index(matrix(c(1:4, NA, 6:9), 3), contrib = TRUE)
+  contrib(epr, 1, 1) <- c(-2, -1, 1, 1, 0.25, 0.75)
+  pias <- aggregation_structure(
+    list(c("top", "top", "top"), 1:3), 1:3
+  )
+  pias2 <- aggregation_structure(
+    list(c("top", "top", "top"), 1:3), c(3, 1, 2)
+  )
+  res <- aggregate(epr, pias, pias2 = pias2, na.rm = TRUE)
+  res1 <- aggregate(epr, pias, na.rm = TRUE)
+  res2 <- aggregate(epr, pias2, r = -1, na.rm = TRUE)
+  
+  expect_equal(
+    sqrt(as.matrix(res1) * as.matrix(res2)),
+    as.matrix(res)
+  )
+  
+  expect_equal(
+    colSums(contrib(res), na.rm = TRUE), as.matrix(res)[1, ] - 1
+  )
+  expect_equal(
+    colSums(contrib(res, 1)), as.matrix(res)[2, ] - 1
+  )
+  
+  # Example from vignette.
+  geometric_weights <- gpindex::transmute_weights(0, 1)
+  
+  w <- mapply(
+    \(x, y) geometric_weights(c(x, y)),
+    as.numeric(res1[1]),
+    as.numeric(res2[1])
+  )
+  
+  laspeyres_contrib <- contrib(res1)
+  paasche_contrib <- contrib(res2)
+  
+  fisher_contrib <- w[1, col(laspeyres_contrib)] * laspeyres_contrib +
+    w[2, col(paasche_contrib)] * paasche_contrib
+  
+  expect_equal(contrib(res), fisher_contrib)
+  
+  # Tornqvist.
+  expect_equal(
+    aggregate(epr, pias, r = 0, na.rm = TRUE),
+    aggregate(epr, pias, pias2 = pias, r = 0, na.rm = TRUE)
+  )
+})

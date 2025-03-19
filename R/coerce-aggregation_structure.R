@@ -4,12 +4,14 @@
 #' data frame.
 #'
 #' @param x A price index aggregation structure, as made by
-#' [aggregation_structure()].
+#'   [aggregation_structure()].
 #' @param sparse Should the result be a sparse matrix from \pkg{Matrix}? This
-#' is faster for large aggregation structures. The default returns an ordinary
-#' dense matrix.
-#' @param stringsAsFactors See [as.data.frame()].
-#' @param ... Not currently used.
+#'   is faster for large aggregation structures. The default returns an ordinary
+#'   dense matrix.
+#' @param row.names See [as.data.frame()].
+#' @param optional Not currently used.
+#' @param ... Not currently used for the matrix method. Extra arguments to
+#'   [as.data.frame.list()] for the data frame method.
 #'
 #' @returns
 #' `as.matrix()` represents an aggregation structure as a matrix,
@@ -17,11 +19,13 @@
 #' aggregated index.
 #'
 #' `as.data.frame()` takes an aggregation structure and returns a data
-#' frame that could have generated it, with columns `level1`,
-#' `level2`, ..., `ea`, and `weight`.
+#' frame that could have generated it.
 #'
 #' @seealso
 #' [as_aggregation_structure()] for coercing into an aggregation structure.
+#'
+#' [treemap::treemap()] and [data.tree::as.Node()] for visualizing an
+#' aggregation structure.
 #'
 #' @examples
 #' # A simple aggregation structure
@@ -45,6 +49,23 @@
 #'
 #' all.equal(as.data.frame(pias), aggregation_weights)
 #'
+#' \dontrun{
+#' # Visualize as a treemap.
+#' treemap::treemap(
+#'   aggregation_weights,
+#'   index = names(aggregation_weights)[-4],
+#'   vSize = "weight",
+#'   title = "aggregation structure"
+#' )
+#'
+#' # Or turn into a more genereal tree object and plot.
+#' aggregation_weights$pathString <- do.call(
+#'   \(...) paste(..., sep = "/"),
+#'   aggregation_weights[-4]
+#' )
+#' plot(data.tree::as.Node(aggregation_weights))
+#' }
+#'
 #' @family aggregation structure methods
 #' @export
 as.matrix.piar_aggregation_structure <- function(x, ..., sparse = FALSE) {
@@ -52,7 +73,11 @@ as.matrix.piar_aggregation_structure <- function(x, ..., sparse = FALSE) {
   nea <- length(x$weights)
   height <- length(x$levels)
   if (height == 1L) {
-    res <- matrix(numeric(0L), ncol = nea, dimnames = list(NULL, x$levels[[1L]]))
+    res <- matrix(
+      numeric(0L),
+      ncol = nea,
+      dimnames = list(NULL, x$levels[[1L]])
+    )
     if (sparse) {
       return(Matrix::Matrix(res, sparse = TRUE))
     } else {
@@ -66,7 +91,8 @@ as.matrix.piar_aggregation_structure <- function(x, ..., sparse = FALSE) {
   # Generate the rows for each level of the matrix and rbind together.
   for (i in seq_along(res)) {
     w <- unsplit(
-      lapply(split(x$weights, lev[[i]]), gpindex::scale_weights), lev[[i]]
+      lapply(split(x$weights, lev[[i]]), gpindex::scale_weights),
+      lev[[i]]
     )
     if (sparse) {
       mat <- Matrix::sparseMatrix(lev[[i]], cols, x = w)
@@ -83,14 +109,14 @@ as.matrix.piar_aggregation_structure <- function(x, ..., sparse = FALSE) {
 #' @rdname as.matrix.piar_aggregation_structure
 #' @export
 as.data.frame.piar_aggregation_structure <- function(x,
-                                                     ...,
-                                                     stringsAsFactors = FALSE) {
-  chkDots(...)
-  colnames <- c(paste0("level", seq_along(x$child), recycle0 = TRUE), "ea")
+                                                     row.names = NULL,
+                                                     optional = FALSE,
+                                                     ...) {
   res <- as.data.frame(
     as.list(x),
-    col.names = colnames,
-    stringsAsFactors = stringsAsFactors
+    row.names = row.names,
+    optional = optional,
+    ...
   )
   res$weight <- x$weights
   res
@@ -109,5 +135,7 @@ as.list.piar_aggregation_structure <- function(x, ...) {
     res[[i]] <- x$parent[[i]][res[[i - 1L]]]
   }
   top <- names(x$child[[length(x$child)]])[res[[length(res)]]]
-  c(list(top), lapply(rev(res), names))
+  res <- c(list(top), lapply(rev(res), names))
+  names(res) <- names(x$levels)
+  res
 }

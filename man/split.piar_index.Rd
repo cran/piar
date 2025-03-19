@@ -22,8 +22,8 @@ all levels are kept.}
 \item{margin}{Either 'levels' to split over the levels of \code{x} (the default),
 or 'time' to split over the time periods of \code{x}.}
 
-\item{value}{A list of values compatible with the splitting of \code{x}, recycled
-if necessary.}
+\item{value}{A list of values compatible with the splitting of \code{x}, or
+something that can be coerced into one, recycled if necessary.}
 }
 \value{
 \code{split()} returns a list of index objects for each level in \code{f}. The
@@ -47,6 +47,7 @@ Other index methods:
 \code{\link{[.piar_index}()},
 \code{\link{aggregate.piar_index}},
 \code{\link{as.data.frame.piar_index}()},
+\code{\link{as.ts.piar_index}()},
 \code{\link{chain}()},
 \code{\link{contrib}()},
 \code{\link{head.piar_index}()},
