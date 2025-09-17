@@ -48,8 +48,9 @@ overflow: visible;
 }
 </style>
 <style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -60,7 +61,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
 { counter-reset: source-line 0; }
@@ -342,7 +343,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <p>Price indexes are usually made from several sources of data. An
 important benefit of the usual two-step workflow to make price indexes
-is that the elemental indexes can be built piecemeal—using different
+is that the elementary indexes can be built piecemeal—using different
 sources of data and different index-number formulas—and then aggregated
 with a consistent structure.</p>
 <p>Let’s extend the example in <code>vignette(&quot;piar&quot;)</code> by having
@@ -351,26 +352,27 @@ missing in the <code>ms_prices</code> dataset.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(piar)</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co"># Make an aggregation structure.</span></span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>ms_weights[<span class="fu">c</span>(<span class="st">&quot;level1&quot;</span>, <span class="st">&quot;level2&quot;</span>)] <span class="ot">&lt;-</span> </span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>ms_weights[<span class="fu">c</span>(<span class="st">&quot;level1&quot;</span>, <span class="st">&quot;level2&quot;</span>)] <span class="ot">&lt;-</span></span>
 <span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>  <span class="fu">expand_classification</span>(ms_weights<span class="sc">$</span>classification)</span>
 <span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a></span>
 <span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>pias <span class="ot">&lt;-</span> ms_weights[<span class="fu">c</span>(<span class="st">&quot;level1&quot;</span>, <span class="st">&quot;level2&quot;</span>, <span class="st">&quot;business&quot;</span>, <span class="st">&quot;weight&quot;</span>)] <span class="sc">|&gt;</span></span>
 <span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>  <span class="fu">as_aggregation_structure</span>()</span>
 <span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a></span>
-<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="co"># Make elemental index.</span></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="co"># Make elementary index.</span></span>
 <span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>elementals <span class="ot">&lt;-</span> ms_prices <span class="sc">|&gt;</span></span>
 <span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>  <span class="fu">transform</span>(</span>
 <span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>    <span class="at">relative =</span> <span class="fu">price_relative</span>(price, <span class="at">period =</span> period, <span class="at">product =</span> product)</span>
 <span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a>  <span class="fu">elemental_index</span>(relative <span class="sc">~</span> period <span class="sc">+</span> business, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a>  <span class="fu">elementary_index</span>(relative <span class="sc">~</span> period <span class="sc">+</span> business, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a></span>
 <span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a>elementals</span></code></pre></div>
 <pre><code>## Period-over-period price index for 4 levels over 4 time periods 
-##    202001    202002    202003   202004
-## B1      1 0.8949097 0.3342939      NaN
-## B2      1       NaN       NaN 2.770456
-## B3      1 2.0200036 1.6353355 0.537996
-## B4    NaN       NaN       NaN 4.576286</code></pre>
+##       time
+## levels 202001    202002    202003   202004
+##     B1      1 0.8949097 0.3342939      NaN
+##     B2      1       NaN       NaN 2.770456
+##     B3      1 2.0200036 1.6353355 0.537996
+##     B4    NaN       NaN       NaN 4.576286</code></pre>
 <p>Instead of using survey-like data for the other businesses,
 <code>B5</code> is made from scanner-like data with many price and
 quantity observations at each point in time.</p>
@@ -409,23 +411,25 @@ time series.</p>
 <span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a></span>
 <span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>geks_elementals</span></code></pre></div>
 <pre><code>## Fixed-base price index for 1 levels over 4 time periods 
-##    202001   202002   202003    202004
-## B5      1 1.012081 1.143009 0.8109263</code></pre>
-<p>These values can now be merged with the other elemental indexes,
+##       time
+## levels 202001   202002   202003    202004
+##     B5      1 1.012081 1.143009 0.8109263</code></pre>
+<p>These values can now be merged with the other elementary indexes,
 getting turned into a period-over-period index in the process, and then
 aggregated.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">merge</span>(elementals, geks_elementals) <span class="sc">|&gt;</span></span>
 <span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>  <span class="fu">aggregate</span>(pias, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 <pre><code>## Period-over-period price index for 8 levels over 4 time periods 
-##    202001    202002    202003    202004
-## 1       1 1.1891575 1.0848816 2.1434597
-## 11      1 1.3007239 1.0630743 1.5745154
-## 12      1 1.0120809 1.1293651 3.2358970
-## B1      1 0.8949097 0.3342939 1.5745154
-## B2      1 1.3007239 1.0630743 2.7704563
-## B3      1 2.0200036 1.6353355 0.5379960
-## B4      1 1.0120809 1.1293651 4.5762862
-## B5      1 1.0120809 1.1293651 0.7094664</code></pre>
+##       time
+## levels 202001    202002    202003    202004
+##     1       1 1.1891575 1.0848816 2.1434597
+##     11      1 1.3007239 1.0630743 1.5745154
+##     12      1 1.0120809 1.1293651 3.2358970
+##     B1      1 0.8949097 0.3342939 1.5745154
+##     B2      1 1.3007239 1.0630743 2.7704563
+##     B3      1 2.0200036 1.6353355 0.5379960
+##     B4      1 1.0120809 1.1293651 4.5762862
+##     B5      1 1.0120809 1.1293651 0.7094664</code></pre>
 
 
 

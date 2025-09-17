@@ -3,7 +3,7 @@
 #' Split an index into groups of indexes according to a factor, along either
 #' the levels or time periods of the index.
 #'
-#' @param x A price index, as made by, e.g., [elemental_index()].
+#' @param x A price index, as made by, e.g., [elementary_index()].
 #' @param f A factor or list of factors to group elements of `x`.
 #' @param drop Should levels that do not occur in `f` be dropped? By default
 #'   all levels are kept.
@@ -27,13 +27,15 @@
 #'
 #' @family index methods
 #' @export
-split.piar_index <- function(x,
-                             f,
-                             drop = FALSE,
-                             ...,
-                             margin = c("levels", "time")) {
+split.piar_index <- function(
+  x,
+  f,
+  drop = FALSE,
+  ...,
+  margin = c("levels", "time")
+) {
   margin <- match.arg(margin)
-  ix <- split(seq_along(x[[margin]]), f, drop = drop, ...)
+  ix <- split(seq_along(x[[margin]]), f = f, drop = drop, ...)
   if (margin == "levels") {
     lapply(ix, \(i) x[i, ])
   } else {
@@ -43,15 +45,17 @@ split.piar_index <- function(x,
 
 #' @rdname split.piar_index
 #' @export
-`split<-.piar_index` <- function(x,
-                                 f,
-                                 drop = FALSE,
-                                 ...,
-                                 margin = c("levels", "time"),
-                                 value) {
+`split<-.piar_index` <- function(
+  x,
+  f,
+  drop = FALSE,
+  ...,
+  margin = c("levels", "time"),
+  value
+) {
   value <- as.list(value)
   margin <- match.arg(margin)
-  ix <- split(seq_along(x[[margin]]), f, drop = drop, ...)
+  ix <- split(seq_along(x[[margin]]), f = f, drop = drop, ...)
   n <- length(value)
   if (n > 0L && length(ix) %% n != 0) {
     warning(

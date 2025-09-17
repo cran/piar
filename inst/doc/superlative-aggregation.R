@@ -3,7 +3,7 @@ library(piar)
 
 set.seed(12345)
 
-# Make 6 elemental indexes over 4 time periods.
+# Make 6 elementary indexes over 4 time periods.
 elementals <- matrix(c(rep(1, 6), runif(6 * 3, 0.8, 1.2)), nrow = 6) |>
   as_index() |>
   set_levels(paste0("B", 1:6))

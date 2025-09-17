@@ -2,7 +2,7 @@
 #'
 #' Turn an index into a data frame or a matrix.
 #'
-#' @param x A price index, as made by, e.g., [elemental_index()].
+#' @param x A price index, as made by, e.g., [elementary_index()].
 #' @param row.names,stringsAsFactors See [as.data.frame()].
 #' @param optional Not currently used.
 #' @param ... Not currently used.
@@ -30,15 +30,17 @@
 #'
 #' @family index methods
 #' @export
-as.data.frame.piar_index <- function(x,
-                                     row.names = NULL,
-                                     optional = FALSE,
-                                     ...,
-                                     contrib = FALSE,
-                                     stringsAsFactors = FALSE) {
+as.data.frame.piar_index <- function(
+  x,
+  row.names = NULL,
+  optional = FALSE,
+  ...,
+  contrib = FALSE,
+  stringsAsFactors = FALSE
+) {
   chkDots(...)
   value <- unlist(x$index, use.names = FALSE)
-  period <- rep(x$time, each = length(x$levels))
+  period <- rep(x$time, each = nlevels(x))
   if (stringsAsFactors) {
     res <- data.frame(
       period = factor(period, x$time),
@@ -66,7 +68,7 @@ as.data.frame.piar_index <- function(x,
 as.matrix.piar_index <- function(x, ...) {
   chkDots(...)
   res <- do.call(cbind, x$index)
-  dimnames(res) <- list(x$levels, x$time)
+  dimnames(res) <- list(levels = x$levels, time = x$time)
   res
 }
 
@@ -80,7 +82,7 @@ as.double.piar_index <- function(x, ...) {
 #'
 #' Turn an index into a regular time series, represented as a [`ts`] object.
 #'
-#' @param x A price index, as made by, e.g., [elemental_index()].
+#' @param x A price index, as made by, e.g., [elementary_index()].
 #' @param ... Additional arguments passed to [`ts()`].
 #'
 #' @returns A time series object.
@@ -91,5 +93,5 @@ as.double.piar_index <- function(x, ...) {
 #' @family index methods
 #' @export
 as.ts.piar_index <- function(x, ...) {
-  ts(do.call(rbind, x$index), ..., names = x$levels)
+  ts(data = do.call(rbind, x$index), ..., names = x$levels)
 }

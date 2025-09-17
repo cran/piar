@@ -21,7 +21,7 @@ pias <- data.frame(
 
 pias
 
-# Make elemental indexes over 4 quarters.
+# Make elementary indexes over 4 quarters.
 elementals <- matrix(
   runif(12 * 4, 0.4, 1.2),
   nrow = 12,
@@ -36,16 +36,18 @@ weights(pias) / rowMeans(as.matrix(chain(elementals)))
 
 ## -----------------------------------------------------------------------------
 # Function to adjust annual weights.
-adjust_weights <- function(index,
-                           pias,
-                           tol = .Machine$double.eps^0.5,
-                           max_iter = 100) {
+adjust_weights <- function(
+  index,
+  pias,
+  tol = .Machine$double.eps^0.5,
+  max_iter = 100
+) {
   adj_pias <- pias
   for (i in seq_len(max_iter)) {
-    # Parentally impute missing elemental indexes.
+    # Parentally impute missing elementary indexes.
     agg_index <- aggregate(index, adj_pias, na.rm = TRUE, contrib = FALSE)
     elementals <- chain(agg_index[levels(pias)[[nlevels(pias)]]])
-    # Compute annual elemental indexes.
+    # Compute annual elementary indexes.
     pb <- rowMeans(as.matrix(elementals))
     # Stop if average price-update weights are within tolerance of original
     # weights; adjust otherwise.

@@ -2,7 +2,7 @@
 #'
 #' Methods to get and set the time periods for a price index.
 #'
-#' @param x A price index, as made by, e.g., [elemental_index()].
+#' @param x A price index, as made by, e.g., [elementary_index()].
 #' @param value A character vector, or something that can be coerced into one,
 #'   giving the replacement time periods for `x`.
 #' @param ... Not currently used.
@@ -54,7 +54,7 @@ start.piar_index <- function(x, ...) {
 #' @export
 end.piar_index <- function(x, ...) {
   chkDots(...)
-  x$time[length(x$time)]
+  last(x$time)
 }
 
 #' @rdname time.piar_index

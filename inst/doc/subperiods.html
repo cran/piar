@@ -48,8 +48,9 @@ overflow: visible;
 }
 </style>
 <style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -60,7 +61,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
 { counter-reset: source-line 0; }
@@ -369,7 +370,7 @@ by adding an additional eight quarters to make three years of data.</p>
 <span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a>  <span class="fu">as_aggregation_structure</span>()</span>
 <span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a></span>
 <span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a>pias</span></code></pre></div>
-<pre><code>## Aggregation structure for 12 elemental aggregates with 3 levels above the elemental aggregates 
+<pre><code>## Aggregation structure for 12 elementary aggregates with 3 levels above the elementary aggregates 
 ##    level1 level2 level3  ea weight
 ## 1       1     11    111 B01      1
 ## 2       1     11    111 B02      2
@@ -383,7 +384,7 @@ by adding an additional eight quarters to make three years of data.</p>
 ## 10      1     13    131 B10     10
 ## 11      1     13    132 B11     11
 ## 12      1     13    132 B12     12</code></pre>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># Make elemental indexes over 3 years and aggregate.</span></span>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># Make elementary indexes over 3 years and aggregate.</span></span>
 <span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>quarterly_index <span class="ot">&lt;-</span> <span class="fu">matrix</span>(</span>
 <span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  <span class="fu">runif</span>(<span class="dv">12</span> <span class="sc">*</span> <span class="dv">12</span>, <span class="fl">0.4</span>, <span class="fl">1.2</span>),</span>
 <span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>  <span class="at">nrow =</span> <span class="dv">12</span>,</span>
@@ -394,20 +395,22 @@ by adding an additional eight quarters to make three years of data.</p>
 <span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a></span>
 <span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="fu">head</span>(quarterly_index)</span></code></pre></div>
 <pre><code>## Period-over-period price index for 6 levels over 12 time periods 
-##            Q1        Q2        Q3        Q4        Q5        Q6        Q7
-## 1   0.6847172 0.7513116 0.8602744 0.9150072 0.6691529 0.7621597 0.7928512
-## 11  0.6442816 0.9426238 0.9800151 0.9787698 0.9366504 0.8698449 0.8068903
-## 12  0.6553744 0.8448298 0.7877433 0.7364719 0.6864661 0.6092876 0.5790867
-## 13  0.7125093 0.6568730 0.8763973 1.0105002 0.5713334 0.7912029 0.8792723
-## 111 0.7802316 0.7678844 0.8888722 1.0294469 0.9856799 1.0533765 1.1007037
-## 112 0.5860173 1.0423311 1.0183284 0.9601751 0.9173623 0.7922671 0.6417663
-##            Q8        Q9       Q10       Q11       Q12
-## 1   0.9285013 0.7802293 0.8192686 0.7150868 0.9343166
-## 11  1.0502027 0.8297739 0.9545600 0.7823591 0.8891911
-## 12  0.7510670 1.0351129 0.6936704 0.5073677 0.7432221
-## 13  0.9130143 0.6873897 0.7607797 0.7188072 1.0262155
-## 111 1.1442371 0.7836807 1.0508585 0.5157759 1.1069026
-## 112 0.9595630 0.8827540 0.8562962 1.1161902 0.7632120</code></pre>
+##       time
+## levels        Q1        Q2        Q3        Q4        Q5        Q6        Q7
+##    1   0.6847172 0.7513116 0.8602744 0.9150072 0.6691529 0.7621597 0.7928512
+##    11  0.6442816 0.9426238 0.9800151 0.9787698 0.9366504 0.8698449 0.8068903
+##    12  0.6553744 0.8448298 0.7877433 0.7364719 0.6864661 0.6092876 0.5790867
+##    13  0.7125093 0.6568730 0.8763973 1.0105002 0.5713334 0.7912029 0.8792723
+##    111 0.7802316 0.7678844 0.8888722 1.0294469 0.9856799 1.0533765 1.1007037
+##    112 0.5860173 1.0423311 1.0183284 0.9601751 0.9173623 0.7922671 0.6417663
+##       time
+## levels        Q8        Q9       Q10       Q11       Q12
+##    1   0.9285013 0.7802293 0.8192686 0.7150868 0.9343166
+##    11  1.0502027 0.8297739 0.9545600 0.7823591 0.8891911
+##    12  0.7510670 1.0351129 0.6936704 0.5073677 0.7432221
+##    13  0.9130143 0.6873897 0.7607797 0.7188072 1.0262155
+##    111 1.1442371 0.7836807 1.0508585 0.5157759 1.1069026
+##    112 0.9595630 0.8827540 0.8562962 1.1161902 0.7632120</code></pre>
 <p>The conventional way to turn a quarterly arithmetic index into an
 annual one is to take the (unweighted) arithmetic mean of the index
 values over each year and rebase to a new base year.</p>
@@ -418,13 +421,14 @@ values over each year and rebase to a new base year.</p>
 <span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>  <span class="fu">rebase</span>(<span class="st">&quot;Q1&quot;</span>) <span class="sc">|&gt;</span></span>
 <span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>  <span class="fu">head</span>()</span></code></pre></div>
 <pre><code>## Fixed-base price index for 6 levels over 3 time periods 
-##     Q1        Q5         Q9
-## 1    1 0.3875906 0.17112143
-## 11   1 0.7431798 0.46232765
-## 12   1 0.2497373 0.07096693
-## 13   1 0.3687070 0.14792335
-## 111  1 0.9971250 0.72915914
-## 112  1 0.6323628 0.34588738</code></pre>
+##       time
+## levels Q1        Q5         Q9
+##    1    1 0.3875906 0.17112143
+##    11   1 0.7431798 0.46232765
+##    12   1 0.2497373 0.07096693
+##    13   1 0.3687070 0.14792335
+##    111  1 0.9971250 0.72915914
+##    112  1 0.6323628 0.34588738</code></pre>
 <p>It’s worth noting that, at least with an arithmetic index, the
 aggregation properties of the index continue to hold after
 price-updating the weights.</p>
@@ -447,10 +451,11 @@ index remains the same.</p>
 <span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>  <span class="fu">set_contrib_from_index</span>() <span class="sc">|&gt;</span></span>
 <span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>  <span class="fu">aggregate</span>(<span class="fu">cut</span>(annual_pias, <span class="dv">2</span>)) <span class="sc">|&gt;</span></span>
 <span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>  <span class="fu">contrib</span>()</span></code></pre></div>
-<pre><code>##    Q1          Q5         Q9
-## 11  0 -0.03908184 -0.1102682
-## 12  0 -0.24028499 -0.1477187
-## 13  0 -0.33304262 -0.3005126</code></pre>
+<pre><code>##        time
+## product Q1          Q5         Q9
+##      11  0 -0.03908184 -0.1102682
+##      12  0 -0.24028499 -0.1477187
+##      13  0 -0.33304262 -0.3005126</code></pre>
 
 
 

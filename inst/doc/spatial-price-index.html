@@ -48,8 +48,9 @@ overflow: visible;
 }
 </style>
 <style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -60,7 +61,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
 { counter-reset: source-line 0; }
@@ -369,13 +370,14 @@ index.</p>
 <span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a></span>
 <span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a><span class="fu">head</span>(bh_index)</span></code></pre></div>
 <pre><code>## Fixed-base price index for 6 levels over 4 time periods 
-##     Country 1 Country 2 Country 3 Country 4
-## BH1         1 1.0883616 0.9300382 1.0942740
-## BH2         1 1.1503093 1.0036897 0.8004546
-## BH3         1 1.1043929 1.0910821 0.9564813
-## BH4         1 1.1544498 1.1958948 0.9849979
-## BH5         1 0.9825924 0.8138142 0.9552576
-## BH6         1 0.8665487 0.8609494 0.9609941</code></pre>
+##       time
+## levels Country 1 Country 2 Country 3 Country 4
+##    BH1         1 1.0883616 0.9300382 1.0942740
+##    BH2         1 1.1503093 1.0036897 0.8004546
+##    BH3         1 1.1043929 1.0910821 0.9564813
+##    BH4         1 1.1544498 1.1958948 0.9849979
+##    BH5         1 0.9825924 0.8138142 0.9552576
+##    BH6         1 0.8665487 0.8609494 0.9609941</code></pre>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># Make fixed aggregation weights.</span></span>
 <span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co">#            1</span></span>
 <span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#      |-----+-----|</span></span>
@@ -408,13 +410,15 @@ their spending patterns between each country and the base country.</p>
 regular basis, these sorts of indexes are often updated over time by
 changes in exchange rates and inflation rates for each country.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">as.matrix</span>(index[<span class="dv">1</span>, <span class="sc">-</span><span class="dv">1</span>])</span></code></pre></div>
-<pre><code>##   Country 2 Country 3 Country 4
-## 1  1.051349 0.9701244 0.9461596</code></pre>
+<pre><code>##       time
+## levels Country 2 Country 3 Country 4
+##      1  1.051349 0.9701244 0.9461596</code></pre>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>update_factors <span class="ot">&lt;-</span> <span class="fu">runif</span>(<span class="dv">3</span>, <span class="fl">0.8</span>, <span class="fl">1.2</span>)</span>
 <span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a></span>
 <span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="fu">as.matrix</span>(index[<span class="dv">1</span>, <span class="sc">-</span><span class="dv">1</span>]) <span class="sc">*</span> update_factors</span></code></pre></div>
-<pre><code>##   Country 2 Country 3 Country 4
-## 1  1.112134 0.9273724  1.021301</code></pre>
+<pre><code>##       time
+## levels Country 2 Country 3 Country 4
+##      1  1.112134 0.9273724  1.021301</code></pre>
 
 
 

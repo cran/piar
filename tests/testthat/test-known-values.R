@@ -45,11 +45,15 @@ test_that("matched-sample index works", {
     )
   )
 
-  sp <- shadow_price(ms_prices, price ~ period + product + business, pias = pias)
+  sp <- shadow_price(
+    ms_prices,
+    price ~ period + product + business,
+    pias = pias
+  )
 
   rel <- price_relative(ms_prices, sp ~ period + product)
 
-  epr <- elemental_index(ms_prices, rel ~ period + business, na.rm = TRUE)
+  epr <- elementary_index(ms_prices, rel ~ period + business, na.rm = TRUE)
 
   index <- aggregate(epr, pias, na.rm = TRUE)
 
@@ -116,10 +120,12 @@ test_that("fixed-sample index works", {
 
   rel <- price_relative(fs_prices, price ~ period + business)
 
-  epr <- elemental_index(fs_prices, rel ~ period + business)
+  epr <- elementary_index(fs_prices, rel ~ period + business)
 
   index <- aggregate(epr, pias, na.rm = TRUE)
 
-  expect_equal(as.numeric(as.matrix(chain(index)[1:9, ])),
-               fs_compare$index / 100)
+  expect_equal(
+    as.numeric(as.matrix(chain(index)[1:9, ])),
+    fs_compare$index / 100
+  )
 })

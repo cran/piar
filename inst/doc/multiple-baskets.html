@@ -48,8 +48,9 @@ overflow: visible;
 }
 </style>
 <style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -60,7 +61,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
 { counter-reset: source-line 0; }
@@ -341,32 +342,32 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 <p>Most prices indexes use the same set of weights to aggregate
-elemental indexes for several years, periodically updating these weights
-and adding or removing elemental aggregates. The general approach to
-keep the time series going across baskets is to “chain” the index across
-baskets.</p>
-<p>Let’s start by making some quarterly elemental indexes and weights
+elementary indexes for several years, periodically updating these
+weights and adding or removing elementary aggregates. The general
+approach to keep the time series going across baskets is to “chain” the
+index across baskets.</p>
+<p>Let’s start by making some quarterly elementary indexes and weights
 for two baskets. Each basket has index values for two years, and there
 is a one year overlap between the baskets.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(piar)</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">12345</span>)</span>
 <span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="co"># Make quarterly elemental indexes for two baskets with a 1 year overlap.</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="co"># Make quarterly elementary indexes for two baskets with a 1 year overlap.</span></span>
 <span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a></span>
 <span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>elementals1 <span class="ot">&lt;-</span> <span class="fu">matrix</span>(</span>
 <span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>  <span class="fu">runif</span>(<span class="dv">5</span> <span class="sc">*</span> <span class="dv">8</span>, <span class="fl">0.8</span>, <span class="fl">1.2</span>),</span>
 <span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>  <span class="at">nrow =</span> <span class="dv">5</span>,</span>
 <span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>  <span class="at">dimnames =</span> <span class="fu">list</span>(<span class="fu">paste0</span>(<span class="st">&quot;B&quot;</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>), <span class="cn">NULL</span>)</span>
-<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>)<span class="sc">|&gt;</span></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
 <span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>  <span class="fu">as_index</span>()</span>
 <span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a></span>
 <span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>elementals2 <span class="ot">&lt;-</span> <span class="fu">matrix</span>(</span>
-<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a>  <span class="fu">runif</span>(<span class="dv">6</span> <span class="sc">*</span> <span class="dv">8</span>, <span class="fl">0.8</span>, <span class="fl">1.2</span>), </span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a>  <span class="fu">runif</span>(<span class="dv">6</span> <span class="sc">*</span> <span class="dv">8</span>, <span class="fl">0.8</span>, <span class="fl">1.2</span>),</span>
 <span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a>  <span class="at">nrow =</span> <span class="dv">6</span>,</span>
 <span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a>  <span class="at">dimnames =</span> <span class="fu">list</span>(<span class="fu">paste0</span>(<span class="st">&quot;B&quot;</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>), <span class="dv">5</span><span class="sc">:</span><span class="dv">12</span>)</span>
 <span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
-<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a>  <span class="fu">as_index</span>() </span>
+<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a>  <span class="fu">as_index</span>()</span>
 <span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a></span>
 <span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a><span class="co"># Make aggregation weights for basket 1.</span></span>
 <span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a><span class="co">#            1</span></span>
@@ -397,7 +398,7 @@ is a one year overlap between the baskets.</p>
 <span id="cb1-47"><a href="#cb1-47" tabindex="-1"></a>)</span></code></pre></div>
 <p>Aggregating the indexes for both baskets involves simply mapping the
 usual workflow across both baskets, keeping only the higher-level
-indexes because the elemental indexes change across baskets.</p>
+indexes because the elementary indexes change across baskets.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>index <span class="ot">&lt;-</span> <span class="fu">Map</span>(</span>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>  aggregate,</span>
 <span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  <span class="fu">list</span>(elementals1, elementals2),</span>
@@ -412,18 +413,20 @@ the new basket onto the those in the old basket.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">stack</span>(index[[<span class="dv">1</span>]], <span class="fu">window</span>(index[[<span class="dv">2</span>]], <span class="at">start =</span> <span class="st">&quot;9&quot;</span>)) <span class="sc">|&gt;</span></span>
 <span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  <span class="fu">chain</span>()</span></code></pre></div>
 <pre><code>## Fixed-base price index for 3 levels over 12 time periods 
-##           1        2         3         4        5        6         7        8
-## 1  1.101645 1.109240 1.0073206 0.9850853 1.055811 1.037494 0.9931005 1.030081
-## 11 1.108522 1.037686 0.9807159 0.9482265 1.016769 1.028660 0.9505788 1.037308
-## 12 1.090230 1.228015 1.0514823 1.0462678 1.120616 1.052158 1.0636831 1.018084
-##           9        10        11        12
-## 1  1.082712 1.0297273 1.0833225 1.0117095
-## 11 1.149467 1.1530529 1.2475735 1.0303923
-## 12 1.024395 0.9280337 0.9496758 0.9909764</code></pre>
+##       time
+## levels        1        2         3         4        5        6         7
+##     1  1.101645 1.109240 1.0073206 0.9850853 1.055811 1.037494 0.9931005
+##     11 1.108522 1.037686 0.9807159 0.9482265 1.016769 1.028660 0.9505788
+##     12 1.090230 1.228015 1.0514823 1.0462678 1.120616 1.052158 1.0636831
+##       time
+## levels        8        9        10        11        12
+##     1  1.030081 1.082712 1.0297273 1.0833225 1.0117095
+##     11 1.037308 1.149467 1.1530529 1.2475735 1.0303923
+##     12 1.018084 1.024395 0.9280337 0.9496758 0.9909764</code></pre>
 <p>Alternatively, the index values from the new basket can be chained
 using the values in the last period of the first basket as a link factor
 and combined with the chained index values from the old basket.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>link_factor <span class="ot">&lt;-</span> <span class="fu">chain</span>(index[[<span class="dv">1</span>]])<span class="sc">|&gt;</span></span>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>link_factor <span class="ot">&lt;-</span> <span class="fu">chain</span>(index[[<span class="dv">1</span>]]) <span class="sc">|&gt;</span></span>
 <span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>  <span class="fu">window</span>(<span class="at">start =</span> <span class="fu">end</span>(index[[<span class="dv">1</span>]])) <span class="sc">|&gt;</span></span>
 <span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  <span class="fu">as.numeric</span>()</span>
 <span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a></span>
@@ -432,14 +435,16 @@ and combined with the chained index values from the old basket.</p>
 <span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>  <span class="fu">chain</span>(<span class="fu">window</span>(index[[<span class="dv">2</span>]], <span class="at">start =</span> <span class="st">&quot;9&quot;</span>), <span class="at">link =</span> link_factor)</span>
 <span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>)</span></code></pre></div>
 <pre><code>## Fixed-base price index for 3 levels over 12 time periods 
-##           1        2         3         4        5        6         7        8
-## 1  1.101645 1.109240 1.0073206 0.9850853 1.055811 1.037494 0.9931005 1.030081
-## 11 1.108522 1.037686 0.9807159 0.9482265 1.016769 1.028660 0.9505788 1.037308
-## 12 1.090230 1.228015 1.0514823 1.0462678 1.120616 1.052158 1.0636831 1.018084
-##           9        10        11        12
-## 1  1.082712 1.0297273 1.0833225 1.0117095
-## 11 1.149467 1.1530529 1.2475735 1.0303923
-## 12 1.024395 0.9280337 0.9496758 0.9909764</code></pre>
+##       time
+## levels        1        2         3         4        5        6         7
+##     1  1.101645 1.109240 1.0073206 0.9850853 1.055811 1.037494 0.9931005
+##     11 1.108522 1.037686 0.9807159 0.9482265 1.016769 1.028660 0.9505788
+##     12 1.090230 1.228015 1.0514823 1.0462678 1.120616 1.052158 1.0636831
+##       time
+## levels        8        9        10        11        12
+##     1  1.030081 1.082712 1.0297273 1.0833225 1.0117095
+##     11 1.037308 1.149467 1.1530529 1.2475735 1.0303923
+##     12 1.018084 1.024395 0.9280337 0.9496758 0.9909764</code></pre>
 <p>The index values for the overlap period can be used to make more
 complex link factors when the index series have an annual base
 period.</p>
@@ -457,33 +462,37 @@ rebasing the index series for the new basket.</p>
 <span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>  <span class="fu">rebase</span>(<span class="fu">window</span>(index[[<span class="dv">2</span>]], <span class="at">start =</span> <span class="st">&quot;9&quot;</span>), <span class="at">base =</span> <span class="dv">1</span> <span class="sc">/</span> link_factor)</span>
 <span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>)</span></code></pre></div>
 <pre><code>## Fixed-base price index for 3 levels over 12 time periods 
-##            1        2         3         4        5         6         7
-## 1  1.0483642 1.055592 0.9586018 0.9374418 1.004747 0.9873156 0.9450694
-## 11 1.0880796 1.018550 0.9626304 0.9307402 0.998019 1.0096899 0.9330491
-## 12 0.9875283 1.112334 0.9524307 0.9477073 1.015052 0.9530428 0.9634821
-##            8        9        10        11        12
-## 1  0.9802611 1.036713 0.9859794 1.0372977 0.9687271
-## 11 1.0181791 1.027851 1.0310566 1.1155766 0.9213738
-## 12 0.9221784 1.037244 0.9396738 0.9615874 1.0034060</code></pre>
+##       time
+## levels         1        2         3         4        5         6         7
+##     1  1.0483642 1.055592 0.9586018 0.9374418 1.004747 0.9873156 0.9450694
+##     11 1.0880796 1.018550 0.9626304 0.9307402 0.998019 1.0096899 0.9330491
+##     12 0.9875283 1.112334 0.9524307 0.9477073 1.015052 0.9530428 0.9634821
+##       time
+## levels         8        9        10        11        12
+##     1  0.9802611 1.036713 0.9859794 1.0372977 0.9687271
+##     11 1.0181791 1.027851 1.0310566 1.1155766 0.9213738
+##     12 0.9221784 1.037244 0.9396738 0.9615874 1.0034060</code></pre>
 <p>Updating the reference year to that of the new basket involves
 rebasing the series for both the old basket and the new basket.</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>index[[<span class="dv">1</span>]] <span class="ot">&lt;-</span> <span class="fu">rebase</span>(index[[<span class="dv">1</span>]], <span class="fu">mean</span>(<span class="fu">window</span>(index[[<span class="dv">1</span>]], <span class="at">start =</span> <span class="st">&quot;5&quot;</span>)))</span>
 <span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a></span>
-<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>link_factor <span class="ot">=</span> <span class="fu">as.numeric</span>(index[[<span class="dv">1</span>]][, <span class="st">&quot;8&quot;</span>]) <span class="sc">/</span> <span class="fu">as.numeric</span>(index[[<span class="dv">2</span>]][, <span class="st">&quot;8&quot;</span>])</span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>link_factor <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(index[[<span class="dv">1</span>]][, <span class="st">&quot;8&quot;</span>]) <span class="sc">/</span> <span class="fu">as.numeric</span>(index[[<span class="dv">2</span>]][, <span class="st">&quot;8&quot;</span>])</span>
 <span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a></span>
 <span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="fu">stack</span>(</span>
 <span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>  index[[<span class="dv">1</span>]],</span>
 <span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a>  <span class="fu">rebase</span>(<span class="fu">window</span>(index[[<span class="dv">2</span>]], <span class="at">start =</span> <span class="st">&quot;9&quot;</span>), <span class="at">base =</span> <span class="dv">1</span> <span class="sc">/</span> link_factor)</span>
 <span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a>)</span></code></pre></div>
 <pre><code>## Fixed-base price index for 3 levels over 12 time periods 
-##           1        2        3         4        5         6         7         8
-## 1  1.070471 1.077852 0.978816 0.9572099 1.025934 1.0081354 0.9649983 1.0009321
-## 11 1.099365 1.029114 0.972615 0.9403940 1.008371 1.0201626 0.9427269 1.0287398
-## 12 1.025004 1.154545 0.988574 0.9836715 1.053572 0.9892094 1.0000448 0.9571738
-##            9        10        11        12
-## 1  1.0520739 1.0005887 1.0526672 0.9830807
-## 11 1.1399727 1.1435285 1.2372683 1.0218811
-## 12 0.9631074 0.8725112 0.8928585 0.9316881</code></pre>
+##       time
+## levels        1        2        3         4        5         6         7
+##     1  1.070471 1.077852 0.978816 0.9572099 1.025934 1.0081354 0.9649983
+##     11 1.099365 1.029114 0.972615 0.9403940 1.008371 1.0201626 0.9427269
+##     12 1.025004 1.154545 0.988574 0.9836715 1.053572 0.9892094 1.0000448
+##       time
+## levels         8         9        10        11        12
+##     1  1.0009321 1.0520739 1.0005887 1.0526672 0.9830807
+##     11 1.0287398 1.1399727 1.1435285 1.2372683 1.0218811
+##     12 0.9571738 0.9631074 0.8725112 0.8928585 0.9316881</code></pre>
 
 
 

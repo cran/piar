@@ -2,7 +2,7 @@
 #'
 #' Extract the first/last parts of an index as if it were a matrix.
 #'
-#' @param x A price index, as made by, e.g., [elemental_index()].
+#' @param x A price index, as made by, e.g., [elementary_index()].
 #' @param n See [head()]/[tail()]. The default takes the
 #'   first/last 6 levels of `x`.
 #' @param ... Not currently used.
@@ -22,8 +22,8 @@
 #' @export
 head.piar_index <- function(x, n = 6L, ...) {
   chkDots(...)
-  nl <- levels <- length(x$levels)
-  np <- periods <- length(x$time)
+  nl <- levels <- nlevels(x)
+  np <- periods <- ntime(x)
   if (!is.na(n[1L])) {
     if (n[1L] < 0L) {
       nl <- max(levels + n[1L], 0L)
@@ -46,8 +46,8 @@ head.piar_index <- function(x, n = 6L, ...) {
 #' @export
 tail.piar_index <- function(x, n = 6L, ...) {
   chkDots(...)
-  nl <- levels <- length(x$levels)
-  np <- periods <- length(x$time)
+  nl <- levels <- nlevels(x)
+  np <- periods <- ntime(x)
   if (!is.na(n[1L])) {
     if (n[1L] < 0L) {
       nl <- max(levels + n[1L], 0L)

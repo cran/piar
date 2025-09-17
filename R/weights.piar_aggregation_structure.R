@@ -4,18 +4,18 @@
 #'
 #' @param object A price index aggregation structure, as made by
 #'   [aggregation_structure()].
-#' @param ea_only Should weights be returned for only the elemental aggregates
+#' @param ea_only Should weights be returned for only the elementary aggregates
 #'   (the default)? Setting to `FALSE` gives the weights for the entire
 #'   aggregation structure.
 #' @param na.rm Should missing values be removed when aggregating the
 #'   weights (i.e., when `ea_only = FALSE`)? By default, missing values are
 #'   not removed.
-#' @param value A numeric vector of weights for the elemental aggregates of
+#' @param value A numeric vector of weights for the elementary aggregates of
 #'   `object`.
 #' @param ... Not currently used.
 #'
 #' @returns
-#' `weights()` returns a named vector of weights for the elemental aggregates.
+#' `weights()` returns a named vector of weights for the elementary aggregates.
 #' The replacement method replaces these values without changing the
 #' aggregation structure. (`set_weights()` is an alias that's easier to use with
 #' pipes.)
@@ -53,16 +53,18 @@
 #' @importFrom stats weights
 #' @family aggregation structure methods
 #' @export
-weights.piar_aggregation_structure <- function(object,
-                                               ...,
-                                               ea_only = TRUE,
-                                               na.rm = FALSE) {
+weights.piar_aggregation_structure <- function(
+  object,
+  ...,
+  ea_only = TRUE,
+  na.rm = FALSE
+) {
   chkDots(...)
-  names(object$weights) <- object$levels[[length(object$levels)]]
+  names(object$weights) <- last(object$levels)
   if (ea_only) {
     return(object$weights)
   }
-  res <- vector("list", length(object$levels))
+  res <- vector("list", nlevels(object))
   names(res) <- rev(names(object$levels))
   res[[1L]] <- object$weights
 
@@ -86,7 +88,7 @@ weights.piar_aggregation_structure <- function(object,
 #' @export
 `weights<-.piar_aggregation_structure` <- function(object, value) {
   object$weights[] <- as.numeric(value)
-  object
+  validate_pias_weights(object)
 }
 
 #' @rdname weights.piar_aggregation_structure

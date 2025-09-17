@@ -48,8 +48,9 @@ overflow: visible;
 }
 </style>
 <style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -60,7 +61,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
 { counter-reset: source-line 0; }
@@ -346,7 +347,7 @@ not suitable for aggregating a superlative index where there is more
 than one set of aggregation weights that change every period.</p>
 <div id="aggregating-a-paasche-index" class="section level2">
 <h2>Aggregating a Paasche index</h2>
-<p>Let’s start by making a chained Paasche index from 6 elemental
+<p>Let’s start by making a chained Paasche index from 6 elementary
 indexes over 4 time periods to see how to deal with time-varying
 aggregation weights. This is similar to the example of building an index
 across multiple basket in <code>vignette(&quot;multiple-baskets&quot;)</code>,
@@ -355,20 +356,21 @@ except that the weights change each period.</p>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">12345</span>)</span>
 <span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="co"># Make 6 elemental indexes over 4 time periods.</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="co"># Make 6 elementary indexes over 4 time periods.</span></span>
 <span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>elementals <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="fu">rep</span>(<span class="dv">1</span>, <span class="dv">6</span>), <span class="fu">runif</span>(<span class="dv">6</span> <span class="sc">*</span> <span class="dv">3</span>, <span class="fl">0.8</span>, <span class="fl">1.2</span>)), <span class="at">nrow =</span> <span class="dv">6</span>) <span class="sc">|&gt;</span></span>
 <span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>  <span class="fu">as_index</span>() <span class="sc">|&gt;</span></span>
 <span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>  <span class="fu">set_levels</span>(<span class="fu">paste0</span>(<span class="st">&quot;B&quot;</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>))</span>
 <span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a></span>
 <span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="fu">head</span>(elementals)</span></code></pre></div>
 <pre><code>## Period-over-period price index for 6 levels over 4 time periods 
-##    1         2         3         4
-## B1 1 1.0883616 0.9300382 1.0942740
-## B2 1 1.1503093 1.0036897 0.8004546
-## B3 1 1.1043929 1.0910821 0.9564813
-## B4 1 1.1544498 1.1958948 0.9849979
-## B5 1 0.9825924 0.8138142 0.9552576
-## B6 1 0.8665487 0.8609494 0.9609941</code></pre>
+##       time
+## levels 1         2         3         4
+##     B1 1 1.0883616 0.9300382 1.0942740
+##     B2 1 1.1503093 1.0036897 0.8004546
+##     B3 1 1.1043929 1.0910821 0.9564813
+##     B4 1 1.1544498 1.1958948 0.9849979
+##     B5 1 0.9825924 0.8138142 0.9552576
+##     B6 1 0.8665487 0.8609494 0.9609941</code></pre>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># Make aggregation weights over 4 time periods.</span></span>
 <span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co">#            1</span></span>
 <span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#      |-----+-----|</span></span>
@@ -398,9 +400,9 @@ except that the weights change each period.</p>
 for the same levels, whereas <code>unstack()</code> pulls apart an index
 series for many periods into a collection of one-period indexes.<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> These
 functions allow the aggregation to be done with a map-reduce.</p>
-<p>The first step to making a Paasche index is to unstack the elemental
-indexes into a list of elemental indexes for each period. (Trying to
-make the elemental indexes period-by-period can be dangerous when there
+<p>The first step to making a Paasche index is to unstack the elementary
+indexes into a list of elementary indexes for each period. (Trying to
+make the elementary indexes period-by-period can be dangerous when there
 are missing values.)</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>elementals <span class="ot">&lt;-</span> <span class="fu">unstack</span>(elementals)</span></code></pre></div>
 <p>This is followed by making a sequence of aggregation structures for
@@ -411,7 +413,7 @@ each set of weights.</p>
 <span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
 <span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>  <span class="fu">lapply</span>(as_aggregation_structure)</span></code></pre></div>
 <p>Computing the Paasche index for each period is now just a case of
-mapping the <code>aggregate()</code> function to each elemental index
+mapping the <code>aggregate()</code> function to each elementary index
 and aggregation structure, and then reducing the result with the
 <code>stack()</code> function.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>paasche <span class="ot">&lt;-</span> <span class="fu">Map</span>(</span>
@@ -426,10 +428,11 @@ and aggregation structure, and then reducing the result with the
 <span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a></span>
 <span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>paasche</span></code></pre></div>
 <pre><code>## Period-over-period price index for 3 levels over 4 time periods 
-##    1         2         3         4
-## 1  1 1.0504784 0.9666398 0.9468934
-## 11 1 1.1117341 0.9920294 0.9329698
-## 12 1 0.9898158 0.9447976 0.9647535</code></pre>
+##       time
+## levels 1         2         3         4
+##     1  1 1.0504784 0.9666398 0.9468934
+##     11 1 1.1117341 0.9920294 0.9329698
+##     12 1 0.9898158 0.9447976 0.9647535</code></pre>
 </div>
 <div id="making-a-fisher-index" class="section level2">
 <h2>Making a Fisher index</h2>
@@ -452,10 +455,11 @@ to the <code>aggregate()</code> function instead of one.</p>
 <span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a></span>
 <span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a>fisher</span></code></pre></div>
 <pre><code>## Period-over-period price index for 3 levels over 4 time periods 
-##    1         2         3         4
-## 1  1 1.0509134 0.9783795 0.9600792
-## 11 1 1.1157686 1.0007074 0.9557479
-## 12 1 0.9891911 0.9567760 0.9665552</code></pre>
+##       time
+## levels 1         2         3         4
+##     1  1 1.0509134 0.9783795 0.9600792
+##     11 1 1.1157686 1.0007074 0.9557479
+##     12 1 0.9891911 0.9567760 0.9665552</code></pre>
 <p>This gives the same result as calculating the Laspeyres and Paasche
 indexes individually, and then calculating the Fisher index
 manually.</p>
@@ -469,10 +473,11 @@ manually.</p>
 <span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a>  <span class="fu">Reduce</span>(stack, <span class="at">x =</span> _)</span>
 <span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a></span>
 <span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a><span class="fu">sqrt</span>(<span class="fu">as.matrix</span>(laspeyres) <span class="sc">*</span> <span class="fu">as.matrix</span>(paasche))</span></code></pre></div>
-<pre><code>##    1         2         3         4
-## 1  1 1.0509134 0.9783795 0.9600792
-## 11 1 1.1157686 1.0007074 0.9557479
-## 12 1 0.9891911 0.9567760 0.9665552</code></pre>
+<pre><code>##       time
+## levels 1         2         3         4
+##     1  1 1.0509134 0.9783795 0.9600792
+##     11 1 1.1157686 1.0007074 0.9557479
+##     12 1 0.9891911 0.9567760 0.9665552</code></pre>
 </div>
 <div class="footnotes footnotes-end-of-document">
 <hr />

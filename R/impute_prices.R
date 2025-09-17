@@ -10,7 +10,7 @@
 #'
 #' The shadow price method recursively imputes a missing price by the value of
 #' the price for the same product in the previous period multiplied by the
-#' value of the period-over-period elemental index for the elemental aggregate
+#' value of the period-over-period elementary index for the elementary aggregate
 #' to which that product belongs. This requires computing and aggregating an
 #' index (according to `pias`, unless `pias` is not supplied) for
 #' each `period`, and so these imputations can take a while. The index
@@ -36,27 +36,27 @@
 #' @param product A factor, or something that can be coerced into one, giving
 #'   the product associated with each price in `x`.
 #' @param ea A factor, or something that can be coerced into one, giving the
-#'   elemental aggregate associated with each price in `x`.
+#'   elementary aggregate associated with each price in `x`.
 #' @param pias A price index aggregation structure, or something that can be
 #'   coerced into one, as made with [aggregation_structure()]. The default
-#'   imputes from elemental indexes only (i.e., not recursively).
+#'   imputes from elementary indexes only (i.e., not recursively).
 #' @param weights A numeric vector of weights for the prices in `x` (i.e.,
 #'   product weights), or something that can be coerced into one. The default is
 #'   to give each price equal weight. This is evaluated in `x` for the data
 #'   frame method.
 #' @param r1 Order of the generalized-mean price index used to calculate the
-#'   elemental price indexes: 0 for a geometric index (the default), 1 for an
+#'   elementary price indexes: 0 for a geometric index (the default), 1 for an
 #'   arithmetic index, or -1 for a harmonic index. Other values are possible;
 #'   see [gpindex::generalized_mean()] for details.
 #' @param r2 Order of the generalized-mean price index used to aggregate the
-#'   elemental price indexes: 0 for a geometric index, 1 for an arithmetic index
-#'   (the default), or -1 for a harmonic index. Other values are possible; see
-#'   [gpindex::generalized_mean()] for details.
+#'   elementary price indexes: 0 for a geometric index, 1 for an arithmetic
+#'   index (the default), or -1 for a harmonic index. Other values are possible;
+#'   see [gpindex::generalized_mean()] for details.
 #' @param formula A two-sided formula with prices on the left-hand
 #'   side. For `carry_forward()` and `carry_backward()`, the right-hand side
 #'   should have time periods and products (in that order); for
 #'   `shadow_price()`, the right-hand side should have time period, products,
-#'   and elemental aggregates (in that order).
+#'   and elementary aggregates (in that order).
 #' @param ... Further arguments passed to or used by methods.
 #'
 #' @returns
@@ -90,15 +90,17 @@ shadow_price <- function(x, ...) {
 
 #' @rdname impute_prices
 #' @export
-shadow_price.default <- function(x,
-                                 ...,
-                                 period,
-                                 product,
-                                 ea,
-                                 pias = NULL,
-                                 weights = NULL,
-                                 r1 = 0,
-                                 r2 = 1) {
+shadow_price.default <- function(
+  x,
+  ...,
+  period,
+  product,
+  ea,
+  pias = NULL,
+  weights = NULL,
+  r1 = 0,
+  r2 = 1
+) {
   # This is mostly a combination of gpindex::back_period() and aggregate()
   # it just does it period-by-period and keeps track of prices to impute.
   chkDots(...)
@@ -138,16 +140,17 @@ shadow_price.default <- function(x,
     back_price <- res[[t - 1L]][matches]
     price <- res[[t]]
     # Calculate indexes.
-    epr <- elemental_index(
+    epr <- elementary_index(
       price / back_price,
       period = gl(1, length(price)),
       ea = ea[[t]],
       weights = w[[t]],
-      na.rm = TRUE, r = r1
+      na.rm = TRUE,
+      r = r1
     )
     if (!is.null(pias)) {
       epr <- aggregate(epr, pias, na.rm = TRUE, r = r2)
-      pias <- update(pias, epr)
+      pias <- update(pias, epr, r = r2)
     }
     # Add shadow prices to 'x'.
     impute <- is.na(price)
@@ -159,10 +162,7 @@ shadow_price.default <- function(x,
 
 #' @rdname impute_prices
 #' @export
-shadow_price.data.frame <- function(x,
-                                    formula,
-                                    ...,
-                                    weights = NULL) {
+shadow_price.data.frame <- function(x, formula, ..., weights = NULL) {
   vars <- formula_vars(formula, x, 3L)
   weights <- eval(substitute(weights), x, parent.frame())
 
@@ -205,7 +205,8 @@ carry_forward.default <- function(x, ..., period, product) {
   }
   for (t in seq_along(res)[-1L]) {
     impute <- is.na(res[[t]])
-    matches <- match(product[[t]][impute],
+    matches <- match(
+      product[[t]][impute],
       product[[t - 1L]],
       incomparables = NA
     )

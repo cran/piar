@@ -1,14 +1,14 @@
 Package: piar
 Title: Price Index Aggregation
-Version: 0.8.2
+Version: 0.8.3
 Authors@R: c(
     person("Steve", "Martin", role = c("aut", "cre", "cph"),
            email = "marberts@protonmail.com",
            comment = c(ORCID = "0000-0003-2544-9480"))
     )
 Description: Most price indexes are made with a two-step procedure, where
-    period-over-period elemental indexes are first calculated for a collection
-    of elemental aggregates at each point in time, and then aggregated according
+    period-over-period elementary indexes are first calculated for a collection
+    of elementary aggregates at each point in time, and then aggregated according
     to a price index aggregation structure. These indexes can then be chained
     together to form a time series that gives the evolution of prices with
     respect to a fixed base period. This package contains a collection of
@@ -30,8 +30,9 @@ VignetteBuilder: knitr
 Config/testthat/edition: 3
 RoxygenNote: 7.3.2
 NeedsCompilation: no
-Packaged: 2025-03-19 03:42:30 UTC; steve
-Author: Steve Martin [aut, cre, cph] (<https://orcid.org/0000-0003-2544-9480>)
+Packaged: 2025-09-17 03:54:03 UTC; steve
+Author: Steve Martin [aut, cre, cph] (ORCID:
+    <https://orcid.org/0000-0003-2544-9480>)
 Maintainer: Steve Martin <marberts@protonmail.com>
 Repository: CRAN
-Date/Publication: 2025-03-19 04:10:02 UTC
+Date/Publication: 2025-09-17 04:10:02 UTC

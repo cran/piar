@@ -3,21 +3,21 @@ library(piar)
 
 set.seed(12345)
 
-# Make quarterly elemental indexes for two baskets with a 1 year overlap.
+# Make quarterly elementary indexes for two baskets with a 1 year overlap.
 
 elementals1 <- matrix(
   runif(5 * 8, 0.8, 1.2),
   nrow = 5,
   dimnames = list(paste0("B", 1:5), NULL)
-)|>
+) |>
   as_index()
 
 elementals2 <- matrix(
-  runif(6 * 8, 0.8, 1.2), 
+  runif(6 * 8, 0.8, 1.2),
   nrow = 6,
   dimnames = list(paste0("B", 1:6), 5:12)
 ) |>
-  as_index() 
+  as_index()
 
 # Make aggregation weights for basket 1.
 #            1
@@ -60,7 +60,7 @@ stack(index[[1]], window(index[[2]], start = "9")) |>
   chain()
 
 ## -----------------------------------------------------------------------------
-link_factor <- chain(index[[1]])|>
+link_factor <- chain(index[[1]]) |>
   window(start = end(index[[1]])) |>
   as.numeric()
 
@@ -87,7 +87,7 @@ stack(
 ## -----------------------------------------------------------------------------
 index[[1]] <- rebase(index[[1]], mean(window(index[[1]], start = "5")))
 
-link_factor = as.numeric(index[[1]][, "8"]) / as.numeric(index[[2]][, "8"])
+link_factor <- as.numeric(index[[1]][, "8"]) / as.numeric(index[[2]][, "8"])
 
 stack(
   index[[1]],

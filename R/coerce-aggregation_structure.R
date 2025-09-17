@@ -15,7 +15,7 @@
 #'
 #' @returns
 #' `as.matrix()` represents an aggregation structure as a matrix,
-#' such that multiplying with a (column) vector of elemental indexes gives the
+#' such that multiplying with a (column) vector of elementary indexes gives the
 #' aggregated index.
 #'
 #' `as.data.frame()` takes an aggregation structure and returns a data
@@ -71,7 +71,7 @@
 as.matrix.piar_aggregation_structure <- function(x, ..., sparse = FALSE) {
   chkDots(...)
   nea <- length(x$weights)
-  height <- length(x$levels)
+  height <- nlevels(x)
   if (height == 1L) {
     res <- matrix(
       numeric(0L),
@@ -103,15 +103,19 @@ as.matrix.piar_aggregation_structure <- function(x, ..., sparse = FALSE) {
     dimnames(mat) <- list(levels(lev[[i]]), x$levels[[height]])
     res[[i]] <- mat
   }
-  do.call(rbind, res)
+  res <- do.call(rbind, res)
+  names(dimnames(res)) <- c("levels", "")
+  res
 }
 
 #' @rdname as.matrix.piar_aggregation_structure
 #' @export
-as.data.frame.piar_aggregation_structure <- function(x,
-                                                     row.names = NULL,
-                                                     optional = FALSE,
-                                                     ...) {
+as.data.frame.piar_aggregation_structure <- function(
+  x,
+  row.names = NULL,
+  optional = FALSE,
+  ...
+) {
   res <- as.data.frame(
     as.list(x),
     row.names = row.names,
@@ -125,7 +129,7 @@ as.data.frame.piar_aggregation_structure <- function(x,
 #' @export
 as.list.piar_aggregation_structure <- function(x, ...) {
   chkDots(...)
-  if (length(x$levels) == 1L) {
+  if (nlevels(x) == 1L) {
     return(x$levels[1L])
   }
   res <- vector("list", length(x$parent))
@@ -134,7 +138,7 @@ as.list.piar_aggregation_structure <- function(x, ...) {
   for (i in seq_along(x$parent)[-1L]) {
     res[[i]] <- x$parent[[i]][res[[i - 1L]]]
   }
-  top <- names(x$child[[length(x$child)]])[res[[length(res)]]]
+  top <- names(last(x$child))[last(res)]
   res <- c(list(top), lapply(rev(res), names))
   names(res) <- names(x$levels)
   res

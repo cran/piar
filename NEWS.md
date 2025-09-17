@@ -1,4 +1,31 @@
-# Version 0.8.2
+# piar 0.8.3
+
+## Improvements
+
+- Both `aggregate(index)` and `mean(index)` get a new argument `duplicate_contrib`
+to control how product contributions are made when there are duplicate products.
+
+- Coercing an index or an aggregation structure to a matrix now has dimension
+names. Same with the output from `contrib()`.
+
+- `expand_classification()` and `split_classification()` get a new argument
+`pad` to better manage unbalanced classifications.
+
+- It is no longer possible to make non-positive index values or use
+negative weights.
+
+## Bug fixes
+
+- Fixed description of how product contributions are combined across subperiods
+in `?mean.piar_index` (#51).
+
+- Converting a data frame with partial product contributions to an index object
+no longer gives an error (#52).
+
+- It is now an error to construct product contributions for a superlative index
+when missing/zero weights are mismatched (#59).
+
+# piar 0.8.2
 
 - The vignette has been re-written, split into small examples that cover more
 topics, and should be easier to follow.
@@ -43,7 +70,7 @@ use `data.frame()`; e.g., with `write.csv()` (#34).
 
 - Subscripting an index object with a length 0 vector is no longer an error (#48).
 
-# Version 0.8.1
+# piar 0.8.1
 
 ## Significant changes
 
@@ -106,7 +133,7 @@ period. This makes it easier to rebase with pipes; e.g.,
 - `elemental_index()` gets a new argument `product` to better control product
 names.
 
-# Version 0.7.0
+# piar 0.7.0
 
 ## Significant changes
 
@@ -163,7 +190,7 @@ used to make `index`.
 - The `cols` argument for `as_index()` is deprecated and will be removed in a
 future version.
 
-# Version 0.6.0
+# piar 0.6.0
 
 ## Significant changes
 
@@ -209,7 +236,7 @@ There are a number of changes to the way product names are handled when making a
 
 - Stacking two indexes now only returns an aggregate index if both indexes are themselves aggregate indexes. Previously it was possible to stack an aggregate index with a non-aggregate index to produce an aggregate index that was not consistent in aggregation.
 
-# Version 0.5.0
+# piar 0.5.0
 
 ## Significant changes
 
@@ -251,7 +278,7 @@ There are a number of changes to the way product names are handled when making a
 
 - Subscripting an index with `NA`s or duplicate indices is no longer allowed.
 
-# Version 0.4.0
+# piar 0.4.0
 
 ## Significant changes
 

@@ -1,5 +1,7 @@
-epr1 <- elemental_index(1:8,
-  period = rep(1:2, each = 4), ea = rep(letters[1:4], 2),
+epr1 <- elementary_index(
+  1:8,
+  period = rep(1:2, each = 4),
+  ea = rep(letters[1:4], 2),
   contrib = TRUE
 )
 epr2 <- as_index(matrix(1:8, 4, 2, dimnames = list(letters[1:4], 3:4)))
@@ -34,17 +36,22 @@ test_that("stacking returns the correct result", {
   epr3 <- stack(epr1, epr2)
   expect_equal(
     as.matrix(epr3),
-    matrix(1:8, 4, 4, dimnames = list(letters[1:4], 1:4))
+    matrix(1:8, 4, 4, dimnames = list(levels = letters[1:4], time = 1:4))
   )
   expect_identical(levels(epr3), levels(epr1))
   expect_identical(time(epr3), as.character(1:4))
   expect_equal(
     contrib(epr3),
-    matrix(c(0, 4, 0, 0), 1, 4, dimnames = list("a.1", 1:4))
+    matrix(c(0, 4, 0, 0), 1, 4, dimnames = list(product = "a.1", time = 1:4))
   )
   expect_equal(
     as.matrix(stack(epr2, epr1)),
-    matrix(1:8, 4, 4, dimnames = list(letters[1:4], c(3:4, 1:2)))
+    matrix(
+      1:8,
+      4,
+      4,
+      dimnames = list(levels = letters[1:4], time = c(3:4, 1:2))
+    )
   )
 })
 
@@ -62,7 +69,10 @@ test_that("coercion works as expected", {
 test_that("price updating works with a stacked index", {
   index <- stack(index1, index2)
   expect_equal(aggregate(index[, 2], update(pias1, index, 1)), index[, 2])
-  expect_equal(aggregate(index[, 4], update(pias2, index[, 3:4], 3)), index[, 4])
+  expect_equal(
+    aggregate(index[, 4], update(pias2, index[, 3:4], 3)),
+    index[, 4]
+  )
 })
 
 test_that("stack matches y to x", {

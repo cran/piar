@@ -21,7 +21,7 @@
 #' is possible to replace value in `x` using a logical matrix or a two-column
 #' matrix of indices.
 #'
-#' @param x A price index, as made by, e.g., [elemental_index()].
+#' @param x A price index, as made by, e.g., [elementary_index()].
 #' @param i,j Indices for the levels and time periods of a price index. See
 #'   details.
 #' @param value A numeric vector or price index. See details.
@@ -101,7 +101,7 @@
 #' @noRd
 replace_matrix <- function(x, i, value) {
   if (is.logical(i)) {
-    if (nrow(i) != length(x$levels) || ncol(i) != length(x$time)) {
+    if (nrow(i) != nlevels(x) || ncol(i) != ntime(x)) {
       stop(
         "'i' must have a row for each level and a column for each ",
         "time period in 'x'"
@@ -147,10 +147,10 @@ replace_index <- function(x, i, j, value) {
     return(x)
   }
 
-  if (length(value$time) != length(periods)) {
+  if (ntime(value) != length(periods)) {
     stop("'x' and 'value' must have the same number of time periods")
   }
-  if (length(levels) %% length(value$levels) != 0) {
+  if (length(levels) %% nlevels(value) != 0) {
     stop("number of items to replace is not a multiple of replacement length")
   }
   for (t in seq_along(periods)) {

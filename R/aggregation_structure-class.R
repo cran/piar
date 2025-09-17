@@ -24,8 +24,10 @@ piar_aggregation_structure <- function(child, parent, levels, weights) {
 #---- Validator ----
 validate_pias_levels <- function(x) {
   lev <- unlist(x$levels, use.names = FALSE)
-  if (anyNA(lev) || any(lev == "")) {
-    stop("cannot make an aggregation structure with missing levels")
+  if (missing_names(lev)) {
+    stop(
+      "cannot make an aggregation structure with missing or length-zero levels"
+    )
   }
   if (anyDuplicated(lev)) {
     stop("cannot make an aggregation structure with duplicated levels")
@@ -35,7 +37,8 @@ validate_pias_levels <- function(x) {
 
 validate_pias_structure <- function(x) {
   height <- length(x$levels)
-  if (height != length(x$child) + 1L ||
+  if (
+    height != length(x$child) + 1L ||
       height != length(x$parent) + 1L ||
       anyNA(x$child, recursive = TRUE) ||
       anyNA(x$parent, recursive = TRUE) ||
@@ -50,11 +53,14 @@ validate_pias_structure <- function(x) {
 }
 
 validate_pias_weights <- function(x) {
-  if (length(x$weights) != length(x$levels[[length(x$levels)]])) {
+  if (length(x$weights) != length(last(x$levels))) {
     stop(
       "cannot make an aggregation structure with a different number of ",
-      "weights and elemental aggregates"
+      "weights and elementary aggregates"
     )
+  }
+  if (any(x$weights < 0, na.rm = TRUE)) {
+    stop("cannot make an aggregation structure with negative weights")
   }
   invisible(x)
 }
@@ -71,9 +77,12 @@ validate_piar_aggregation_structure <- function(x) {
 summary.piar_aggregation_structure <- function(object, ...) {
   chkDots(...)
   cat(
-    "Aggregation structure for", length(object$levels[[length(object$levels)]]),
-    "elemental aggregates with",
-    length(object$levels) - 1L, "levels above the elemental aggregates", "\n"
+    "Aggregation structure for",
+    length(last(object$levels)),
+    "elementary aggregates with",
+    length(object$levels) - 1L,
+    "levels above the elementary aggregates",
+    "\n"
   )
   invisible()
 }

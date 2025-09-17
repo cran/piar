@@ -48,8 +48,9 @@ overflow: visible;
 }
 </style>
 <style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -60,7 +61,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
 { counter-reset: source-line 0; }
@@ -369,7 +370,7 @@ year.</p>
 <span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a>  <span class="fu">as_aggregation_structure</span>()</span>
 <span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a></span>
 <span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a>pias</span></code></pre></div>
-<pre><code>## Aggregation structure for 12 elemental aggregates with 3 levels above the elemental aggregates 
+<pre><code>## Aggregation structure for 12 elementary aggregates with 3 levels above the elementary aggregates 
 ##    level1 level2 level3  ea weight
 ## 1       1     11    111 B01      1
 ## 2       1     11    111 B02      2
@@ -383,7 +384,7 @@ year.</p>
 ## 10      1     13    131 B10     10
 ## 11      1     13    132 B11     11
 ## 12      1     13    132 B12     12</code></pre>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># Make elemental indexes over 4 quarters.</span></span>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># Make elementary indexes over 4 quarters.</span></span>
 <span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>elementals <span class="ot">&lt;-</span> <span class="fu">matrix</span>(</span>
 <span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  <span class="fu">runif</span>(<span class="dv">12</span> <span class="sc">*</span> <span class="dv">4</span>, <span class="fl">0.4</span>, <span class="fl">1.2</span>),</span>
 <span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>  <span class="at">nrow =</span> <span class="dv">12</span>,</span>
@@ -393,63 +394,66 @@ year.</p>
 <span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a></span>
 <span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>elementals</span></code></pre></div>
 <pre><code>## Period-over-period price index for 12 levels over 4 time periods 
-##            Q1        Q2        Q3        Q4
-## B01 0.7432063 0.4362399 1.1441564 1.1277327
-## B02 0.7987443 0.9221768 0.8326890 0.9997250
-## B03 0.5413539 1.1952528 0.9594449 1.0966120
-## B04 0.6195148 0.9421099 1.0672886 0.8581942
-## B05 0.5732081 1.1348361 0.4098346 1.1227607
-## B06 1.0930889 0.7699560 1.1682339 0.5616191
-## B07 0.4395281 0.8571318 0.9445658 0.9494140
-## B08 0.5673079 0.7615511 0.4677992 0.7279183
-## B09 0.6732899 0.5341656 1.1756704 1.1541544
-## B10 0.6973270 0.4546091 0.4928318 0.8646791
-## B11 0.5093139 1.1175286 1.1014889 0.8980850
-## B12 0.9408381 0.6190696 0.7101399 1.1024539</code></pre>
-<p>Adjusting the weights is simple when there are no missing elemental
-indexes: the weight for each elemental aggregate is just divided by the
+##       time
+## levels        Q1        Q2        Q3        Q4
+##    B01 0.7432063 0.4362399 1.1441564 1.1277327
+##    B02 0.7987443 0.9221768 0.8326890 0.9997250
+##    B03 0.5413539 1.1952528 0.9594449 1.0966120
+##    B04 0.6195148 0.9421099 1.0672886 0.8581942
+##    B05 0.5732081 1.1348361 0.4098346 1.1227607
+##    B06 1.0930889 0.7699560 1.1682339 0.5616191
+##    B07 0.4395281 0.8571318 0.9445658 0.9494140
+##    B08 0.5673079 0.7615511 0.4677992 0.7279183
+##    B09 0.6732899 0.5341656 1.1756704 1.1541544
+##    B10 0.6973270 0.4546091 0.4928318 0.8646791
+##    B11 0.5093139 1.1175286 1.1014889 0.8980850
+##    B12 0.9408381 0.6190696 0.7101399 1.1024539</code></pre>
+<p>Adjusting the weights is simple when there are no missing elementary
+indexes: the weight for each elementary aggregate is just divided by the
 average (fixed-base) index for each quarter.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">weights</span>(pias) <span class="sc">/</span> <span class="fu">rowMeans</span>(<span class="fu">as.matrix</span>(<span class="fu">chain</span>(elementals)))</span></code></pre></div>
 <pre><code>##       B01       B02       B03       B04       B05       B06       B07       B08 
 ##  2.154344  2.896610  4.819251  6.777709 11.175522  6.916156 18.543541 23.728960 
 ##       B09       B10       B11       B12 
 ## 18.520664 30.635776 19.396354 20.059400</code></pre>
-<p>The procedure is more complicated with missing elemental indexes as
+<p>The procedure is more complicated with missing elementary indexes as
 reaggregating these indexes with the newly adjusted weights will
-generally result in different imputations for the missing elemental
+generally result in different imputations for the missing elementary
 indexes, which in turn gives a different adjustment for the weights. In
 practice this procedure is done a few times until the index values
 converge to a fixed point. The following function shows how to do this
 adjustment using the tools in this package.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># Function to adjust annual weights.</span></span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>adjust_weights <span class="ot">&lt;-</span> <span class="cf">function</span>(index,</span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>                           pias,</span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>                           <span class="at">tol =</span> .Machine<span class="sc">$</span>double.eps<span class="sc">^</span><span class="fl">0.5</span>,</span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>                           <span class="at">max_iter =</span> <span class="dv">100</span>) {</span>
-<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>  adj_pias <span class="ot">&lt;-</span> pias</span>
-<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(max_iter)) {</span>
-<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>    <span class="co"># Parentally impute missing elemental indexes.</span></span>
-<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>    agg_index <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(index, adj_pias, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">contrib =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>    elementals <span class="ot">&lt;-</span> <span class="fu">chain</span>(agg_index[<span class="fu">levels</span>(pias)[[<span class="fu">nlevels</span>(pias)]]])</span>
-<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>    <span class="co"># Compute annual elemental indexes.</span></span>
-<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>    pb <span class="ot">&lt;-</span> <span class="fu">rowMeans</span>(<span class="fu">as.matrix</span>(elementals))</span>
-<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a>    <span class="co"># Stop if average price-update weights are within tolerance of original</span></span>
-<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a>    <span class="co"># weights; adjust otherwise.</span></span>
-<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">max</span>(<span class="fu">abs</span>(pb <span class="sc">*</span> <span class="fu">weights</span>(adj_pias) <span class="sc">-</span> <span class="fu">weights</span>(pias))) <span class="sc">&lt;</span> tol) {</span>
-<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a>      <span class="fu">message</span>(<span class="fu">gettextf</span>(<span class="st">&quot;Converged after %d iterations&quot;</span>, i <span class="sc">-</span> <span class="dv">1</span>))</span>
-<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a>      <span class="fu">return</span>(adj_pias)</span>
-<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
-<span id="cb7-19"><a href="#cb7-19" tabindex="-1"></a>      <span class="fu">weights</span>(adj_pias) <span class="ot">&lt;-</span> <span class="fu">weights</span>(pias) <span class="sc">/</span> pb</span>
-<span id="cb7-20"><a href="#cb7-20" tabindex="-1"></a>    }</span>
-<span id="cb7-21"><a href="#cb7-21" tabindex="-1"></a>  }</span>
-<span id="cb7-22"><a href="#cb7-22" tabindex="-1"></a>  <span class="fu">warning</span>(<span class="st">&quot;weights adjustment did not converge&quot;</span>)</span>
-<span id="cb7-23"><a href="#cb7-23" tabindex="-1"></a>  adj_pias</span>
-<span id="cb7-24"><a href="#cb7-24" tabindex="-1"></a>}</span></code></pre></div>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>adjust_weights <span class="ot">&lt;-</span> <span class="cf">function</span>(</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  index,</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>  pias,</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>  <span class="at">tol =</span> .Machine<span class="sc">$</span>double.eps<span class="sc">^</span><span class="fl">0.5</span>,</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>  <span class="at">max_iter =</span> <span class="dv">100</span></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>) {</span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>  adj_pias <span class="ot">&lt;-</span> pias</span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(max_iter)) {</span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>    <span class="co"># Parentally impute missing elementary indexes.</span></span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>    agg_index <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(index, adj_pias, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">contrib =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>    elementals <span class="ot">&lt;-</span> <span class="fu">chain</span>(agg_index[<span class="fu">levels</span>(pias)[[<span class="fu">nlevels</span>(pias)]]])</span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a>    <span class="co"># Compute annual elementary indexes.</span></span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a>    pb <span class="ot">&lt;-</span> <span class="fu">rowMeans</span>(<span class="fu">as.matrix</span>(elementals))</span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a>    <span class="co"># Stop if average price-update weights are within tolerance of original</span></span>
+<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a>    <span class="co"># weights; adjust otherwise.</span></span>
+<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">max</span>(<span class="fu">abs</span>(pb <span class="sc">*</span> <span class="fu">weights</span>(adj_pias) <span class="sc">-</span> <span class="fu">weights</span>(pias))) <span class="sc">&lt;</span> tol) {</span>
+<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a>      <span class="fu">message</span>(<span class="fu">gettextf</span>(<span class="st">&quot;Converged after %d iterations&quot;</span>, i <span class="sc">-</span> <span class="dv">1</span>))</span>
+<span id="cb7-19"><a href="#cb7-19" tabindex="-1"></a>      <span class="fu">return</span>(adj_pias)</span>
+<span id="cb7-20"><a href="#cb7-20" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb7-21"><a href="#cb7-21" tabindex="-1"></a>      <span class="fu">weights</span>(adj_pias) <span class="ot">&lt;-</span> <span class="fu">weights</span>(pias) <span class="sc">/</span> pb</span>
+<span id="cb7-22"><a href="#cb7-22" tabindex="-1"></a>    }</span>
+<span id="cb7-23"><a href="#cb7-23" tabindex="-1"></a>  }</span>
+<span id="cb7-24"><a href="#cb7-24" tabindex="-1"></a>  <span class="fu">warning</span>(<span class="st">&quot;weights adjustment did not converge&quot;</span>)</span>
+<span id="cb7-25"><a href="#cb7-25" tabindex="-1"></a>  adj_pias</span>
+<span id="cb7-26"><a href="#cb7-26" tabindex="-1"></a>}</span></code></pre></div>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>elementals[<span class="dv">11</span><span class="sc">:</span><span class="dv">12</span>] <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
 <span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a></span>
 <span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="fu">adjust_weights</span>(elementals, pias)</span></code></pre></div>
 <pre><code>## Converged after 2 iterations</code></pre>
-<pre><code>## Aggregation structure for 12 elemental aggregates with 3 levels above the elemental aggregates 
+<pre><code>## Aggregation structure for 12 elementary aggregates with 3 levels above the elementary aggregates 
 ##    level1 level2 level3  ea    weight
 ## 1       1     11    111 B01  2.154344
 ## 2       1     11    111 B02  2.896610

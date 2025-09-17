@@ -4,13 +4,13 @@
 #' Combine two price indexes with common time periods, merging together the
 #' index values and percent-change contributions for each time period.
 #'
-#' This is useful for building up an index when different elemental aggregates
+#' This is useful for building up an index when different elementary aggregates
 #' come from different sources of data, or use different index-number formulas.
 #'
 #' @name merge.piar_index
 #' @aliases merge.piar_index
 #'
-#' @param x A price index, as made by, e.g., [elemental_index()].
+#' @param x A price index, as made by, e.g., [elementary_index()].
 #' @param y A price index, or something that can coerced into one. If `x`
 #'   is a period-over-period index then `y` is coerced into a chainable
 #'   index; otherwise, `y` is coerced into a direct index.
@@ -44,7 +44,7 @@ merge.direct_piar_index <- function(x, y, ...) {
 #' @export
 merge.piar_index <- function(x, y, ...) {
   chkDots(...)
-  if (length(x$time) != length(y$time) || any(x$time != y$time)) {
+  if (ntime(x) != ntime(y) || any(x$time != y$time)) {
     stop("'x' and 'y' must be indexes for the same time periods")
   }
   if (any(x$levels %in% y$levels)) {

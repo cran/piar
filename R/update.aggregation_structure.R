@@ -49,16 +49,18 @@
 #' @importFrom stats update
 #' @family aggregation structure methods
 #' @export
-update.piar_aggregation_structure <- function(object,
-                                              index,
-                                              period = end(index),
-                                              ...,
-                                              r = 1) {
+update.piar_aggregation_structure <- function(
+  object,
+  index,
+  period = end(index),
+  ...,
+  r = 1
+) {
   chkDots(...)
   price_update <- gpindex::factor_weights(r)
   index <- chain(as_index(index))
-  period <- match_time(as.character(period), index$time)
-  eas <- match(object$levels[[length(object$levels)]], index$levels)
+  period <- match_time(as.character(period), index)
+  eas <- match_eas(object, index)
   if (anyNA(eas)) {
     warning("not all weights in 'object' have a corresponding index value")
   }

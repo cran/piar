@@ -5,7 +5,7 @@
 \alias{interact_classifications}
 \title{Expand a hierarchical classification}
 \usage{
-expand_classification(x, width = 1L)
+expand_classification(x, width = 1L, pad = NA)
 
 interact_classifications(..., sep = ":")
 }
@@ -19,12 +19,15 @@ COICOP, 5-digit NAICS, 4-digit SIC).}
 \code{x}. This cannot contain NAs. The default assumes each digit has a
 width of 1, as in the NAICS, NAPCS, and SIC classifications.}
 
+\item{pad}{A string used to pad the shorter labels for an unbalanced
+classification. The default pads with NA.}
+
 \item{...}{Lists of character vectors that give the codes/labels for each
 level of the classification, ordered so that moving down the list goes down
 the hierarchy (as made by \code{expand_classification()}).}
 
 \item{sep}{A character used to combine codes/labels across elements of \code{...}.
-The default uses ":".}
+The default uses ':'.}
 }
 \value{
 \code{expand_classification()} returns a list with a entry for each level
@@ -70,4 +73,7 @@ expand_classification(c("01.1.1", "01.1.2", "01.2.1"), width = 2)
 
 \code{\link[=split_classification]{split_classification()}} to expand a classification by splitting along
 a delimiter.
+
+\code{csh_from_digits()} in the \pkg{accumulate} package for different handling
+of unbalanced classifications.
 }

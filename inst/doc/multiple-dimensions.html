@@ -48,8 +48,9 @@ overflow: visible;
 }
 </style>
 <style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -60,7 +61,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
 { counter-reset: source-line 0; }
@@ -353,7 +354,7 @@ take-all or take-some sampling stratum.</p>
 <span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>  <span class="fu">transform</span>(</span>
 <span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>    <span class="at">relative =</span> <span class="fu">price_relative</span>(price, <span class="at">period =</span> period, <span class="at">product =</span> product)</span>
 <span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>  <span class="fu">elemental_index</span>(relative <span class="sc">~</span> period <span class="sc">+</span> business, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>  <span class="fu">elementary_index</span>(relative <span class="sc">~</span> period <span class="sc">+</span> business, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>ms_weights<span class="sc">$</span>stratum <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;TS&quot;</span>, <span class="st">&quot;TA&quot;</span>, <span class="st">&quot;TS&quot;</span>, <span class="st">&quot;TS&quot;</span>, <span class="st">&quot;TS&quot;</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>ms_weights</span></code></pre></div>
@@ -379,31 +380,32 @@ classification is two characters wide, not one.</p>
 <span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>)</span>
 <span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a></span>
 <span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>pias_sps</span></code></pre></div>
-<pre><code>## Aggregation structure for 5 elemental aggregates with 3 levels above the elemental aggregates 
+<pre><code>## Aggregation structure for 5 elementary aggregates with 3 levels above the elementary aggregates 
 ##   level1 level2 level3 ea weight
 ## 1      1     11   11TS B1    553
 ## 2      1     11   11TA B2    646
 ## 3      1     11   11TS B3    312
 ## 4      1     12   12TS B4    622
 ## 5      1     12   12TS B5    330</code></pre>
-<p>The elemental indexes can now be aggregated according to this new
+<p>The elementary indexes can now be aggregated according to this new
 aggregation structure.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>index_sps <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(elementals, pias_sps, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a></span>
 <span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>index_sps</span></code></pre></div>
 <pre><code>## Period-over-period price index for 11 levels over 4 time periods 
-##      202001    202002    202003   202004
-## 1         1 1.3007239 1.0630743 2.684412
-## 11        1 1.3007239 1.0630743 1.492443
-## 12        1 1.3007239 1.0630743 4.576286
-## 11TS      1 1.3007239 1.0630743 0.537996
-## 11TA      1 1.3007239 1.0630743 2.770456
-## 12TS      1 1.3007239 1.0630743 4.576286
-## B1        1 0.8949097 0.3342939 0.537996
-## B2        1 1.3007239 1.0630743 2.770456
-## B3        1 2.0200036 1.6353355 0.537996
-## B4        1 1.3007239 1.0630743 4.576286
-## B5        1 1.3007239 1.0630743 4.576286</code></pre>
+##       time
+## levels 202001    202002    202003   202004
+##   1         1 1.3007239 1.0630743 2.684412
+##   11        1 1.3007239 1.0630743 1.492443
+##   12        1 1.3007239 1.0630743 4.576286
+##   11TS      1 1.3007239 1.0630743 0.537996
+##   11TA      1 1.3007239 1.0630743 2.770456
+##   12TS      1 1.3007239 1.0630743 4.576286
+##   B1        1 0.8949097 0.3342939 0.537996
+##   B2        1 1.3007239 1.0630743 2.770456
+##   B3        1 2.0200036 1.6353355 0.537996
+##   B4        1 1.3007239 1.0630743 4.576286
+##   B5        1 1.3007239 1.0630743 4.576286</code></pre>
 <p>When a price index has many dimensions (e.g., industry, sampling
 stratum, region), it can be useful to interact the classifications for
 these different dimensions to get all possible aggregation structures.
@@ -422,20 +424,23 @@ re-aggregate <code>index_sps</code>.</p>
 <span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>  \(x) <span class="fu">aggregation_structure</span>(<span class="fu">c</span>(x, <span class="fu">list</span>(ms_weights<span class="sc">$</span>business)), ms_weights<span class="sc">$</span>weight)</span>
 <span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>)</span>
 <span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a></span>
-<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a>index_sps2 <span class="ot">&lt;-</span> <span class="fu">lapply</span>(pias_sps2, \(x) <span class="fu">aggregate</span>(index_sps, x, <span class="at">include_ea =</span> <span class="cn">FALSE</span>))</span></code></pre></div>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a>index_sps2 <span class="ot">&lt;-</span> <span class="fu">lapply</span>(pias_sps2, \(x) {</span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a>  <span class="fu">aggregate</span>(index_sps, x, <span class="at">include_ea =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a>})</span></code></pre></div>
 <p>The resulting indexes can be merged together to give an index that
 includes all combinations of industry and sampling stratum.</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">Reduce</span>(merge, index_sps2)</span></code></pre></div>
 <pre><code>## Period-over-period price index for 8 levels over 4 time periods 
-##       202001   202002   202003   202004
-## 1:T        1 1.300724 1.063074 2.684412
-## 1:TS       1 1.300724 1.063074 2.653820
-## 1:TA       1 1.300724 1.063074 2.770456
-## 11:T       1 1.300724 1.063074 1.492443
-## 12:T       1 1.300724 1.063074 4.576286
-## 11:TS      1 1.300724 1.063074 0.537996
-## 11:TA      1 1.300724 1.063074 2.770456
-## 12:TS      1 1.300724 1.063074 4.576286</code></pre>
+##        time
+## levels  202001   202002   202003   202004
+##   1:T        1 1.300724 1.063074 2.684412
+##   1:TS       1 1.300724 1.063074 2.653820
+##   1:TA       1 1.300724 1.063074 2.770456
+##   11:T       1 1.300724 1.063074 1.492443
+##   12:T       1 1.300724 1.063074 4.576286
+##   11:TS      1 1.300724 1.063074 0.537996
+##   11:TA      1 1.300724 1.063074 2.770456
+##   12:TS      1 1.300724 1.063074 4.576286</code></pre>
 
 
 

@@ -46,14 +46,16 @@
 #'
 #' @family aggregation structure methods
 #' @export
-cut.piar_aggregation_structure <- function(x,
-                                           level,
-                                           ...,
-                                           na.rm = FALSE,
-                                           upper = TRUE) {
+cut.piar_aggregation_structure <- function(
+  x,
+  level,
+  ...,
+  na.rm = FALSE,
+  upper = TRUE
+) {
   chkDots(...)
   level <- as.integer(level)
-  n <- length(x$levels)
+  n <- nlevels(x)
   if (level < 1L) {
     stop("'level' must be greater than or equal to 1")
   }

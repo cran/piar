@@ -2,18 +2,18 @@
 library(piar)
 
 # Make an aggregation structure.
-ms_weights[c("level1", "level2")] <- 
+ms_weights[c("level1", "level2")] <-
   expand_classification(ms_weights$classification)
 
 pias <- ms_weights[c("level1", "level2", "business", "weight")] |>
   as_aggregation_structure()
 
-# Make elemental index with contributions.
+# Make elementary index with contributions.
 elementals <- ms_prices |>
   transform(
     relative = price_relative(price, period = period, product = product)
   ) |>
-  elemental_index(
+  elementary_index(
     relative ~ period + business,
     product = product,
     na.rm = TRUE,

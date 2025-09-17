@@ -10,7 +10,7 @@ elementals <- ms_prices |>
   transform(
     relative = price_relative(price, period = period, product = product)
   ) |>
-  elemental_index(relative ~ period + business, na.rm = TRUE)
+  elementary_index(relative ~ period + business, na.rm = TRUE)
 
 elementals
 
@@ -20,7 +20,7 @@ elementals[, "202004"]
 elementals[c("B1", "B3"), ]
 
 ## -----------------------------------------------------------------------------
-ms_weights[c("level1", "level2")] <- 
+ms_weights[c("level1", "level2")] <-
   expand_classification(ms_weights$classification)
 
 pias <- ms_weights[c("level1", "level2", "business", "weight")] |>

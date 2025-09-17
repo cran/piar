@@ -48,8 +48,9 @@ overflow: visible;
 }
 </style>
 <style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -60,7 +61,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
 { counter-reset: source-line 0; }
@@ -343,14 +344,14 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <p>Aggregating a price index can be done as a matrix operation. Although
 this approach is less flexible than the <code>aggregate()</code> method
 used in <code>vignette(&quot;piar&quot;)</code> (i.e., there can be no missing
-elemental indexes), it can be considerably faster for larger
+elementary indexes), it can be considerably faster for larger
 indexes.</p>
 <p>Let’s start by building the index in <code>vignette(&quot;piar&quot;)</code>
 again.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(piar)</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co"># Make an aggregation structure.</span></span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>ms_weights[<span class="fu">c</span>(<span class="st">&quot;level1&quot;</span>, <span class="st">&quot;level2&quot;</span>)] <span class="ot">&lt;-</span> </span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>ms_weights[<span class="fu">c</span>(<span class="st">&quot;level1&quot;</span>, <span class="st">&quot;level2&quot;</span>)] <span class="ot">&lt;-</span></span>
 <span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>  <span class="fu">expand_classification</span>(ms_weights<span class="sc">$</span>classification)</span>
 <span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a></span>
 <span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>pias <span class="ot">&lt;-</span> ms_weights[<span class="fu">c</span>(<span class="st">&quot;level1&quot;</span>, <span class="st">&quot;level2&quot;</span>, <span class="st">&quot;business&quot;</span>, <span class="st">&quot;weight&quot;</span>)] <span class="sc">|&gt;</span></span>
@@ -362,7 +363,7 @@ again.</p>
 <span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>    <span class="at">relative =</span> <span class="fu">price_relative</span>(price, <span class="at">period =</span> period, <span class="at">product =</span> product),</span>
 <span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>    <span class="at">business =</span> <span class="fu">factor</span>(business, <span class="at">levels =</span> ms_weights<span class="sc">$</span>business)</span>
 <span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a>  <span class="fu">elemental_index</span>(relative <span class="sc">~</span> period <span class="sc">+</span> business, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a>  <span class="fu">elementary_index</span>(relative <span class="sc">~</span> period <span class="sc">+</span> business, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a></span>
 <span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a>index <span class="ot">&lt;-</span> elementals <span class="sc">|&gt;</span></span>
 <span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a>  <span class="fu">aggregate</span>(pias, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
@@ -370,54 +371,58 @@ again.</p>
 <span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a></span>
 <span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a>index</span></code></pre></div>
 <pre><code>## Fixed-base price index for 8 levels over 4 time periods 
-##    202001    202002    202003    202004
-## 1       1 1.3007239 1.3827662 3.7815355
-## 11      1 1.3007239 1.3827662 2.1771866
-## 12      1 1.3007239 1.3827662 6.3279338
-## B1      1 0.8949097 0.2991629 0.4710366
-## B2      1 1.3007239 1.3827662 3.8308934
-## B3      1 2.0200036 3.3033836 1.7772072
-## B4      1 1.3007239 1.3827662 6.3279338
-## B5      1 1.3007239 1.3827662 6.3279338</code></pre>
+##       time
+## levels 202001    202002    202003    202004
+##     1       1 1.3007239 1.3827662 3.7815355
+##     11      1 1.3007239 1.3827662 2.1771866
+##     12      1 1.3007239 1.3827662 6.3279338
+##     B1      1 0.8949097 0.2991629 0.4710366
+##     B2      1 1.3007239 1.3827662 3.8308934
+##     B3      1 2.0200036 3.3033836 1.7772072
+##     B4      1 1.3007239 1.3827662 6.3279338
+##     B5      1 1.3007239 1.3827662 6.3279338</code></pre>
 <p>The key to do this aggregation as a matrix operation is to first turn
 the aggregation structure into an aggregation matrix.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>pias_matrix <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(pias)</span>
 <span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a></span>
 <span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>pias_matrix</span></code></pre></div>
-<pre><code>##           B1        B2        B3        B4        B5
-## 1  0.2245229 0.2622818 0.1266748 0.2525376 0.1339829
-## 11 0.3659828 0.4275314 0.2064858 0.0000000 0.0000000
-## 12 0.0000000 0.0000000 0.0000000 0.6533613 0.3466387</code></pre>
-<p>Multiplying this matrix with a matrix of fixed-base elemental indexes
-now computes the aggregate index in each time period.</p>
+<pre><code>##       
+## levels        B1        B2        B3        B4        B5
+##     1  0.2245229 0.2622818 0.1266748 0.2525376 0.1339829
+##     11 0.3659828 0.4275314 0.2064858 0.0000000 0.0000000
+##     12 0.0000000 0.0000000 0.0000000 0.6533613 0.3466387</code></pre>
+<p>Multiplying this matrix with a matrix of fixed-base elementary
+indexes now computes the aggregate index in each time period.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>pias_matrix <span class="sc">%*%</span> <span class="fu">as.matrix</span>(index[<span class="fu">levels</span>(pias)<span class="sc">$</span>business])</span></code></pre></div>
-<pre><code>##    202001   202002   202003   202004
-## 1       1 1.300724 1.382766 3.781536
-## 11      1 1.300724 1.382766 2.177187
-## 12      1 1.300724 1.382766 6.327934</code></pre>
+<pre><code>##       time
+## levels 202001   202002   202003   202004
+##     1       1 1.300724 1.382766 3.781536
+##     11      1 1.300724 1.382766 2.177187
+##     12      1 1.300724 1.382766 6.327934</code></pre>
 <div id="computing-the-shadow-of-an-index" class="section level2">
 <h2>Computing the shadow of an index</h2>
 <p>It’s often useful to determine which higher-level index values are
 missing, and subsequently get imputed during aggregation (i.e., compute
-the shadow of an index). This is simple to do if there’s an elemental
-index for each elemental aggregate in the aggregation structure.</p>
+the shadow of an index). This is simple to do if there’s an elementary
+index for each elementary aggregate in the aggregation structure.</p>
 <p>The idea is to aggregate an indicator for missingness to get a matrix
-that gives the share of missing elemental indexes for each higher-level
+that gives the share of missing elementary indexes for each higher-level
 index.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>pias_matrix <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(pias) <span class="sc">&gt;</span> <span class="dv">0</span> </span>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>pias_matrix <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(pias) <span class="sc">&gt;</span> <span class="dv">0</span></span>
 <span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a></span>
 <span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>pias_matrix <span class="sc">%*%</span> <span class="fu">is.na</span>(elementals) <span class="sc">/</span> <span class="fu">rowSums</span>(pias_matrix)</span></code></pre></div>
-<pre><code>##    202001    202002    202003    202004
-## 1     0.4 0.6000000 0.6000000 0.4000000
-## 11    0.0 0.3333333 0.3333333 0.3333333
-## 12    1.0 1.0000000 1.0000000 0.5000000</code></pre>
-<p>A value of 1 means that there are no non-missing elemental indexes,
+<pre><code>##       time
+## levels 202001    202002    202003    202004
+##     1     0.4 0.6000000 0.6000000 0.4000000
+##     11    0.0 0.3333333 0.3333333 0.3333333
+##     12    1.0 1.0000000 1.0000000 0.5000000</code></pre>
+<p>A value of 1 means that there are no non-missing elementary indexes,
 and that the value for this level of the index is imputed from its
 parent in the aggregation structure. A value below 1 but above zero
-means that some but not all elemental indexes are missing, and the index
-value for this level is based on the non-missing elemental indexes. A
-value of zero means there’s no imputation for this level of the
-index.</p>
+means that some but not all elementary indexes are missing, and the
+index value for this level is based on the non-missing elementary
+indexes. A value of zero means there’s no imputation for this level of
+the index.</p>
 </div>
 <div id="sparse-matrices" class="section level2">
 <h2>Sparse matrices</h2>
@@ -427,10 +432,11 @@ inefficient for large indexes—in this case it is better to make a sparse
 aggregation matrix.</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">as.matrix</span>(pias, <span class="at">sparse =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 <pre><code>## 3 x 5 sparse Matrix of class &quot;dgCMatrix&quot;
-##           B1        B2        B3        B4        B5
-## 1  0.2245229 0.2622818 0.1266748 0.2525376 0.1339829
-## 11 0.3659828 0.4275314 0.2064858 .         .        
-## 12 .         .         .         0.6533613 0.3466387</code></pre>
+##       
+## levels        B1        B2        B3        B4        B5
+##     1  0.2245229 0.2622818 0.1266748 0.2525376 0.1339829
+##     11 0.3659828 0.4275314 0.2064858 .         .        
+##     12 .         .         .         0.6533613 0.3466387</code></pre>
 </div>
 
 

@@ -11,10 +11,8 @@
 #' always averaged over `window` periods. The names for the first time
 #' period in each window form the new names for the aggregated time periods.
 #'
-#' Percent-change contributions are aggregated if `contrib = TRUE` by treating
-#' each product-subperiod pair as a unique product, then following the same
-#' approach as [`aggregate()`][aggregate.piar_index]. The number of the
-#' subperiod is appended to product names to make them unique across subperiods.
+#' Percent-change contributions are aggregated if `contrib = TRUE` following the
+#' same approach as [`aggregate()`][aggregate.piar_index].
 #'
 #' An optional vector of weights can be specified when aggregating index values
 #' over subperiods, which is often useful when aggregating a Paasche index; see
@@ -23,7 +21,7 @@
 #' @name mean.piar_index
 #' @aliases mean.piar_index
 #'
-#' @param x A price index, as made by, e.g., [elemental_index()].
+#' @param x A price index, as made by, e.g., [elementary_index()].
 #' @param weights A numeric vector of weights for the index values in `x`, or
 #'   something that can be coerced into one. The
 #'   default is equal weights. It is usually easiest to specify these weights as
@@ -36,36 +34,44 @@
 #'   are not removed. Setting `na.rm = TRUE` is equivalent to overall mean
 #'   imputation.
 #' @param r Order of the generalized mean to aggregate index values. 0 for a
-#'   geometric index (the default for making elemental indexes), 1 for an
-#'   arithmetic index (the default for aggregating elemental indexes and
+#'   geometric index (the default for making elementary indexes), 1 for an
+#'   arithmetic index (the default for aggregating elementary indexes and
 #'   averaging indexes over subperiods), or -1 for a harmonic index (usually for
 #'   a Paasche index). Other values are possible; see
 #'   [gpindex::generalized_mean()] for details.
 #' @param contrib Aggregate percent-change contributions in `x` (if any)?
 #' @param ... Not currently used.
+#' @param duplicate_contrib The method to deal with duplicate product
+#'   contributions. Either 'make.unique' to make duplicate product names unique
+#'   with [make.unique()] or 'sum' to add contributions for the same products
+#'   across subperiods.
 #'
 #' @returns
 #' A price index, averaged over subperiods, that inherits from the same
 #' class as `x`.
 #'
-#' @references Balk, B. M. (2008). *Price and Quantity Index Numbers*.
+#' @references
+#' Balk, B. M. (2008). *Price and Quantity Index Numbers*.
 #' Cambridge University Press.
 #'
 #' @examples
-#' index <- as_index(matrix(c(1:12, 12:1), 2, byrow = TRUE))
+#' index <- as_index(matrix(c(1:12, 12:1), 2, byrow = TRUE), chainable = FALSE)
 #'
 #' # Turn a monthly index into a quarterly index
 #' mean(index, window = 3)
 #'
 #' @family index methods
 #' @export
-mean.chainable_piar_index <- function(x,
-                                      ...,
-                                      weights = NULL,
-                                      window = ntime(x),
-                                      na.rm = FALSE,
-                                      contrib = TRUE,
-                                      r = 1) {
+mean.chainable_piar_index <- function(
+  x,
+  ...,
+  weights = NULL,
+  window = ntime(x),
+  na.rm = FALSE,
+  contrib = TRUE,
+  r = 1,
+  duplicate_contrib = c("make.unique", "sum")
+) {
   chkDots(...)
   mean_index(
     x,
@@ -74,19 +80,23 @@ mean.chainable_piar_index <- function(x,
     na.rm = na.rm,
     contrib = contrib,
     r = r,
-    chainable = TRUE
+    chainable = TRUE,
+    duplicate_contrib = duplicate_contrib
   )
 }
 
 #' @rdname mean.piar_index
 #' @export
-mean.direct_piar_index <- function(x,
-                                   ...,
-                                   weights = NULL,
-                                   window = ntime(x),
-                                   na.rm = FALSE,
-                                   contrib = TRUE,
-                                   r = 1) {
+mean.direct_piar_index <- function(
+  x,
+  ...,
+  weights = NULL,
+  window = ntime(x),
+  na.rm = FALSE,
+  contrib = TRUE,
+  r = 1,
+  duplicate_contrib = c("make.unique", "sum")
+) {
   chkDots(...)
   mean_index(
     x,
@@ -95,42 +105,55 @@ mean.direct_piar_index <- function(x,
     na.rm = na.rm,
     contrib = contrib,
     r = r,
-    chainable = FALSE
+    chainable = FALSE,
+    duplicate_contrib = duplicate_contrib
   )
 }
 
 #' Internal function to aggregate over subperiods
 #' @noRd
-mean_index <- function(x, weights, window, na.rm, contrib, r, chainable) {
+mean_index <- function(
+  x,
+  weights,
+  window,
+  na.rm,
+  contrib,
+  r,
+  chainable,
+  duplicate_contrib
+) {
   if (!is.null(weights)) {
     weights <- as.numeric(weights)
-    if (length(weights) != length(x$time) * length(x$levels)) {
+    if (any(weights < 0, na.rm = TRUE)) {
+      stop("all elements of 'weights' must be non-negative")
+    }
+    if (length(weights) != ntime(x) * nlevels(x)) {
       stop("'weights' must have a value for each index value in 'x'")
     }
-    w <- split(weights, gl(length(x$time), length(x$levels)))
+    w <- split(weights, gl(ntime(x), nlevels(x)))
   }
 
   window <- as.integer(window)
   if (length(window) > 1L || window < 1L) {
     stop("'window' must be a positive length 1 integer")
   }
-  if (window > length(x$time)) {
+  if (window > ntime(x)) {
     stop("'x' must have at least 'window' time periods")
   }
 
   # Helpful functions.
   gen_mean <- Vectorize(gpindex::generalized_mean(r), USE.NAMES = FALSE)
   agg_contrib <- Vectorize(
-    aggregate_contrib(r),
+    aggregate_contrib(r, duplicate_contrib),
     SIMPLIFY = FALSE,
     USE.NAMES = FALSE
   )
 
   # Get the starting location for each window.
-  if (length(x$time) %% window != 0) {
+  if (ntime(x) %% window != 0) {
     warning("'window' is not a multiple of the number of time periods in 'x'")
   }
-  len <- length(x$time) %/% window
+  len <- ntime(x) %/% window
   loc <- seq.int(1L, by = window, length.out = len)
   periods <- x$time[loc]
 

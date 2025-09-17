@@ -52,8 +52,8 @@ validate_levels <- function(x) {
   if (length(x) == 0L) {
     stop("cannot make an index with no levels")
   }
-  if (anyNA(x) || any(x == "")) {
-    stop("cannot make an index with missing levels")
+  if (missing_names(x)) {
+    stop("cannot make an index with missing or length-zero levels")
   }
   if (anyDuplicated(x)) {
     stop("cannot make an index with duplicate levels")
@@ -65,8 +65,8 @@ validate_time <- function(x) {
   if (length(x) == 0L) {
     stop("cannot make an index with no time periods")
   }
-  if (anyNA(x) || any(x == "")) {
-    stop("cannot make an index with missing time periods")
+  if (missing_names(x)) {
+    stop("cannot make an index with missing or length-zero time periods")
   }
   if (anyDuplicated(x)) {
     stop("cannot make an index with duplicate time periods")
@@ -80,6 +80,9 @@ validate_index_values <- function(x) {
   }
   if (any(lengths(x$index) != length(x$levels))) {
     stop("number of levels does not agree with number of index values")
+  }
+  if (any(vapply(x$index, \(x) any(x <= 0, na.rm = TRUE), logical(1L)))) {
+    stop("cannot make an index with non-positive values")
   }
   invisible(x)
 }
@@ -113,8 +116,13 @@ str.piar_index <- function(object, ...) {
 summary.chainable_piar_index <- function(object, ...) {
   chkDots(...)
   cat(
-    "Period-over-period price index", "for", length(object$levels), "levels over",
-    length(object$time), "time periods", "\n"
+    "Period-over-period price index",
+    "for",
+    length(object$levels),
+    "levels over",
+    length(object$time),
+    "time periods",
+    "\n"
   )
   invisible()
 }
@@ -123,8 +131,13 @@ summary.chainable_piar_index <- function(object, ...) {
 summary.direct_piar_index <- function(object, ...) {
   chkDots(...)
   cat(
-    "Fixed-base price index", "for", length(object$levels), "levels over",
-    length(object$time), "time periods", "\n"
+    "Fixed-base price index",
+    "for",
+    length(object$levels),
+    "levels over",
+    length(object$time),
+    "time periods",
+    "\n"
   )
   invisible()
 }
@@ -177,8 +190,16 @@ Math.piar_index <- function(x, ...) {
 
 #' @export
 Ops.piar_index <- function(e1, e2) {
-  boolean <- switch(.Generic, `<` = , `>` = , `==` = , `!=` = ,
-                    `<=` = , `>=` = TRUE, FALSE)
+  boolean <- switch(
+    .Generic,
+    `<` = ,
+    `>` = ,
+    `==` = ,
+    `!=` = ,
+    `<=` = ,
+    `>=` = TRUE,
+    FALSE
+  )
   if (!boolean) {
     stop(gettextf("'%s' not meaningful for index objects", .Generic))
   }

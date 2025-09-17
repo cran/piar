@@ -48,8 +48,9 @@ overflow: visible;
 }
 </style>
 <style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -60,7 +61,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
 { counter-reset: source-line 0; }
@@ -341,17 +342,17 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 <p>The example in <code>vignette(&quot;piar&quot;)</code> used parental imputation
-to both impute missing price relatives when calculating the elemental
-indexes and to impute missing elemental indexes during aggregation.
+to both impute missing price relatives when calculating the elementary
+indexes and to impute missing elementary indexes during aggregation.
 Although parental imputation is simple and transparent, it is not the
 only way to impute missing prices or index values.</p>
 <div id="imputing-missing-prices" class="section level2">
 <h2>Imputing missing prices</h2>
 <p>Instead of implicitly imputing missing price relatives by ignoring
 missing values, a common explicit (but methodologically dubious)
-imputation strategy when making elemental indexes is to carry forward
+imputation strategy when making elementary indexes is to carry forward
 the previous price to impute for missing prices. As the
-<code>elemental_index()</code> function accepts price relatives as its
+<code>elementary_index()</code> function accepts price relatives as its
 input, any imputations can be done prior to passing price relatives to
 this function. (Missing values still need to be removed in this example
 because not all missing prices can be imputed.)</p>
@@ -361,7 +362,7 @@ because not all missing prices can be imputed.)</p>
 <span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>  <span class="fu">transform</span>(</span>
 <span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>    <span class="at">imputed_price =</span> <span class="fu">carry_forward</span>(price, <span class="at">period =</span> period, <span class="at">product =</span> product)</span>
 <span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>  <span class="fu">elemental_index</span>(</span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>  <span class="fu">elementary_index</span>(</span>
 <span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>    <span class="fu">price_relative</span>(imputed_price, <span class="at">period =</span> period, <span class="at">product =</span> product) <span class="sc">~</span></span>
 <span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>      period <span class="sc">+</span> business,</span>
 <span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>    <span class="at">na.rm =</span> <span class="cn">TRUE</span></span>
@@ -369,21 +370,22 @@ because not all missing prices can be imputed.)</p>
 <span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a></span>
 <span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>elementals</span></code></pre></div>
 <pre><code>## Period-over-period price index for 4 levels over 4 time periods 
-##    202001    202002    202003   202004
-## B1      1 0.8949097 0.5781816 1.000000
-## B2      1 1.0000000 0.1777227 2.770456
-## B3      1 2.0200036 1.6353355 0.537996
-## B4    NaN       NaN       NaN 4.576286</code></pre>
+##       time
+## levels 202001    202002    202003   202004
+##     B1      1 0.8949097 0.5781816 1.000000
+##     B2      1 1.0000000 0.1777227 2.770456
+##     B3      1 2.0200036 1.6353355 0.537996
+##     B4    NaN       NaN       NaN 4.576286</code></pre>
 </div>
 <div id="non-parental-imputation-during-aggregation" class="section level2">
 <h2>Non-parental imputation during aggregation</h2>
-<p>Parental imputation is the usual way to impute missing elemental
+<p>Parental imputation is the usual way to impute missing elementary
 index values during aggregation, and it is simple to do with
-<code>aggregate()</code>. In some cases, however, an elemental index may
-get imputed with the value for, say, another elemental aggregate, rather
-than for an entire group of elemental aggregates. The simplest way to do
-this sort of imputation is to alter the elemental indexes prior to
-aggregation.</p>
+<code>aggregate()</code>. In some cases, however, an elementary index
+may get imputed with the value for, say, another elementary aggregate,
+rather than for an entire group of elementary aggregates. The simplest
+way to do this sort of imputation is to alter the elementary indexes
+prior to aggregation.</p>
 <p>As an example, suppose that missing index values for business B4
 should be imputed as 1, rather than the value for group 12. This
 replacement can be done as if the index was a matrix.</p>
@@ -391,11 +393,12 @@ replacement can be done as if the index was a matrix.</p>
 <span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a></span>
 <span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>elementals</span></code></pre></div>
 <pre><code>## Period-over-period price index for 4 levels over 4 time periods 
-##    202001    202002    202003   202004
-## B1      1 0.8949097 0.5781816 1.000000
-## B2      1 1.0000000 0.1777227 2.770456
-## B3      1 2.0200036 1.6353355 0.537996
-## B4      1 1.0000000 1.0000000 4.576286</code></pre>
+##       time
+## levels 202001    202002    202003   202004
+##     B1      1 0.8949097 0.5781816 1.000000
+##     B2      1 1.0000000 0.1777227 2.770456
+##     B3      1 2.0200036 1.6353355 0.537996
+##     B4      1 1.0000000 1.0000000 4.576286</code></pre>
 </div>
 
 

@@ -1,13 +1,15 @@
-dat <- data.frame(rel = c(1:6, NA, 7, 8),
-                  period = c(1, 1, 1, 1, 1, 2, 2, 2, 2),
-                  ea = c("11", "11", "12", "12", "13", "11", "12", "11", "14"))
+dat <- data.frame(
+  rel = c(1:6, NA, 7, 8),
+  period = c(1, 1, 1, 1, 1, 2, 2, 2, 2),
+  ea = c("11", "11", "12", "12", "13", "11", "12", "11", "14")
+)
 
 pias <- as_aggregation_structure(
   data.frame(level1 = 1, level2 = c(11, 12, 13, 14), weight = 1)
 )
 
-epr <- elemental_index(dat, rel ~ period + ea, contrib = TRUE)
-epr2 <- elemental_index(dat, rel ~ period + ea, contrib = FALSE)
+epr <- elementary_index(dat, rel ~ period + ea, contrib = TRUE)
+epr2 <- elementary_index(dat, rel ~ period + ea, contrib = FALSE)
 index <- aggregate(epr, pias)
 
 test_that("as_index makes a valid index", {
@@ -24,9 +26,10 @@ test_that("as_index works with matrices", {
   expect_equal(as_index(as.matrix(epr)), epr2)
   expect_equal(
     contrib(as_index(as.matrix(epr), contrib = TRUE)),
-    as.matrix(epr)[1, , drop = FALSE] - 1
+    as.matrix(epr)[1, , drop = FALSE] - 1,
+    ignore_attr = TRUE
   )
-  
+
   # A character vector used to get pass through without coercion.
   mat <- as.matrix(epr)
   mat[] <- as.character(mat)
@@ -38,7 +41,8 @@ test_that("as_index works for data frames", {
   expect_equal(as_index(as.data.frame(epr)), epr2)
   expect_equal(
     contrib(as_index(as.data.frame(epr), contrib = TRUE)),
-    as.matrix(epr)[1, , drop = FALSE] - 1
+    as.matrix(epr)[1, , drop = FALSE] - 1,
+    ignore_attr = TRUE
   )
   df <- as.data.frame(epr)
   df[[1]] <- factor(df[[1]], levels = 2:1)
@@ -46,22 +50,26 @@ test_that("as_index works for data frames", {
     as_index(df),
     with(
       dat,
-      elemental_index(rel, period = factor(period, levels = 2:1), ea = ea)
+      elementary_index(rel, period = factor(period, levels = 2:1), ea = ea)
     )
   )
-  
+
   expect_equal(
     as_index(data.frame(1:5, 1:5, 1:5)),
     as_index(matrix(replace(NA, c(1, 7, 13, 19, 25), 1:5), 5))
   )
-  
+
   expect_error(as_index(df[1:2]))
 })
 
 test_that("as_index works for ts", {
   expect_identical(
     as_index(ts(matrix(1:6, 2))),
-    as_index(matrix(c(1, 3, 5, 2, 4, 6), 3, dimnames = list(paste("Series", 1:3), 1:2)))
+    as_index(matrix(
+      c(1, 3, 5, 2, 4, 6),
+      3,
+      dimnames = list(paste("Series", 1:3), 1:2)
+    ))
   )
 })
 
@@ -74,17 +82,20 @@ test_that("as_index works with contribs", {
     as_index(as.data.frame(epr2, contrib = TRUE), contrib = TRUE),
     epr2
   )
-  
+
   index2 <- aggregate(epr, pias, contrib = FALSE)
   index2df <- as.data.frame(index2, contrib = TRUE)
   expect_equal(
-    as_index(index2df[-1, ], contrib = TRUE),
+    as_index(index2df, contrib = TRUE),
     index2
   )
-  
-  index2df[1, 4] <- list(a = 0)
-  expect_error(as_index(index2df, contrib = TRUE))
-  
+
+  index2df[1, 4][[1]] <- list(c(a = 0))
+  expect_equal(
+    as.data.frame(as_index(index2df, contrib = TRUE), contrib = TRUE),
+    index2df
+  )
+
   index2df[1, 4][[1]] <- list(c(a = 2, a = 1, b = NA))
   expect_warning(index2 <- as_index(index2df, contrib = TRUE))
   expect_identical(rownames(contrib(index2)), c("a", "a.1", "b"))

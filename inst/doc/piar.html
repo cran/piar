@@ -48,8 +48,9 @@ overflow: visible;
 }
 </style>
 <style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -60,7 +61,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
 { counter-reset: source-line 0; }
@@ -341,8 +342,8 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 <p>Most price indexes are made with a two-step procedure, where
-period-over-period <em>elemental indexes</em> are calculated for a
-collection of <em>elemental aggregates</em> at each point in time, and
+period-over-period <em>elementary indexes</em> are calculated for a
+collection of <em>elementary aggregates</em> at each point in time, and
 then aggregated according to a <em>price index aggregation
 structure</em>. These indexes can then be chained together to form a
 time series that gives the evolution of prices with respect to a fixed
@@ -362,10 +363,10 @@ but the set of businesses is fixed for the duration of the sample. Each
 businesses has a weight that is established when the sample is drawn and
 represents a particular segment of the economy.</p>
 <p>The usual approach for calculating a matched-sample index starts by
-computing an elemental index for each business as an equally-weighted
+computing an elementary index for each business as an equally-weighted
 geometric mean of price relatives (i.e., a Jevons index). From there,
 index values for different segments of the economy are calculated as an
-arithmetic mean of the elemental indexes using the businesses-level
+arithmetic mean of the elementary indexes using the businesses-level
 weights (either a Young or Lowe index, depending how the weights are
 constructed; see <code>vignette(&quot;adjust-weights&quot;)</code>).</p>
 <p>The <code>ms_prices</code> dataset has price data for five businesses
@@ -390,8 +391,8 @@ price indexes.</p>
 ## 3       B3             11    312      1     11      TS
 ## 4       B4             12    622      1     12      TS
 ## 5       B5             12    330      1     12      TS</code></pre>
-<p>The <code>elemental_index()</code> function makes, well, elemental
-indexes, using information on price relatives, elemental aggregates
+<p>The <code>elementary_index()</code> function makes, well, elementary
+indexes, using information on price relatives, elementary aggregates
 (businesses), and time periods (quarters). By default it makes a Jevons
 index, but any bilateral generalized-mean index is possible (see
 <code>vignette(&quot;index-number-formulas&quot;)</code> for more details). The
@@ -402,73 +403,77 @@ conversion.</p>
 <span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>  <span class="fu">transform</span>(</span>
 <span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>    <span class="at">relative =</span> <span class="fu">price_relative</span>(price, <span class="at">period =</span> period, <span class="at">product =</span> product)</span>
 <span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>  <span class="fu">elemental_index</span>(relative <span class="sc">~</span> period <span class="sc">+</span> business, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>  <span class="fu">elementary_index</span>(relative <span class="sc">~</span> period <span class="sc">+</span> business, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a></span>
 <span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>elementals</span></code></pre></div>
 <pre><code>## Period-over-period price index for 4 levels over 4 time periods 
-##    202001    202002    202003   202004
-## B1      1 0.8949097 0.3342939      NaN
-## B2      1       NaN       NaN 2.770456
-## B3      1 2.0200036 1.6353355 0.537996
-## B4    NaN       NaN       NaN 4.576286</code></pre>
+##       time
+## levels 202001    202002    202003   202004
+##     B1      1 0.8949097 0.3342939      NaN
+##     B2      1       NaN       NaN 2.770456
+##     B3      1 2.0200036 1.6353355 0.537996
+##     B4    NaN       NaN       NaN 4.576286</code></pre>
 <p>As with most functions in <strong>R</strong>, missing values are
 contagious by default. Setting <code>na.rm = TRUE</code> in
-<code>elemental_index()</code> means that missing price relatives are
+<code>elementary_index()</code> means that missing price relatives are
 ignored, which is equivalent to imputing these missing relatives with
-the value of the elemental index for the respective businesses (i.e.,
+the value of the elementary index for the respective businesses (i.e.,
 parental or overall mean imputation). Other types of imputation are
 covered in <code>vignette(&quot;imputation&quot;)</code>.</p>
-<p>The <code>elemental_index()</code> function returns a special index
+<p>The <code>elementary_index()</code> function returns a special index
 object, and there are a number of methods for working with these
 objects. For example, the resulting indexes to be extracted like a
 matrix even though it’s not a matrix.<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a></p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>elementals[, <span class="st">&quot;202004&quot;</span>]</span></code></pre></div>
 <pre><code>## Period-over-period price index for 4 levels over 1 time periods 
-##      202004
-## B1      NaN
-## B2 2.770456
-## B3 0.537996
-## B4 4.576286</code></pre>
+##       time
+## levels   202004
+##     B1      NaN
+##     B2 2.770456
+##     B3 0.537996
+##     B4 4.576286</code></pre>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>elementals[<span class="fu">c</span>(<span class="st">&quot;B1&quot;</span>, <span class="st">&quot;B3&quot;</span>), ]</span></code></pre></div>
 <pre><code>## Period-over-period price index for 2 levels over 4 time periods 
-##    202001    202002    202003   202004
-## B1      1 0.8949097 0.3342939      NaN
-## B3      1 2.0200036 1.6353355 0.537996</code></pre>
-<p>With the elemental indexes out of the way, it’s time to make a
+##       time
+## levels 202001    202002    202003   202004
+##     B1      1 0.8949097 0.3342939      NaN
+##     B3      1 2.0200036 1.6353355 0.537996</code></pre>
+<p>With the elementary indexes out of the way, it’s time to make a
 price-index aggregation structure that maps each business to its
 position in the aggregation hierarchy. The only hiccup is unpacking the
 digit-wise classification for each businesses that defines the
 hierarchy. That’s the job of the <code>expand_classification()</code>
 function.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>ms_weights[<span class="fu">c</span>(<span class="st">&quot;level1&quot;</span>, <span class="st">&quot;level2&quot;</span>)] <span class="ot">&lt;-</span> </span>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>ms_weights[<span class="fu">c</span>(<span class="st">&quot;level1&quot;</span>, <span class="st">&quot;level2&quot;</span>)] <span class="ot">&lt;-</span></span>
 <span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>  <span class="fu">expand_classification</span>(ms_weights<span class="sc">$</span>classification)</span>
 <span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a></span>
 <span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>pias <span class="ot">&lt;-</span> ms_weights[<span class="fu">c</span>(<span class="st">&quot;level1&quot;</span>, <span class="st">&quot;level2&quot;</span>, <span class="st">&quot;business&quot;</span>, <span class="st">&quot;weight&quot;</span>)] <span class="sc">|&gt;</span></span>
 <span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>  <span class="fu">as_aggregation_structure</span>()</span></code></pre></div>
-<p>It is now simple to aggregate the elemental indexes according to this
-aggregation structure with the <code>aggregate()</code> function. As
-with the elemental indexes, missing values are ignored by setting
+<p>It is now simple to aggregate the elementary indexes according to
+this aggregation structure with the <code>aggregate()</code> function.
+As with the elementary indexes, missing values are ignored by setting
 <code>na.rm = TRUE</code>, which is equivalent to parentally imputing
-missing values. Note that, unlike the elemental indexes, missing values
+missing values. Note that, unlike the elementary indexes, missing values
 are filled in to ensure the index can be chained over time.</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>index <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(elementals, pias, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a></span>
 <span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>index</span></code></pre></div>
 <pre><code>## Period-over-period price index for 8 levels over 4 time periods 
-##    202001    202002    202003   202004
-## 1       1 1.3007239 1.0630743 2.734761
-## 11      1 1.3007239 1.0630743 1.574515
-## 12      1 1.3007239 1.0630743 4.576286
-## B1      1 0.8949097 0.3342939 1.574515
-## B2      1 1.3007239 1.0630743 2.770456
-## B3      1 2.0200036 1.6353355 0.537996
-## B4      1 1.3007239 1.0630743 4.576286
-## B5      1 1.3007239 1.0630743 4.576286</code></pre>
+##       time
+## levels 202001    202002    202003   202004
+##     1       1 1.3007239 1.0630743 2.734761
+##     11      1 1.3007239 1.0630743 1.574515
+##     12      1 1.3007239 1.0630743 4.576286
+##     B1      1 0.8949097 0.3342939 1.574515
+##     B2      1 1.3007239 1.0630743 2.770456
+##     B3      1 2.0200036 1.6353355 0.537996
+##     B4      1 1.3007239 1.0630743 4.576286
+##     B5      1 1.3007239 1.0630743 4.576286</code></pre>
 </div>
 <div id="chaining" class="section level2">
 <h2>Chaining</h2>
-<p>The <code>elemental_index()</code> function makes period-over-period
-elemental indexes by default, which are then aggregated to make a
+<p>The <code>elementary_index()</code> function makes period-over-period
+elementary indexes by default, which are then aggregated to make a
 period-over-period index. Chaining an index is the process of taking the
 cumulative product of each of these period-over-period indexes to make a
 time series that compares prices to a fixed base period.</p>
@@ -478,15 +483,16 @@ an index object.</p>
 <span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a></span>
 <span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a>chained_index</span></code></pre></div>
 <pre><code>## Fixed-base price index for 8 levels over 4 time periods 
-##    202001    202002    202003    202004
-## 1       1 1.3007239 1.3827662 3.7815355
-## 11      1 1.3007239 1.3827662 2.1771866
-## 12      1 1.3007239 1.3827662 6.3279338
-## B1      1 0.8949097 0.2991629 0.4710366
-## B2      1 1.3007239 1.3827662 3.8308934
-## B3      1 2.0200036 3.3033836 1.7772072
-## B4      1 1.3007239 1.3827662 6.3279338
-## B5      1 1.3007239 1.3827662 6.3279338</code></pre>
+##       time
+## levels 202001    202002    202003    202004
+##     1       1 1.3007239 1.3827662 3.7815355
+##     11      1 1.3007239 1.3827662 2.1771866
+##     12      1 1.3007239 1.3827662 6.3279338
+##     B1      1 0.8949097 0.2991629 0.4710366
+##     B2      1 1.3007239 1.3827662 3.8308934
+##     B3      1 2.0200036 3.3033836 1.7772072
+##     B4      1 1.3007239 1.3827662 6.3279338
+##     B5      1 1.3007239 1.3827662 6.3279338</code></pre>
 <p>This gives almost the same result as directly manipulating the index
 as a matrix, except that the former returns an index object (not a
 matrix).</p>
@@ -496,15 +502,16 @@ that 202004 is the base period just requires dividing the chained index
 by the slice for 202004.</p>
 <div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="fu">rebase</span>(chained_index, chained_index[, <span class="st">&quot;202004&quot;</span>])</span></code></pre></div>
 <pre><code>## Fixed-base price index for 8 levels over 4 time periods 
-##       202001    202002    202003 202004
-## 1  0.2644428 0.3439671 0.3656626      1
-## 11 0.4593084 0.5974334 0.6351161      1
-## 12 0.1580295 0.2055527 0.2185178      1
-## B1 2.1229774 1.8998731 0.6351161      1
-## B2 0.2610357 0.3395354 0.3609514      1
-## B3 0.5626806 1.1366169 1.8587499      1
-## B4 0.1580295 0.2055527 0.2185178      1
-## B5 0.1580295 0.2055527 0.2185178      1</code></pre>
+##       time
+## levels    202001    202002    202003 202004
+##     1  0.2644428 0.3439671 0.3656626      1
+##     11 0.4593084 0.5974334 0.6351161      1
+##     12 0.1580295 0.2055527 0.2185178      1
+##     B1 2.1229774 1.8998731 0.6351161      1
+##     B2 0.2610357 0.3395354 0.3609514      1
+##     B3 0.5626806 1.1366169 1.8587499      1
+##     B4 0.1580295 0.2055527 0.2185178      1
+##     B5 0.1580295 0.2055527 0.2185178      1</code></pre>
 </div>
 <div id="working-with-indexes" class="section level2">
 <h2>Working with indexes</h2>
@@ -512,15 +519,16 @@ by the slice for 202004.</p>
 a table of index values. This can be done by either coercing an index
 into a matrix</p>
 <div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a><span class="fu">as.matrix</span>(chained_index)</span></code></pre></div>
-<pre><code>##    202001    202002    202003    202004
-## 1       1 1.3007239 1.3827662 3.7815355
-## 11      1 1.3007239 1.3827662 2.1771866
-## 12      1 1.3007239 1.3827662 6.3279338
-## B1      1 0.8949097 0.2991629 0.4710366
-## B2      1 1.3007239 1.3827662 3.8308934
-## B3      1 2.0200036 3.3033836 1.7772072
-## B4      1 1.3007239 1.3827662 6.3279338
-## B5      1 1.3007239 1.3827662 6.3279338</code></pre>
+<pre><code>##       time
+## levels 202001    202002    202003    202004
+##     1       1 1.3007239 1.3827662 3.7815355
+##     11      1 1.3007239 1.3827662 2.1771866
+##     12      1 1.3007239 1.3827662 6.3279338
+##     B1      1 0.8949097 0.2991629 0.4710366
+##     B2      1 1.3007239 1.3827662 3.8308934
+##     B3      1 2.0200036 3.3033836 1.7772072
+##     B4      1 1.3007239 1.3827662 6.3279338
+##     B5      1 1.3007239 1.3827662 6.3279338</code></pre>
 <p>or a data frame</p>
 <div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a><span class="fu">as.data.frame</span>(chained_index)</span></code></pre></div>
 <pre><code>##    period level     value
@@ -574,8 +582,8 @@ table.</p>
 <ol>
 <li id="fn1"><p>Note that there are only indexes for four businesses,
 not five, because the fifth business never reports any prices. An
-elemental index can be made for this business by passing a factor with a
-level for all five businesses to <code>elemental_index()</code>.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+elementary index can be made for this business by passing a factor with
+a level for all five businesses to <code>elementary_index()</code>.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>
 
