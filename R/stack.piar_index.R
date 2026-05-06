@@ -45,14 +45,22 @@
 #' @export
 stack.chainable_piar_index <- function(x, y, ...) {
   y <- as_index(y, chainable = TRUE)
-  NextMethod("stack")
+  res <- NextMethod("stack")
+  new_piar_index(res$index, res$contrib, res$levels, res$time, chainable = TRUE)
 }
 
 #' @rdname stack.piar_index
 #' @export
 stack.direct_piar_index <- function(x, y, ...) {
   y <- as_index(y, chainable = FALSE)
-  NextMethod("stack")
+  res <- NextMethod("stack")
+  new_piar_index(
+    res$index,
+    res$contrib,
+    res$levels,
+    res$time,
+    chainable = FALSE
+  )
 }
 
 #' @export
@@ -67,9 +75,17 @@ stack.piar_index <- function(x, y, ...) {
   if (any(x$levels != y$levels)) {
     y <- y[x$levels]
   }
-  x$index <- c(x$index, y$index)
-  x$contrib <- c(x$contrib, y$contrib)
+  x$index <- cbind(x$index, y$index)
+  if (is.null(x$contrib) && !is.null(y$contrib)) {
+    x$contrib <- contrib_skeleton(x$levels, x$time)
+  } else if (!is.null(x$contrib) && is.null(y$contrib)) {
+    y$contrib <- contrib_skeleton(y$levels, y$time)
+  }
+  if (!is.null(x$contrib)) {
+    x$contrib <- cbind(x$contrib, y$contrib)
+  }
   x$time <- c(x$time, y$time)
+  # Alternatively call validate_piar_index(x), but this is not necessary.
   x
 }
 
@@ -88,15 +104,16 @@ unstack.direct_piar_index <- function(x, ...) {
 
 #' @export
 unstack.piar_index <- function(x, ..., chainable) {
+  chkDots(...)
   res <- vector("list", ntime(x))
   names(res) <- x$time
   for (t in seq_along(res)) {
     res[[t]] <- new_piar_index(
-      x$index[t],
-      x$contrib[t],
+      x$index[, t, drop = FALSE],
+      x$contrib[, t, drop = FALSE],
       x$levels,
       x$time[t],
-      chainable
+      chainable = chainable
     )
   }
   res

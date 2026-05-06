@@ -10,22 +10,22 @@
   x,
   ...,
   weights = NULL,
-  window = ntime(x),
+  window = NULL,
   na.rm = FALSE,
   contrib = TRUE,
   r = 1,
-  duplicate_contrib = c("make.unique", "sum")
+  duplicate_contrib = c("sum", "make.unique")
 )
 
 \method{mean}{direct_piar_index}(
   x,
   ...,
   weights = NULL,
-  window = ntime(x),
+  window = NULL,
   na.rm = FALSE,
   contrib = TRUE,
   r = 1,
-  duplicate_contrib = c("make.unique", "sum")
+  duplicate_contrib = c("sum", "make.unique")
 )
 }
 \arguments{
@@ -47,7 +47,8 @@ periods in \code{x}. Non-integers are truncated towards 0.}
 are not removed. Setting \code{na.rm = TRUE} is equivalent to overall mean
 imputation.}
 
-\item{contrib}{Aggregate percent-change contributions in \code{x} (if any)?}
+\item{contrib}{Aggregate percent-change contributions in \code{x}? By default
+contributions are aggregated.}
 
 \item{r}{Order of the generalized mean to aggregate index values. 0 for a
 geometric index (the default for making elementary indexes), 1 for an
@@ -57,9 +58,9 @@ a Paasche index). Other values are possible; see
 \code{\link[gpindex:generalized_mean]{gpindex::generalized_mean()}} for details.}
 
 \item{duplicate_contrib}{The method to deal with duplicate product
-contributions. Either 'make.unique' to make duplicate product names unique
-with \code{\link[=make.unique]{make.unique()}} or 'sum' to add contributions for the same products
-across subperiods.}
+contributions. Either \code{"make.unique"} to make duplicate product names
+unique with \code{\link[=make.unique]{make.unique()}} or \code{"sum"} to add contributions for the same
+products across subperiods (the default).}
 }
 \value{
 A price index, averaged over subperiods, that inherits from the same

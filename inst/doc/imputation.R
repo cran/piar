@@ -3,7 +3,12 @@ library(piar)
 
 elementals <- ms_prices |>
   transform(
-    imputed_price = carry_forward(price, period = period, product = product)
+    imputed_price = impute_prices(
+      price,
+      period = period,
+      product = product,
+      method = "carry-forward"
+    )
   ) |>
   elementary_index(
     price_relative(imputed_price, period = period, product = product) ~

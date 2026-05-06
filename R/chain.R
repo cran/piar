@@ -30,10 +30,11 @@
 #'
 #' @param x A price index, as made by, e.g., [elementary_index()].
 #' @param link A numeric vector, or something that can coerced into one, of
-#'   link values for each level in `x`. The default is a vector of 1s so
-#'   that no linking is done.
+#'   link values for each level in `x`. The default is equivalent to a vector
+#'   of 1s so that no linking is done.
 #' @param base A numeric vector, or something that can coerced into one, of
-#'   base-period index values for each level in `x`. The default is a vector
+#'   base-period index values for each level in `x`. The default is a equivalent
+#'   to a vector
 #'   of 1s so that the base period remains the same. If `base` is a length-one
 #'   character vector giving a time period of `x` then the index values for this
 #'   time period are used as the base-period values.
@@ -61,7 +62,7 @@
 #' # loss of information for period 0)
 #'
 #' index <- chain(index)
-#' rebase(index, index[, 2])
+#' rebase(index, base = index[, 2])
 #'
 #' @family index methods
 #' @export chain
@@ -77,17 +78,18 @@ chain.default <- function(x, ...) {
 
 #' @rdname chain
 #' @export
-chain.chainable_piar_index <- function(x, link = rep(1, nlevels(x)), ...) {
+chain.chainable_piar_index <- function(x, ..., link = NULL) {
   chkDots(...)
-  link <- as.numeric(link)
-  if (length(link) != nlevels(x)) {
-    stop("'link' must have a value for each level of 'x'")
+  if (!is.null(link)) {
+    link <- as.numeric(link)
+    if (length(link) != nlevels(x)) {
+      stop("'link' must have a value for each level of 'x'")
+    }
+    x$index[, 1L] <- x$index[, 1L] * link
   }
-  x$index[[1L]] <- x$index[[1L]] * link
-  x$index <- Reduce(`*`, x$index, accumulate = TRUE, simplify = FALSE)
+  x$index[] <- do.call(rbind, apply(x$index, 1L, cumprod, simplify = FALSE))
   # Contributions are difficult to chain, so remove them.
-  x$contrib[] <- empty_contrib(x$levels)
-  new_piar_index(x$index, x$contrib, x$levels, x$time, chainable = FALSE)
+  new_piar_index(x$index, NULL, x$levels, x$time, chainable = FALSE)
 }
 
 #' @export
@@ -116,21 +118,24 @@ unchain.chainable_piar_index <- function(x, ...) {
 
 #' @rdname chain
 #' @export
-unchain.direct_piar_index <- function(x, base = rep(1, nlevels(x)), ...) {
+unchain.direct_piar_index <- function(x, ..., base = NULL) {
   chkDots(...)
-  if (length(base) == 1L && is.character(base)) {
-    base <- x$index[[match_time(base, x)]] / x$index[[1L]]
-  } else {
-    base <- as.numeric(base)
-    if (length(base) != nlevels(x)) {
-      stop("'base' must have a value for each level of 'x'")
+  if (!is.null(base)) {
+    if (length(base) == 1L && is.character(base)) {
+      base <- x$index[, match_time(base, x)] / x$index[, 1L]
+    } else {
+      base <- as.numeric(base)
+      if (length(base) != nlevels(x)) {
+        stop("'base' must have a value for each level of 'x'")
+      }
     }
   }
-  x$index[-1L] <- Map(`/`, x$index[-1L], drop_last(x$index))
-  x$index[[1L]] <- x$index[[1L]] * base
+  x$index[, -1L] <- x$index[, -1L] / x$index[, -ncol(x$index)]
+  if (!is.null(base)) {
+    x$index[, 1L] <- x$index[, 1L] * base
+  }
   # Contributions are difficult to unchain, so remove them.
-  x$contrib[] <- empty_contrib(x$levels)
-  new_piar_index(x$index, x$contrib, x$levels, x$time, chainable = TRUE)
+  new_piar_index(x$index, NULL, x$levels, x$time, chainable = TRUE)
 }
 
 #' @rdname chain
@@ -153,18 +158,19 @@ rebase.chainable_piar_index <- function(x, ...) {
 
 #' @rdname chain
 #' @export
-rebase.direct_piar_index <- function(x, base = rep(1, nlevels(x)), ...) {
+rebase.direct_piar_index <- function(x, ..., base = NULL) {
   chkDots(...)
-  if (length(base) == 1L && is.character(base)) {
-    base <- x$index[[match_time(base, x)]]
-  } else {
-    base <- as.numeric(base)
-    if (length(base) != nlevels(x)) {
-      stop("'base' must have a value for each level of 'x'")
+  if (!is.null(base)) {
+    if (length(base) == 1L && is.character(base)) {
+      base <- x$index[, match_time(base, x)]
+    } else {
+      base <- as.numeric(base)
+      if (length(base) != nlevels(x)) {
+        stop("'base' must have a value for each level of 'x'")
+      }
     }
+    x$index[] <- x$index / base
   }
-  x$index <- Map(`/`, x$index, list(base))
   # Contributions are difficult to rebase, so remove them.
-  x$contrib[] <- empty_contrib(x$levels)
-  x
+  new_piar_index(x$index, NULL, x$levels, x$time, chainable = FALSE)
 }

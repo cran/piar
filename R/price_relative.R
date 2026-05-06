@@ -12,8 +12,9 @@
 #' @param product A factor, or something that can be coerced into one, that
 #'   gives the corresponding product identifier for each element in `x`.
 #' @param ... Further arguments passed to or used by methods.
-#' @param formula A two-sided formula with prices on the left-hand
-#'   side, and time periods and products (in that order) on the
+#' @param formula A two-sided formula, or something that can be coerced into
+#'   one, with prices on the left-hand
+#'   side and time periods and products (in that order) on the
 #'   right-hand side.
 #'
 #' @returns
@@ -24,7 +25,7 @@
 #'
 #' [gpindex::base_period()] for making fixed-base price relatives.
 #'
-#' [carry_forward()] and [shadow_price()] to impute missing prices.
+#' [impute_prices()] to impute missing prices.
 #'
 #' [`gpindex::outliers`] for methods to identify outliers with price relatives.
 #'
@@ -42,7 +43,7 @@ price_relative <- function(x, ...) {
 
 #' @rdname price_relative
 #' @export
-price_relative.default <- function(x, ..., period, product) {
+price_relative.default <- function(x, period, product, ...) {
   chkDots(...)
   x <- as.numeric(x)
   period <- as.factor(period)

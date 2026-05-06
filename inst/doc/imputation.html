@@ -360,15 +360,20 @@ because not all missing prices can be imputed.)</p>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>elementals <span class="ot">&lt;-</span> ms_prices <span class="sc">|&gt;</span></span>
 <span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>  <span class="fu">transform</span>(</span>
-<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>    <span class="at">imputed_price =</span> <span class="fu">carry_forward</span>(price, <span class="at">period =</span> period, <span class="at">product =</span> product)</span>
-<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>  <span class="fu">elementary_index</span>(</span>
-<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>    <span class="fu">price_relative</span>(imputed_price, <span class="at">period =</span> period, <span class="at">product =</span> product) <span class="sc">~</span></span>
-<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>      period <span class="sc">+</span> business,</span>
-<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>    <span class="at">na.rm =</span> <span class="cn">TRUE</span></span>
-<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>  )</span>
-<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a></span>
-<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>elementals</span></code></pre></div>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>    <span class="at">imputed_price =</span> <span class="fu">impute_prices</span>(</span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>      price,</span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>      <span class="at">period =</span> period,</span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>      <span class="at">product =</span> product,</span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>      <span class="at">method =</span> <span class="st">&quot;carry-forward&quot;</span></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>    )</span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>  <span class="fu">elementary_index</span>(</span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>    <span class="fu">price_relative</span>(imputed_price, <span class="at">period =</span> period, <span class="at">product =</span> product) <span class="sc">~</span></span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>      period <span class="sc">+</span> business,</span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a>    <span class="at">na.rm =</span> <span class="cn">TRUE</span></span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a>  )</span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a>elementals</span></code></pre></div>
 <pre><code>## Period-over-period price index for 4 levels over 4 time periods 
 ##       time
 ## levels 202001    202002    202003   202004

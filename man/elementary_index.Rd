@@ -15,8 +15,8 @@ elementary_index(x, ...)
 \method{elementary_index}{numeric}(
   x,
   ...,
-  period = gl(1, length(x)),
-  ea = gl(1, length(x)),
+  period = NULL,
+  ea = NULL,
   weights = NULL,
   product = NULL,
   chainable = TRUE,
@@ -73,8 +73,9 @@ averaging indexes over subperiods), or -1 for a harmonic index (usually for
 a Paasche index). Other values are possible; see
 \code{\link[gpindex:generalized_mean]{gpindex::generalized_mean()}} for details.}
 
-\item{formula}{A two-sided formula with price relatives on the left-hand
-side, and time periods and elementary aggregates (in that order) on the
+\item{formula}{A two-sided formula, or something that can be coerced into
+one, with price relatives on the left-hand
+side and time periods and elementary aggregates (in that order) on the
 right-hand side.}
 }
 \value{
@@ -97,7 +98,8 @@ to \code{x} and \code{weights} grouped by \code{ea} and \code{period}. That
 is, for every combination of elementary aggregate and time period,
 \code{elementary_index()} calculates an index based on a generalized mean of
 order \code{r} and, optionally, percent-change contributions. Product names should
-be unique within each time period when making contributions, and, if not, are
+be unique within each elementary aggregate at each time period when making
+contributions, and, if not, are
 passed to \code{\link[=make.unique]{make.unique()}} with a warning. The default
 (\code{r = 0} and no weights) makes Jevons elementary indexes. See chapter 8
 (pp. 175--190) of the CPI manual (2020) for more detail about making
@@ -188,8 +190,7 @@ von der Lippe, P. (2007). \emph{Index Theory and Price Statistics}. Peter Lang.
 }
 \seealso{
 \code{\link[=price_relative]{price_relative()}} for making price relatives for the same products over
-time, and \code{\link[=carry_forward]{carry_forward()}} and \code{\link[=shadow_price]{shadow_price()}} for
-imputation of missing prices.
+time, and \code{\link[=impute_prices]{impute_prices()}} for imputation of missing prices.
 
 \code{\link[=as_index]{as_index()}} to turn pre-computed (elementary) index values into an
 index object.

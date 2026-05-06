@@ -58,6 +58,7 @@ test_that("stacking returns the correct result", {
 test_that("stack works with [", {
   epr3 <- stack(epr1, epr2)
   expect_equal(epr3[, 1:2], epr1)
+  contrib(epr2) <- numeric(0)
   expect_equal(epr3[, 3:4], epr2)
 })
 
@@ -68,9 +69,12 @@ test_that("coercion works as expected", {
 
 test_that("price updating works with a stacked index", {
   index <- stack(index1, index2)
-  expect_equal(aggregate(index[, 2], update(pias1, index, 1)), index[, 2])
   expect_equal(
-    aggregate(index[, 4], update(pias2, index[, 3:4], 3)),
+    aggregate(index[, 2], update(pias1, index, period = 1)),
+    index[, 2]
+  )
+  expect_equal(
+    aggregate(index[, 4], update(pias2, index[, 3:4], period = 3)),
     index[, 4]
   )
 })

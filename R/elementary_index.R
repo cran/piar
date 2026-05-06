@@ -12,7 +12,8 @@
 #' is, for every combination of elementary aggregate and time period,
 #' `elementary_index()` calculates an index based on a generalized mean of
 #' order `r` and, optionally, percent-change contributions. Product names should
-#' be unique within each time period when making contributions, and, if not, are
+#' be unique within each elementary aggregate at each time period when making
+#' contributions, and, if not, are
 #' passed to [make.unique()] with a warning. The default
 #' (\code{r = 0} and no weights) makes Jevons elementary indexes. See chapter 8
 #' (pp. 175--190) of the CPI manual (2020) for more detail about making
@@ -81,8 +82,9 @@
 #'   a Paasche index). Other values are possible; see
 #'   [gpindex::generalized_mean()] for details.
 #' @param ... Further arguments passed to or used by methods.
-#' @param formula A two-sided formula with price relatives on the left-hand
-#'   side, and time periods and elementary aggregates (in that order) on the
+#' @param formula A two-sided formula, or something that can be coerced into
+#'   one, with price relatives on the left-hand
+#'   side and time periods and elementary aggregates (in that order) on the
 #'   right-hand side.
 #'
 #' @returns
@@ -93,8 +95,7 @@
 #'
 #' @seealso
 #' [price_relative()] for making price relatives for the same products over
-#' time, and [carry_forward()] and [shadow_price()] for
-#' imputation of missing prices.
+#' time, and [impute_prices()] for imputation of missing prices.
 #'
 #' [as_index()] to turn pre-computed (elementary) index values into an
 #' index object.
@@ -177,8 +178,8 @@ elementary_index.default <- function(x, ...) {
 elementary_index.numeric <- function(
   x,
   ...,
-  period = gl(1, length(x)),
-  ea = gl(1, length(x)),
+  period = NULL,
+  ea = NULL,
   weights = NULL,
   product = NULL,
   chainable = TRUE,
@@ -193,11 +194,8 @@ elementary_index.numeric <- function(
       stop("all elements of 'weights' must be non-negative")
     }
   }
-  period <- as.factor(period)
-  ea <- as.factor(ea) # ensures elementary aggregates are balanced
-
-  time <- levels(period)
-  levels <- levels(ea)
+  period <- as.factor(period %||% gl(1, length(x)))
+  ea <- as.factor(ea %||% gl(1, length(x)))
 
   if (different_length(x, period, ea, weights)) {
     stop("input vectors must be the same length")
@@ -205,6 +203,9 @@ elementary_index.numeric <- function(
   if (any(x <= 0, na.rm = TRUE)) {
     stop("all elements of 'x' must be strictly positive")
   }
+  ea_by_period <- period:ea
+  time <- levels(period)
+  levels <- levels(ea)
 
   if (contrib) {
     if (!is.null(product)) {
@@ -213,36 +214,35 @@ elementary_index.numeric <- function(
     if (is.null(names(x))) {
       names(x) <- paste(ea, sequential_names(period, ea), sep = ".")
     } else {
-      names(x) <- valid_product_names(names(x), period)
+      names(x) <- valid_product_names(names(x), ea_by_period)
     }
   }
-  # Splitting 'x' into a nested list by period then ea is the same as
-  # using interaction(), but makes it easier to get the results as
-  # a list.
-  ea <- split(ea, period)
-  x <- Map(split, split(x, period), ea)
-  if (is.null(weights)) {
-    weights <- list(list(NULL))
-  } else {
-    weights <- Map(split, split(weights, period), ea)
-  }
 
-  index_fun <- Vectorize(gpindex::generalized_mean(r), USE.NAMES = FALSE)
-  contrib_fun <- Vectorize(
-    gpindex::contributions(r),
-    SIMPLIFY = FALSE,
+  x <- split(x, ea_by_period)
+  weights <- if (is.null(weights)) list(NULL) else split(weights, ea_by_period)
+
+  index <- mapply(
+    gpindex::generalized_mean(r),
+    x,
+    weights,
+    na.rm = na.rm,
     USE.NAMES = FALSE
   )
+  dim(index) <- c(nlevels(ea), nlevels(period))
 
-  index <- Map(index_fun, x, weights, na.rm = na.rm, USE.NAMES = FALSE)
   if (contrib) {
-    contributions <- Map(contrib_fun, x, weights, USE.NAMES = FALSE)
+    contributions <- mapply(
+      gpindex::contributions(r),
+      x,
+      weights,
+      SIMPLIFY = FALSE,
+      USE.NAMES = FALSE
+    )
+    dim(contributions) <- c(nlevels(ea), nlevels(period))
+    piar_index(index, contributions, levels, time, chainable = chainable)
   } else {
-    # Mimic contributions structure instead of a NULL.
-    contributions <- contrib_skeleton(levels, time)
+    piar_index(index, NULL, levels, time, chainable = chainable)
   }
-
-  piar_index(index, contributions, levels, time, chainable)
 }
 
 

@@ -14,7 +14,7 @@ missing_weights <- function(x) {
 }
 
 missing_names <- function(x) {
-  anyNA(x) || any(x == "")
+  anyNA(x) || !all(nzchar(x))
 }
 
 last <- function(x) {
@@ -23,6 +23,10 @@ last <- function(x) {
 
 drop_last <- function(x) {
   x[-length(x)]
+}
+
+split_rows <- function(x, rows) {
+  lapply(rows, \(i) x[i, ])
 }
 
 match_eas <- function(pias, index) {
@@ -48,19 +52,14 @@ valid_contrib <- function(contrib) {
 }
 
 index2contrib <- function(index, levels, time) {
-  contrib <- contrib_skeleton(levels, time)
-  i <- seq_along(levels)
-  for (t in seq_along(time)) {
-    con <- index[[t]] - 1
-    names(con) <- levels
-    contrib[[t]] <- lapply(i, \(x) con[x])
-  }
+  contrib <- Map(stats::setNames, index - 1, levels)
+  dim(contrib) <- c(length(levels), length(time))
   contrib
 }
 
 #---- Product names ----
 which_duplicate_products <- function(x) {
-  vapply(x, anyDuplicated, numeric(1L), incomparables = NA) > 0
+  vapply(x, anyDuplicated, integer(1L), incomparables = NA) > 0L
 }
 
 duplicate_products <- function(x) {
@@ -105,6 +104,7 @@ different_length <- function(...) {
 }
 
 formula_vars <- function(formula, x, n = 2L) {
+  formula <- stats::as.formula(formula)
   if (length(formula) != 3L) {
     stop("'formula' must have a left-hand and right-hand side")
   }
@@ -117,12 +117,12 @@ formula_vars <- function(formula, x, n = 2L) {
 }
 
 #---- Subscript indexes ----
-dim_indices <- function(x, i) {
+subscript_index <- function(x, i) {
   if (missing(i)) {
     return(seq_along(x))
   }
   if (anyNA(i)) {
-    stop("cannot subscript with missing values")
+    stop("cannot subscript an index with missing values")
   }
   if (is.character(i)) {
     res <- match(i, x)
@@ -137,9 +137,36 @@ dim_indices <- function(x, i) {
     res <- match(x[i], x)
   }
   if (anyNA(res)) {
-    stop("subscript out of bounds")
+    stop("subscript out of bounds for index")
   }
   res
+}
+
+subscript_index_matrix <- function(x, i) {
+  if (is.logical(i)) {
+    if (nrow(i) != nlevels(x) || ncol(i) != ntime(x)) {
+      stop(
+        "'i' must have a row for each level and a column for each ",
+        "time period in 'x'"
+      )
+    }
+    if (anyNA(i)) {
+      stop("cannot subscript an index with missing values")
+    }
+    i <- which(i, arr.ind = TRUE)
+  }
+
+  if (ncol(i) != 2L) {
+    stop("'i' must have exactly two columns")
+  }
+  if (is.numeric(i) && any(i < 0L, na.rm = TRUE)) {
+    stop("cannot subscript an index using a matrix with negative values")
+  }
+
+  cbind(
+    subscript_index(x$levels, i[, 1L]),
+    subscript_index(x$time, i[, 2L])
+  )
 }
 
 match_dim <- function(what = c("time", "levels")) {
@@ -166,21 +193,11 @@ match_time <- match_dim("time")
 
 #---- Generate index ----
 index_skeleton <- function(levels, time) {
-  index <- rep.int(NA_real_, length(levels))
-  rep.int(list(index), length(time))
-}
-
-empty_contrib <- function(x) {
-  res <- rep.int(list(numeric(0L)), length(x))
-  list(res)
+  matrix(NA_real_, length(levels), length(time))
 }
 
 contrib_skeleton <- function(levels, time) {
-  rep.int(empty_contrib(levels), length(time))
-}
-
-has_contrib <- function(x) {
-  Position(\(x) any(lengths(x) > 0L), x$contrib, nomatch = 0L) > 0L
+  matrix(list(numeric(0L)), length(levels), length(time))
 }
 
 # Backport Reduce and %||%

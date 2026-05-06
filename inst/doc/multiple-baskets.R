@@ -72,7 +72,7 @@ stack(
 ## -----------------------------------------------------------------------------
 index <- index |>
   lapply(chain) |>
-  lapply(\(x) rebase(x, mean(x[, 1:4])))
+  lapply(\(x) rebase(x, base = mean(x[, 1:4])))
 
 ## -----------------------------------------------------------------------------
 link_factor <- window(index[[1]], start = "5") |>
@@ -85,7 +85,7 @@ stack(
 )
 
 ## -----------------------------------------------------------------------------
-index[[1]] <- rebase(index[[1]], mean(window(index[[1]], start = "5")))
+index[[1]] <- rebase(index[[1]], base = mean(window(index[[1]], start = "5")))
 
 link_factor <- as.numeric(index[[1]][, "8"]) / as.numeric(index[[2]][, "8"])
 

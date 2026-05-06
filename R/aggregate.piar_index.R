@@ -48,10 +48,7 @@
 #' aggregate if the elementary indexes are built from several sources (as with
 #' [`merge()`][merge.piar_index]). In this case the contribution for
 #' a price relative in the aggregated index will be correct, but the sum of all
-#' contributions will not equal the change in the value of the index. This can
-#' also happen when aggregating an already aggregated index in which missing
-#' index values have been imputed (i.e., when `na.rm = TRUE` and
-#' `contrib = FALSE`).
+#' contributions will not equal the change in the value of the index.
 #'
 #' If two aggregation structures are given then the steps above are done for
 #' each aggregation structure, with the aggregation for `pias` done with a
@@ -79,15 +76,17 @@
 #'   a Paasche index). Other values are possible; see
 #'   [gpindex::generalized_mean()] for details. If `pias2` is given then the
 #'   index is aggregated with a quadratic mean of order `2*r`.
-#' @param contrib Aggregate percent-change contributions in `x` (if any)?
+#' @param contrib Aggregate percent-change contributions in `x`? By default
+#'   contributions are aggregated.
 #' @param include_ea Should indexes for the elementary aggregates be included
 #'   along with the aggregated indexes? By default, all index values are
 #'   returned.
 #' @param ... Not currently used.
 #' @param duplicate_contrib The method to deal with duplicate product
-#'   contributions. Either 'make.unique' to treat duplicate
+#'   contributions. Either `"make.unique"` to treat duplicate
 #'   products as distinct products and make their names unique
-#'   with [make.unique()] or 'sum' to add contributions for each product.
+#'   with [make.unique()] or `"sum"` to add contributions for each product
+#'   (the default).
 #'
 #' @returns
 #' An aggregate price index that inherits from the class of `x`.
@@ -151,7 +150,7 @@ aggregate.chainable_piar_index <- function(
   contrib = TRUE,
   r = 1,
   include_ea = TRUE,
-  duplicate_contrib = c("make.unique", "sum")
+  duplicate_contrib = c("sum", "make.unique")
 ) {
   chkDots(...)
   aggregate_index(
@@ -163,7 +162,7 @@ aggregate.chainable_piar_index <- function(
     r = r,
     include_ea = include_ea,
     chainable = TRUE,
-    duplicate_contrib = duplicate_contrib
+    duplicate_contrib = match.arg(duplicate_contrib)
   )
 }
 
@@ -178,7 +177,7 @@ aggregate.direct_piar_index <- function(
   contrib = TRUE,
   r = 1,
   include_ea = TRUE,
-  duplicate_contrib = c("make.unique", "sum")
+  duplicate_contrib = c("sum", "make.unique")
 ) {
   chkDots(...)
   aggregate_index(
@@ -190,7 +189,7 @@ aggregate.direct_piar_index <- function(
     r = r,
     include_ea = include_ea,
     chainable = FALSE,
-    duplicate_contrib = duplicate_contrib
+    duplicate_contrib = match.arg(duplicate_contrib)
   )
 }
 
@@ -209,7 +208,7 @@ aggregate_index <- function(
 ) {
   pias <- as_aggregation_structure(pias)
   r <- as.numeric(r)
-  has_contrib <- has_contrib(x) && contrib
+  has_contrib <- !is.null(x$contrib) && contrib
   res <- aggregate_(
     x,
     pias,
@@ -227,8 +226,8 @@ aggregate_index <- function(
       stop("'pias' and 'pias2' must represent the same aggregation structure")
     }
     if (
-      any(missing_weights(pias$weights) != missing_weights(pias2$weights)) &&
-        contrib
+      contrib &&
+        any(missing_weights(pias$weights) != missing_weights(pias2$weights))
     ) {
       stop(
         "any NA or zero weights must appear in both 'pias' and 'pias2' when",
@@ -246,7 +245,7 @@ aggregate_index <- function(
       duplicate_contrib
     )
     if (has_contrib) {
-      res$contrib <- Map(
+      res$contrib[] <- Map(
         super_aggregate_contrib(0),
         res$contrib,
         res2$contrib,
@@ -254,7 +253,7 @@ aggregate_index <- function(
         res2$index
       )
     }
-    res$index <- Map(\(x, y) (x * y)^0.5, res$index, res2$index)
+    res$index[] <- (res$index * res2$index)^0.5
   }
 
   if (include_ea) {
@@ -263,7 +262,7 @@ aggregate_index <- function(
     lev <- unlist(drop_last(pias$levels), use.names = FALSE)
   }
 
-  piar_index(res$index, res$contrib, lev, x$time, chainable)
+  piar_index(res$index, res$contrib, lev, x$time, chainable = chainable)
 }
 
 aggregate_ <- function(
@@ -281,7 +280,7 @@ aggregate_ <- function(
   gen_mean <- gpindex::generalized_mean(r)
   agg_contrib <- aggregate_contrib(r, duplicate_contrib)
 
-  # Put the aggregation weights upside down to line up with pias.
+  # Put the aggregation weights upside down to line up with `pias`.
   w <- rev(weights(pias, ea_only = FALSE, na.rm = na.rm))
 
   eas <- match_eas(pias, x)
@@ -290,14 +289,16 @@ aggregate_ <- function(
   index <- contrib <- vector("list", ntime(x))
   for (t in seq_along(x$time)) {
     rel <- con <- vector("list", nlevels(pias))
-    # Align epr with weights so that positional indexing works.
-    rel[[1L]] <- x$index[[t]][eas]
-    con[[1L]] <- x$contrib[[t]][eas]
+    # Align with weights so that positional indexing works.
+    rel[[1L]] <- x$index[, t][eas]
 
-    # Get rid of any NULL contributions.
-    con[[1L]][lengths(con[[1L]]) == 0L] <- list(numeric(0L))
+    if (has_contrib) {
+      con[[1L]] <- x$contrib[, t][eas]
+      # Replace NULL contributions from subscripting with empty contributions.
+      con[[1L]][lengths(con[[1L]]) == 0L] <- list(numeric(0L))
+    }
 
-    # Loop over each level in pias from the bottom up and aggregate.
+    # Loop over each level in `pias` from the bottom up and aggregate.
     for (i in seq_along(rel)[-1L]) {
       nodes <- unname(pias$child[[i - 1L]])
       rel[[i]] <- vapply(
@@ -310,8 +311,6 @@ aggregate_ <- function(
           nodes,
           \(z) agg_contrib(con[[i - 1L]][z], rel[[i - 1L]][z], w[[i - 1L]][z])
         )
-      } else {
-        con[i] <- empty_contrib(nodes)
       }
     }
 
@@ -339,16 +338,16 @@ aggregate_ <- function(
     contrib[[t]] <- unlist(rev(con), recursive = FALSE, use.names = FALSE)
   }
 
-  list(index = index, contrib = contrib)
+  list(index = do.call(cbind, index), contrib = do.call(cbind, contrib))
 }
 
 #' Aggregate product contributions
 #' @noRd
 # This function is inefficient because it recalculates the mean, but this
 # ensures that contributions are still produced with missing index values.
-aggregate_contrib <- function(r, duplicate_contrib = c("make.unique", "sum")) {
+aggregate_contrib <- function(r, duplicate_contrib) {
   arithmetic_weights <- gpindex::transmute_weights(r, 1)
-  duplicate_contrib <- match.arg(duplicate_contrib)
+  force(duplicate_contrib)
   function(x, rel, w) {
     w <- arithmetic_weights(rel, w)
     res <- Map(`*`, x, w)
@@ -364,7 +363,7 @@ aggregate_contrib <- function(r, duplicate_contrib = c("make.unique", "sum")) {
         products <- unique(products)
         mat <- do.call(cbind, Map(`[`, res, list(products)))
         res <- rowSums(mat, na.rm = TRUE)
-        res[apply(is.na(mat), 1, all)] <- NA
+        res[apply(is.na(mat), 1L, all)] <- NA_real_
         names(res) <- products
       } else {
         res <- unlist(res)
@@ -378,11 +377,8 @@ aggregate_contrib <- function(r, duplicate_contrib = c("make.unique", "sum")) {
 #' @noRd
 super_aggregate_contrib <- function(r) {
   arithmetic_weights <- gpindex::transmute_weights(r, 1)
-  Vectorize(
-    function(x, y, rel1, rel2) {
-      w <- arithmetic_weights(c(rel1, rel2))
-      w[1L] * x + w[2L] * y
-    },
-    SIMPLIFY = FALSE
-  )
+  function(x, y, rel1, rel2) {
+    w <- arithmetic_weights(c(rel1, rel2))
+    w[1L] * x + w[2L] * y
+  }
 }

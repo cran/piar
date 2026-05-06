@@ -418,7 +418,7 @@ values over each year and rebase to a new base year.</p>
 <span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>  <span class="fu">mean</span>(<span class="at">window =</span> <span class="dv">4</span>)</span>
 <span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a></span>
 <span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>annual_index <span class="sc">|&gt;</span></span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>  <span class="fu">rebase</span>(<span class="st">&quot;Q1&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>  <span class="fu">rebase</span>(<span class="at">base =</span> <span class="st">&quot;Q1&quot;</span>) <span class="sc">|&gt;</span></span>
 <span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>  <span class="fu">head</span>()</span></code></pre></div>
 <pre><code>## Fixed-base price index for 6 levels over 3 time periods 
 ##       time
@@ -436,7 +436,7 @@ price-updating the weights.</p>
 <span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>  <span class="fu">update</span>(annual_index, <span class="at">period =</span> <span class="st">&quot;Q1&quot;</span>)</span>
 <span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a></span>
 <span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>annual_index <span class="ot">&lt;-</span> annual_index <span class="sc">|&gt;</span></span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>  <span class="fu">rebase</span>(<span class="st">&quot;Q1&quot;</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>  <span class="fu">rebase</span>(<span class="at">base =</span> <span class="st">&quot;Q1&quot;</span>)</span>
 <span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a></span>
 <span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>annual_index <span class="sc">|&gt;</span></span>
 <span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>  <span class="fu">aggregate</span>(annual_pias) <span class="sc">|&gt;</span></span>

@@ -450,7 +450,7 @@ complex link factors when the index series have an annual base
 period.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>index <span class="ot">&lt;-</span> index <span class="sc">|&gt;</span></span>
 <span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>  <span class="fu">lapply</span>(chain) <span class="sc">|&gt;</span></span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  <span class="fu">lapply</span>(\(x) <span class="fu">rebase</span>(x, <span class="fu">mean</span>(x[, <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>])))</span></code></pre></div>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  <span class="fu">lapply</span>(\(x) <span class="fu">rebase</span>(x, <span class="at">base =</span> <span class="fu">mean</span>(x[, <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>])))</span></code></pre></div>
 <p>Keeping the base year of the old basket can be done by simply
 rebasing the index series for the new basket.</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>link_factor <span class="ot">&lt;-</span> <span class="fu">window</span>(index[[<span class="dv">1</span>]], <span class="at">start =</span> <span class="st">&quot;5&quot;</span>) <span class="sc">|&gt;</span></span>
@@ -474,7 +474,7 @@ rebasing the index series for the new basket.</p>
 ##     12 0.9221784 1.037244 0.9396738 0.9615874 1.0034060</code></pre>
 <p>Updating the reference year to that of the new basket involves
 rebasing the series for both the old basket and the new basket.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>index[[<span class="dv">1</span>]] <span class="ot">&lt;-</span> <span class="fu">rebase</span>(index[[<span class="dv">1</span>]], <span class="fu">mean</span>(<span class="fu">window</span>(index[[<span class="dv">1</span>]], <span class="at">start =</span> <span class="st">&quot;5&quot;</span>)))</span>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>index[[<span class="dv">1</span>]] <span class="ot">&lt;-</span> <span class="fu">rebase</span>(index[[<span class="dv">1</span>]], <span class="at">base =</span> <span class="fu">mean</span>(<span class="fu">window</span>(index[[<span class="dv">1</span>]], <span class="at">start =</span> <span class="st">&quot;5&quot;</span>)))</span>
 <span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a></span>
 <span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>link_factor <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(index[[<span class="dv">1</span>]][, <span class="st">&quot;8&quot;</span>]) <span class="sc">/</span> <span class="fu">as.numeric</span>(index[[<span class="dv">2</span>]][, <span class="st">&quot;8&quot;</span>])</span>
 <span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a></span>

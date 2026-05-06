@@ -31,14 +31,22 @@
 #' @export
 merge.chainable_piar_index <- function(x, y, ...) {
   y <- as_index(y, chainable = TRUE)
-  NextMethod("merge")
+  res <- NextMethod("merge")
+  new_piar_index(res$index, res$contrib, res$levels, res$time, chainable = TRUE)
 }
 
 #' @rdname merge.piar_index
 #' @export
 merge.direct_piar_index <- function(x, y, ...) {
   y <- as_index(y, chainable = FALSE)
-  NextMethod("merge")
+  res <- NextMethod("merge")
+  new_piar_index(
+    res$index,
+    res$contrib,
+    res$levels,
+    res$time,
+    chainable = FALSE
+  )
 }
 
 #' @export
@@ -50,8 +58,16 @@ merge.piar_index <- function(x, y, ...) {
   if (any(x$levels %in% y$levels)) {
     stop("the same levels cannot appear in both 'x' and 'y'")
   }
-  x$index <- Map(c, x$index, y$index)
-  x$contrib <- Map(c, x$contrib, y$contrib)
+  x$index <- rbind(x$index, y$index)
+  if (is.null(x$contrib) && !is.null(y$contrib)) {
+    x$contrib <- contrib_skeleton(x$levels, x$time)
+  } else if (!is.null(x$contrib) && is.null(y$contrib)) {
+    y$contrib <- contrib_skeleton(y$levels, y$time)
+  }
+  if (!is.null(x$contrib)) {
+    x$contrib <- rbind(x$contrib, y$contrib)
+  }
   x$levels <- c(x$levels, y$levels)
+  # Alternatively call validate_piar_index(x), but this is not necessary.
   x
 }

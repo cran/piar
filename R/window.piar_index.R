@@ -1,4 +1,4 @@
-#' Index window
+#' Window a price index
 #'
 #' Extract and replace index values over a window of time periods.
 #'
@@ -26,6 +26,7 @@
 #' @family index methods
 #' @importFrom stats window
 #' @export
+# Optional arguments are before ... to agree with default in stats::window().
 window.piar_index <- function(x, start = NULL, end = NULL, ...) {
   chkDots(...)
   x[, index_window(x, start, end)]
@@ -43,14 +44,8 @@ window.piar_index <- function(x, start = NULL, end = NULL, ...) {
 #' Get the indexes for a window of time periods
 #' @noRd
 index_window <- function(x, start, end) {
-  if (is.null(start)) {
-    start <- start(x)
-  }
-  if (is.null(end)) {
-    end <- end(x)
-  }
-  start <- match_time(as.character(start), x)
-  end <- match_time(as.character(end), x)
+  start <- if (!is.null(start)) match_time(as.character(start), x) else 1L
+  end <- if (!is.null(end)) match_time(as.character(end), x) else ntime(x)
 
   if (start > end) {
     stop("'start' must refer to a time period before 'end'")

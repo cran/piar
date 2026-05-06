@@ -39,12 +39,13 @@
 #'   averaging indexes over subperiods), or -1 for a harmonic index (usually for
 #'   a Paasche index). Other values are possible; see
 #'   [gpindex::generalized_mean()] for details.
-#' @param contrib Aggregate percent-change contributions in `x` (if any)?
+#' @param contrib Aggregate percent-change contributions in `x`? By default
+#'   contributions are aggregated.
 #' @param ... Not currently used.
 #' @param duplicate_contrib The method to deal with duplicate product
-#'   contributions. Either 'make.unique' to make duplicate product names unique
-#'   with [make.unique()] or 'sum' to add contributions for the same products
-#'   across subperiods.
+#'   contributions. Either `"make.unique"` to make duplicate product names
+#'   unique with [make.unique()] or `"sum"` to add contributions for the same
+#'   products across subperiods (the default).
 #'
 #' @returns
 #' A price index, averaged over subperiods, that inherits from the same
@@ -66,11 +67,11 @@ mean.chainable_piar_index <- function(
   x,
   ...,
   weights = NULL,
-  window = ntime(x),
+  window = NULL,
   na.rm = FALSE,
   contrib = TRUE,
   r = 1,
-  duplicate_contrib = c("make.unique", "sum")
+  duplicate_contrib = c("sum", "make.unique")
 ) {
   chkDots(...)
   mean_index(
@@ -81,7 +82,7 @@ mean.chainable_piar_index <- function(
     contrib = contrib,
     r = r,
     chainable = TRUE,
-    duplicate_contrib = duplicate_contrib
+    duplicate_contrib = match.arg(duplicate_contrib)
   )
 }
 
@@ -91,11 +92,11 @@ mean.direct_piar_index <- function(
   x,
   ...,
   weights = NULL,
-  window = ntime(x),
+  window = NULL,
   na.rm = FALSE,
   contrib = TRUE,
   r = 1,
-  duplicate_contrib = c("make.unique", "sum")
+  duplicate_contrib = c("sum", "make.unique")
 ) {
   chkDots(...)
   mean_index(
@@ -106,7 +107,7 @@ mean.direct_piar_index <- function(
     contrib = contrib,
     r = r,
     chainable = FALSE,
-    duplicate_contrib = duplicate_contrib
+    duplicate_contrib = match.arg(duplicate_contrib)
   )
 }
 
@@ -130,12 +131,12 @@ mean_index <- function(
     if (length(weights) != ntime(x) * nlevels(x)) {
       stop("'weights' must have a value for each index value in 'x'")
     }
-    w <- split(weights, gl(ntime(x), nlevels(x)))
+    dim(weights) <- c(nlevels(x), ntime(x))
   }
 
-  window <- as.integer(window)
-  if (length(window) > 1L || window < 1L) {
-    stop("'window' must be a positive length 1 integer")
+  window <- as.integer(window %||% ntime(x))
+  if (window < 1L) {
+    stop("'window' must be a positive integer")
   }
   if (window > ntime(x)) {
     stop("'x' must have at least 'window' time periods")
@@ -157,21 +158,29 @@ mean_index <- function(
   loc <- seq.int(1L, by = window, length.out = len)
   periods <- x$time[loc]
 
-  has_contrib <- has_contrib(x) && contrib
-
+  has_contrib <- !is.null(x$contrib) && contrib
   # Loop over each window and calculate the mean for each level.
-  index <- index_skeleton(x$levels, periods)
-  contrib <- contrib_skeleton(x$levels, periods)
+  res <- contrib <- vector("list", length(periods))
+  rows <- seq_len(nlevels(x))
+  w <- list(NULL)
   for (i in seq_along(loc)) {
     j <- seq(loc[i], length.out = window)
-    rel <- .mapply(c, x$index[j], list())
-    weight <- if (is.null(weights)) list(NULL) else .mapply(c, w[j], list())
-    index[[i]][] <- gen_mean(rel, weight, na.rm = na.rm)
+    rel <- split_rows(x$index[, j, drop = FALSE], rows)
+    if (!is.null(weights)) {
+      w <- split_rows(weights[, j, drop = FALSE], rows)
+    }
+    res[[i]] <- gen_mean(rel, w, na.rm = na.rm)
     if (has_contrib) {
-      con <- .mapply(\(...) c(list(...)), x$contrib[j], list())
-      contrib[[i]][] <- agg_contrib(con, rel, weight)
+      con <- split_rows(x$contrib[, j, drop = FALSE], rows)
+      contrib[[i]] <- agg_contrib(con, rel, w)
     }
   }
 
-  piar_index(index, contrib, x$levels, periods, chainable)
+  piar_index(
+    do.call(cbind, res),
+    do.call(cbind, contrib),
+    x$levels,
+    periods,
+    chainable = chainable
+  )
 }

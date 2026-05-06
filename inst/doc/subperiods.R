@@ -37,7 +37,7 @@ annual_index <- chain(quarterly_index) |>
   mean(window = 4)
 
 annual_index |>
-  rebase("Q1") |>
+  rebase(base = "Q1") |>
   head()
 
 ## -----------------------------------------------------------------------------
@@ -45,7 +45,7 @@ annual_pias <- pias |>
   update(annual_index, period = "Q1")
 
 annual_index <- annual_index |>
-  rebase("Q1")
+  rebase(base = "Q1")
 
 annual_index |>
   aggregate(annual_pias) |>
