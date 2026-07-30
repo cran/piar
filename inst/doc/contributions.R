@@ -1,4 +1,3 @@
-## -----------------------------------------------------------------------------
 library(piar)
 
 # Make an aggregation structure.
@@ -20,26 +19,20 @@ elementals <- ms_prices |>
     contrib = TRUE
   )
 
-## -----------------------------------------------------------------------------
 contrib(elementals, level = "B1")
 
-## -----------------------------------------------------------------------------
 contrib2DF(elementals, level = "B1")
 
-## -----------------------------------------------------------------------------
 index <- aggregate(elementals, pias, na.rm = TRUE)
 
 contrib(index)
 
-## -----------------------------------------------------------------------------
 index <- as_index(as.matrix(index), contrib = TRUE)
 
-## -----------------------------------------------------------------------------
 set_contrib_from_index(index) |>
   aggregate(cut(pias, 2)) |>
   contrib()
 
-## -----------------------------------------------------------------------------
 chain(index) |>
   set_contrib_from_index() |>
   aggregate(cut(pias, 2)) |>

@@ -1,461 +1,282 @@
 <!DOCTYPE html>
-
-<html>
-
+<html lang="en-US">
 <head>
-
-<meta charset="utf-8" />
-<meta name="generator" content="pandoc" />
-<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
-
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-
-
-
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<meta name="generator" content="litedown 0.10">
 <title>Aggregating across dimensions</title>
-
-<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
-// be compatible with the behavior of Pandoc < 2.8).
-document.addEventListener('DOMContentLoaded', function(e) {
-  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
-  var i, h, a;
-  for (i = 0; i < hs.length; i++) {
-    h = hs[i];
-    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
-    a = h.attributes;
-    while (a.length > 0) h.removeAttribute(a[0].name);
-  }
-});
-</script>
-
 <style type="text/css">
-code{white-space: pre-wrap;}
-span.smallcaps{font-variant: small-caps;}
-span.underline{text-decoration: underline;}
-div.column{display: inline-block; vertical-align: top; width: 50%;}
-div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-ul.task-list{list-style: none;}
-</style>
-
-
-
-<style type="text/css">
-code {
-white-space: pre;
+body {
+  font-family: sans-serif;
+  max-width: 800px;
+  margin: auto;
+  padding: 1em;
+  line-height: 1.5;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
 }
-.sourceCode {
-overflow: visible;
+body, .abstract, code, .footnotes, footer, #refs, .caption { font-size: .9em; }
+li li { font-size: .95em; }
+ul:has(li > input[type="checkbox"]) { list-style: none; padding-left: 1em; }
+*, :before, :after { box-sizing: border-box; }
+a { color: steelblue; }
+pre, img { max-width: 100%; }
+pre { white-space: pre-wrap; word-break: break-word; }
+pre code { display: block; padding: 1em; overflow-x: auto; }
+code { font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace; }
+:not(pre, th) > code, code[class], div > .caption { background: #f8f8f8; }
+pre > code:is(:not([class]), .language-plain, .language-none, .plain), .box, .figure, .table { background: inherit; border: 1px solid #eee; }
+pre > code {
+  &.message { border-color: #9eeaf9; }
+  &.warning { background: #fff3cd; border-color: #fff3cd; }
+  &.error { background: #f8d7da; border-color: #f8d7da; }
 }
-</style>
-<style type="text/css" data-origin="pandoc">
-html { -webkit-text-size-adjust: 100%; }
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
+.fenced-chunk { border-left: 1px solid #666; }
+.code-fence {
+  opacity: .4;
+  border: 1px dashed #666;
+  border-left: 2px solid;
+  &:hover { opacity: inherit; }
 }
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-{ counter-reset: source-line 0; }
-pre.numberSource code > span
-{ position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-{ content: counter(source-line);
-position: relative; left: -1em; text-align: right; vertical-align: baseline;
-border: none; display: inline-block;
--webkit-touch-callout: none; -webkit-user-select: none;
--khtml-user-select: none; -moz-user-select: none;
--ms-user-select: none; user-select: none;
-padding: 0 4px; width: 4em;
-color: #aaaaaa;
-}
-pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
-div.sourceCode
-{ }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
-code span.al { color: #ff0000; font-weight: bold; } 
-code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
-code span.at { color: #7d9029; } 
-code span.bn { color: #40a070; } 
-code span.bu { color: #008000; } 
-code span.cf { color: #007020; font-weight: bold; } 
-code span.ch { color: #4070a0; } 
-code span.cn { color: #880000; } 
-code span.co { color: #60a0b0; font-style: italic; } 
-code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
-code span.do { color: #ba2121; font-style: italic; } 
-code span.dt { color: #902000; } 
-code span.dv { color: #40a070; } 
-code span.er { color: #ff0000; font-weight: bold; } 
-code span.ex { } 
-code span.fl { color: #40a070; } 
-code span.fu { color: #06287e; } 
-code span.im { color: #008000; font-weight: bold; } 
-code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
-code span.kw { color: #007020; font-weight: bold; } 
-code span.op { color: #666666; } 
-code span.ot { color: #007020; } 
-code span.pp { color: #bc7a00; } 
-code span.sc { color: #4070a0; } 
-code span.ss { color: #bb6688; } 
-code span.st { color: #4070a0; } 
-code span.va { color: #19177c; } 
-code span.vs { color: #4070a0; } 
-code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
-</style>
-<script>
-// apply pandoc div.sourceCode style to pre.sourceCode instead
-(function() {
-  var sheets = document.styleSheets;
-  for (var i = 0; i < sheets.length; i++) {
-    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
-    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
-    var j = 0;
-    while (j < rules.length) {
-      var rule = rules[j];
-      // check if there is a div.sourceCode rule
-      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
-        j++;
-        continue;
-      }
-      var style = rule.style.cssText;
-      // check if color or background-color is set
-      if (rule.style.color === '' && rule.style.backgroundColor === '') {
-        j++;
-        continue;
-      }
-      // replace div.sourceCode by a pre.sourceCode rule
-      sheets[i].deleteRule(j);
-      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
-    }
-  }
-})();
-</script>
-
-
-
-
-<style type="text/css">body {
-background-color: #fff;
-margin: 1em auto;
-max-width: 700px;
-overflow: visible;
-padding-left: 2em;
-padding-right: 2em;
-font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-font-size: 14px;
-line-height: 1.35;
-}
-#TOC {
-clear: both;
-margin: 0 0 10px 10px;
-padding: 4px;
-width: 400px;
-border: 1px solid #CCCCCC;
-border-radius: 5px;
-background-color: #f6f6f6;
-font-size: 13px;
-line-height: 1.3;
-}
-#TOC .toctitle {
-font-weight: bold;
-font-size: 15px;
-margin-left: 5px;
-}
-#TOC ul {
-padding-left: 40px;
-margin-left: -1.5em;
-margin-top: 5px;
-margin-bottom: 5px;
-}
-#TOC ul ul {
-margin-left: -2em;
-}
-#TOC li {
-line-height: 16px;
-}
+.box, .figure, .table, table { margin: 1em auto; }
+div > .caption { padding: 1px 1em; }
+.figure { p:has(img, svg), pre:has(svg) { text-align: center; } }
+.flex-col { display: flex; justify-content: space-between; }
 table {
-margin: 1em auto;
-border-width: 1px;
-border-color: #DDDDDD;
-border-style: outset;
-border-collapse: collapse;
-}
-table th {
-border-width: 2px;
-padding: 5px;
-border-style: inset;
-}
-table td {
-border-width: 1px;
-border-style: inset;
-line-height: 18px;
-padding: 5px 5px;
-}
-table, table th, table td {
-border-left-style: none;
-border-right-style: none;
-}
-table thead, table tr.even {
-background-color: #f7f7f7;
-}
-p {
-margin: 0.5em 0;
+  &:only-child:not(.table > *) { margin: auto; }
+  th, td { padding: 5px; font-variant-numeric: tabular-nums; }
+  &:not([class]) {
+    thead, tfoot, tr:nth-child(even) { background: whitesmoke; }
+    thead th { border-bottom: 1px solid #ddd; }
+    border-top: 1px solid #666;
+    border-bottom: 1px solid #666;
+  }
 }
 blockquote {
-background-color: #f6f6f6;
-padding: 0.25em 0.75em;
+  color: #666;
+  margin: 0;
+  padding: 1px 1em;
+  border-left: .5em solid #eee;
 }
-hr {
-border-style: solid;
-border: none;
-border-top: 1px solid #777;
-margin: 28px 0;
+hr, .footnotes::before { border: 1px dashed #ddd; }
+.frontmatter { text-align: center; }
+#TOC {
+  a { text-decoration: none; }
+  ul { list-style: none; padding-left: 1em; columns: 24em; }
+  & > ul { padding: 0; }
+  ul ul { border-left: 1px solid lightsteelblue; }
 }
-dl {
-margin-left: 0;
+.body h2 { border-bottom: 1px solid #666; }
+.body .appendix, .appendix ~ h2 { border-bottom-style: dashed; }
+.main-number::after { content: "."; }
+span[class^="ref-number-"] { font-weight: bold; }
+.ref-number-fig::after, .ref-number-tab::after { content: ":"; }
+.cross-ref-chp::before { content: "Chapter "; }
+.cross-ref-sec::before { content: "Section "; }
+.cross-ref-apd::before { content: "Appendix "; }
+.cross-ref-fig::before, .ref-number-fig::before { content: "Figure "; }
+.cross-ref-tab::before, .ref-number-tab::before { content: "Table "; }
+.cross-ref-eqn::before, .MathJax_ref:has(mjx-mtext > mjx-c + mjx-c)::before { content: "Equation "; }
+.abstract, #refs {
+  &::before { display: block; margin: 1em auto; font-weight: bold; }
 }
-dl dd {
-margin-bottom: 13px;
-margin-left: 13px;
+.abstract::before { content: "Abstract"; text-align: center; }
+#refs::before { content: "Bibliography"; font-size: 1.5em; }
+.ref-paren-open::before { content: "("; }
+.ref-paren-close::after { content: ")"; }
+.ref-semicolon::after { content: "; "; }
+.ref-and::after { content: " and "; }
+.ref-et-al::after { content: " et al."; font-style: italic; }
+.footnote-ref a {
+  &::before { content: "["; }
+  &::after { content: "]"; }
 }
-dl dt {
-font-weight: bold;
+section.footnotes {
+  margin-top: 2em;
+  &::before { content: ""; display: block; max-width: 20em; }
 }
-ul {
-margin-top: 0;
+.fade {
+  background: repeating-linear-gradient(135deg, white, white 30px, #ddd 32px, #ddd 32px);
+  opacity: 0.6;
 }
-ul li {
-list-style: circle outside;
+@media (prefers-color-scheme: dark) {
+  html, img, video, iframe { filter: invert(1); }
+  body { background: #ededed; }
 }
-ul ul {
-margin-bottom: 0;
+@media print {
+  body { max-width: 100%; }
+  tr, img { break-inside: avoid; }
 }
-pre, code {
-background-color: #f7f7f7;
-border-radius: 3px;
-color: #333;
-white-space: pre-wrap; 
+@media only screen and (min-width: 992px) {
+  body:not(.pagesjs) pre:has(.line-numbers):not(:hover) { white-space: pre; }
 }
-pre {
-border-radius: 3px;
-margin: 5px 0px 10px 0px;
-padding: 10px;
-}
-pre:not([class]) {
-background-color: #f7f7f7;
-}
-code {
-font-family: Consolas, Monaco, 'Courier New', monospace;
-font-size: 85%;
-}
-p > code, li > code {
-padding: 2px 0px;
-}
-div.figure {
-text-align: center;
-}
-img {
-background-color: #FFFFFF;
-padding: 2px;
-border: 1px solid #DDDDDD;
-border-radius: 3px;
-border: 1px solid #CCCCCC;
-margin: 0 5px;
-}
-h1 {
-margin-top: 0;
-font-size: 35px;
-line-height: 40px;
-}
-h2 {
-border-bottom: 4px solid #f7f7f7;
-padding-top: 10px;
-padding-bottom: 2px;
-font-size: 145%;
-}
-h3 {
-border-bottom: 2px solid #f7f7f7;
-padding-top: 10px;
-font-size: 120%;
-}
-h4 {
-border-bottom: 1px solid #f7f7f7;
-margin-left: 8px;
-font-size: 105%;
-}
-h5, h6 {
-border-bottom: 1px solid #ccc;
-font-size: 105%;
-}
-a {
-color: #0033dd;
-text-decoration: none;
-}
-a:hover {
-color: #6666ff; }
-a:visited {
-color: #800080; }
-a:visited:hover {
-color: #BB00BB; }
-a[href^="http:"] {
-text-decoration: underline; }
-a[href^="https:"] {
-text-decoration: underline; }
-
-code > span.kw { color: #555; font-weight: bold; } 
-code > span.dt { color: #902000; } 
-code > span.dv { color: #40a070; } 
-code > span.bn { color: #d14; } 
-code > span.fl { color: #d14; } 
-code > span.ch { color: #d14; } 
-code > span.st { color: #d14; } 
-code > span.co { color: #888888; font-style: italic; } 
-code > span.ot { color: #007020; } 
-code > span.al { color: #ff0000; font-weight: bold; } 
-code > span.fu { color: #900; font-weight: bold; } 
-code > span.er { color: #a61717; background-color: #e3d2d2; } 
 </style>
-
-
-
-
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.14.69/css/prism-xcode.min.css">
 </head>
-
 <body>
-
-
-
-
-<h1 class="title toc-ignore">Aggregating across dimensions</h1>
-
-
-
-<p>Price indexes are often aggregated over multiple dimensions. Matched
+<div class="frontmatter">
+<div class="title"><h1>Aggregating across dimensions</h1></div>
+</div>
+<div class="body">
+<p>Price indexes are often aggregated over multiple hierarchical dimensions. Matched
 sample indexes that use sequential Poisson sampling to draw a sample of
 businesses are a good example, as there are usually take-all and
 take-some strata in addition to, say, an industry classification.</p>
-<p>Let’s extend <code>vignette(&quot;piar&quot;)</code> by adding another
-dimension to the classification to say if a business belongs to the
-take-all or take-some sampling stratum.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(piar)</span>
-<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>elementals <span class="ot">&lt;-</span> ms_prices <span class="sc">|&gt;</span></span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>  <span class="fu">transform</span>(</span>
-<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>    <span class="at">relative =</span> <span class="fu">price_relative</span>(price, <span class="at">period =</span> period, <span class="at">product =</span> product)</span>
-<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>  <span class="fu">elementary_index</span>(relative <span class="sc">~</span> period <span class="sc">+</span> business, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>ms_weights<span class="sc">$</span>stratum <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;TS&quot;</span>, <span class="st">&quot;TA&quot;</span>, <span class="st">&quot;TS&quot;</span>, <span class="st">&quot;TS&quot;</span>, <span class="st">&quot;TS&quot;</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>ms_weights</span></code></pre></div>
-<pre><code>##   business classification weight level1 level2 stratum
-## 1       B1             11    553      1     11      TS
-## 2       B2             11    646      1     11      TA
-## 3       B3             11    312      1     11      TS
-## 4       B4             12    622      1     12      TS
-## 5       B5             12    330      1     12      TS</code></pre>
-<p>The easiest way to deal with multiple digit-wise classifications is
-to concatenate them into one classification. In this example the
-“stratum” dimension comes before the “classification” dimension for the
-purposes of parental imputation. This classification can be expanded
-with the <code>expand_classification()</code> function as before, just
-with an extra instruction to say that the last “digit” in the
-classification is two characters wide, not one.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>classification_sps <span class="ot">&lt;-</span> <span class="fu">paste0</span>(ms_weights<span class="sc">$</span>classification, ms_weights<span class="sc">$</span>stratum) <span class="sc">|&gt;</span></span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  <span class="fu">expand_classification</span>(<span class="at">width =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">2</span>))</span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a></span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>pias_sps <span class="ot">&lt;-</span> <span class="fu">aggregation_structure</span>(</span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>  <span class="fu">c</span>(classification_sps, <span class="fu">list</span>(ms_weights<span class="sc">$</span>business)),</span>
-<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>  ms_weights<span class="sc">$</span>weight</span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>)</span>
-<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a></span>
-<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>pias_sps</span></code></pre></div>
-<pre><code>## Aggregation structure for 5 elementary aggregates with 3 levels above the elementary aggregates 
-##   level1 level2 level3 ea weight
-## 1      1     11   11TS B1    553
-## 2      1     11   11TA B2    646
-## 3      1     11   11TS B3    312
-## 4      1     12   12TS B4    622
-## 5      1     12   12TS B5    330</code></pre>
+<p>Let’s extend <code>vignette(&quot;piar&quot;)</code> by adding another dimension to the
+classification to say if a business belongs to the take-all or take-some
+sampling stratum.</p>
+<pre><code class="language-r">library(piar)
+
+elementals &lt;- ms_prices |&gt;
+  transform(
+    relative = price_relative(price, period = period, product = product)
+  ) |&gt;
+  elementary_index(relative ~ period + business, na.rm = TRUE)
+</code></pre>
+<pre><code class="language-r">ms_weights$stratum &lt;- c(&quot;TS&quot;, &quot;TA&quot;, &quot;TS&quot;, &quot;TS&quot;, &quot;TS&quot;)
+
+ms_weights
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>business</th>
+<th>classification</th>
+<th align="right">weight</th>
+<th>level1</th>
+<th>level2</th>
+<th>stratum</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>B1</td>
+<td>11</td>
+<td align="right">553</td>
+<td>1</td>
+<td>11</td>
+<td>TS</td>
+</tr>
+<tr>
+<td>B2</td>
+<td>11</td>
+<td align="right">646</td>
+<td>1</td>
+<td>11</td>
+<td>TA</td>
+</tr>
+<tr>
+<td>B3</td>
+<td>11</td>
+<td align="right">312</td>
+<td>1</td>
+<td>11</td>
+<td>TS</td>
+</tr>
+<tr>
+<td>B4</td>
+<td>12</td>
+<td align="right">622</td>
+<td>1</td>
+<td>12</td>
+<td>TS</td>
+</tr>
+<tr>
+<td>B5</td>
+<td>12</td>
+<td align="right">330</td>
+<td>1</td>
+<td>12</td>
+<td>TS</td>
+</tr>
+</tbody>
+</table>
+<p>The easiest way to deal with multiple digit-wise classifications is to
+concatenate them into one classification with the <code>combined_classifications()</code>
+function. In this example the “stratum”
+dimension comes before the “classification” dimension for the purposes
+of overall-mean imputation.</p>
+<pre><code class="language-r">classification_sps &lt;- combine_classifications(
+  expand_classification(ms_weights$classification),
+  list(ms_weights$stratum)
+)
+
+pias_sps &lt;- aggregation_structure(
+  c(classification_sps, list(ms_weights$business)),
+  ms_weights$weight
+)
+
+pias_sps
+</code></pre>
+<pre><code>#&gt; Aggregation structure for 5 elementary aggregates with 3 levels above the elementary aggregates 
+#&gt;   level1 level2 level3 ea weight
+#&gt; 1      1     11  11.TS B1    553
+#&gt; 2      1     11  11.TA B2    646
+#&gt; 3      1     11  11.TS B3    312
+#&gt; 4      1     12  12.TS B4    622
+#&gt; 5      1     12  12.TS B5    330
+</code></pre>
 <p>The elementary indexes can now be aggregated according to this new
 aggregation structure.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>index_sps <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(elementals, pias_sps, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a></span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>index_sps</span></code></pre></div>
-<pre><code>## Period-over-period price index for 11 levels over 4 time periods 
-##       time
-## levels 202001    202002    202003   202004
-##   1         1 1.3007239 1.0630743 2.684412
-##   11        1 1.3007239 1.0630743 1.492443
-##   12        1 1.3007239 1.0630743 4.576286
-##   11TS      1 1.3007239 1.0630743 0.537996
-##   11TA      1 1.3007239 1.0630743 2.770456
-##   12TS      1 1.3007239 1.0630743 4.576286
-##   B1        1 0.8949097 0.3342939 0.537996
-##   B2        1 1.3007239 1.0630743 2.770456
-##   B3        1 2.0200036 1.6353355 0.537996
-##   B4        1 1.3007239 1.0630743 4.576286
-##   B5        1 1.3007239 1.0630743 4.576286</code></pre>
+<pre><code class="language-r">index_sps &lt;- aggregate(elementals, pias_sps, na.rm = TRUE)
+
+index_sps
+</code></pre>
+<pre><code>#&gt; Period-over-period price index for 11 levels over 4 time periods 
+#&gt;        time
+#&gt; levels  202001    202002    202003   202004
+#&gt;   1          1 1.3007239 1.0630743 2.684412
+#&gt;   11         1 1.3007239 1.0630743 1.492443
+#&gt;   12         1 1.3007239 1.0630743 4.576286
+#&gt;   11.TS      1 1.3007239 1.0630743 0.537996
+#&gt;   11.TA      1 1.3007239 1.0630743 2.770456
+#&gt;   12.TS      1 1.3007239 1.0630743 4.576286
+#&gt;   B1         1 0.8949097 0.3342939 0.537996
+#&gt;   B2         1 1.3007239 1.0630743 2.770456
+#&gt;   B3         1 2.0200036 1.6353355 0.537996
+#&gt;   B4         1 1.3007239 1.0630743 4.576286
+#&gt;   B5         1 1.3007239 1.0630743 4.576286
+</code></pre>
 <p>When a price index has many dimensions (e.g., industry, sampling
 stratum, region), it can be useful to interact the classifications for
 these different dimensions to get all possible aggregation structures.
 The aggregated index can then be re-aggregated to get index values for
 all dimensions.</p>
-<p>Continuing with the example, the industry and strata classifications
-can be interacted to get two aggregation structures that can be used to
+<p>Continuing with the example, the industry and strata classifications can
+be interacted to get two aggregation structures that can be used to
 re-aggregate <code>index_sps</code>.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>interacted_hierarchy <span class="ot">&lt;-</span> <span class="fu">interact_classifications</span>(</span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>  <span class="fu">expand_classification</span>(ms_weights<span class="sc">$</span>classification),</span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  <span class="fu">expand_classification</span>(ms_weights<span class="sc">$</span>stratum)</span>
-<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>)</span>
-<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a></span>
-<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>pias_sps2 <span class="ot">&lt;-</span> <span class="fu">lapply</span>(</span>
-<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>  interacted_hierarchy,</span>
-<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>  \(x) <span class="fu">aggregation_structure</span>(<span class="fu">c</span>(x, <span class="fu">list</span>(ms_weights<span class="sc">$</span>business)), ms_weights<span class="sc">$</span>weight)</span>
-<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>)</span>
-<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a></span>
-<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a>index_sps2 <span class="ot">&lt;-</span> <span class="fu">lapply</span>(pias_sps2, \(x) {</span>
-<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a>  <span class="fu">aggregate</span>(index_sps, x, <span class="at">include_ea =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a>})</span></code></pre></div>
+<pre><code class="language-r">interacted_hierarchy &lt;- interact_classifications(
+  expand_classification(ms_weights$classification),
+  expand_classification(ms_weights$stratum)
+)
+
+pias_sps2 &lt;- lapply(
+  interacted_hierarchy,
+  \(x) aggregation_structure(c(x, list(ms_weights$business)), ms_weights$weight)
+)
+
+index_sps2 &lt;- lapply(pias_sps2, \(x) {
+  aggregate(index_sps, x, include_ea = FALSE)
+})
+</code></pre>
 <p>The resulting indexes can be merged together to give an index that
 includes all combinations of industry and sampling stratum.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">Reduce</span>(merge, index_sps2)</span></code></pre></div>
-<pre><code>## Period-over-period price index for 8 levels over 4 time periods 
-##        time
-## levels  202001   202002   202003   202004
-##   1:T        1 1.300724 1.063074 2.684412
-##   1:TS       1 1.300724 1.063074 2.653820
-##   1:TA       1 1.300724 1.063074 2.770456
-##   11:T       1 1.300724 1.063074 1.492443
-##   12:T       1 1.300724 1.063074 4.576286
-##   11:TS      1 1.300724 1.063074 0.537996
-##   11:TA      1 1.300724 1.063074 2.770456
-##   12:TS      1 1.300724 1.063074 4.576286</code></pre>
-
-
-
-<!-- code folding -->
-
-
-<!-- dynamically load mathjax for compatibility with self-contained -->
-<script>
-  (function () {
-    var script = document.createElement("script");
-    script.type = "text/javascript";
-    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
-    document.getElementsByTagName("head")[0].appendChild(script);
-  })();
-</script>
-
+<pre><code class="language-r">Reduce(merge, index_sps2)
+</code></pre>
+<pre><code>#&gt; Period-over-period price index for 8 levels over 4 time periods 
+#&gt;        time
+#&gt; levels  202001   202002   202003   202004
+#&gt;   1:T        1 1.300724 1.063074 2.684412
+#&gt;   1:TS       1 1.300724 1.063074 2.653820
+#&gt;   1:TA       1 1.300724 1.063074 2.770456
+#&gt;   11:T       1 1.300724 1.063074 1.492443
+#&gt;   12:T       1 1.300724 1.063074 4.576286
+#&gt;   11:TS      1 1.300724 1.063074 0.537996
+#&gt;   11:TA      1 1.300724 1.063074 2.770456
+#&gt;   12:TS      1 1.300724 1.063074 4.576286
+</code></pre>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js" defer></script>
 </body>
 </html>

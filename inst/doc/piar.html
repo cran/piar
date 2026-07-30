@@ -1,367 +1,142 @@
 <!DOCTYPE html>
-
-<html>
-
+<html lang="en-US">
 <head>
-
-<meta charset="utf-8" />
-<meta name="generator" content="pandoc" />
-<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
-
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-
-
-
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<meta name="generator" content="litedown 0.10">
 <title>Making price indexes</title>
-
-<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
-// be compatible with the behavior of Pandoc < 2.8).
-document.addEventListener('DOMContentLoaded', function(e) {
-  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
-  var i, h, a;
-  for (i = 0; i < hs.length; i++) {
-    h = hs[i];
-    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
-    a = h.attributes;
-    while (a.length > 0) h.removeAttribute(a[0].name);
-  }
-});
-</script>
-
 <style type="text/css">
-code{white-space: pre-wrap;}
-span.smallcaps{font-variant: small-caps;}
-span.underline{text-decoration: underline;}
-div.column{display: inline-block; vertical-align: top; width: 50%;}
-div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-ul.task-list{list-style: none;}
-</style>
-
-
-
-<style type="text/css">
-code {
-white-space: pre;
+body {
+  font-family: sans-serif;
+  max-width: 800px;
+  margin: auto;
+  padding: 1em;
+  line-height: 1.5;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
 }
-.sourceCode {
-overflow: visible;
+body, .abstract, code, .footnotes, footer, #refs, .caption { font-size: .9em; }
+li li { font-size: .95em; }
+ul:has(li > input[type="checkbox"]) { list-style: none; padding-left: 1em; }
+*, :before, :after { box-sizing: border-box; }
+a { color: steelblue; }
+pre, img { max-width: 100%; }
+pre { white-space: pre-wrap; word-break: break-word; }
+pre code { display: block; padding: 1em; overflow-x: auto; }
+code { font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace; }
+:not(pre, th) > code, code[class], div > .caption { background: #f8f8f8; }
+pre > code:is(:not([class]), .language-plain, .language-none, .plain), .box, .figure, .table { background: inherit; border: 1px solid #eee; }
+pre > code {
+  &.message { border-color: #9eeaf9; }
+  &.warning { background: #fff3cd; border-color: #fff3cd; }
+  &.error { background: #f8d7da; border-color: #f8d7da; }
 }
-</style>
-<style type="text/css" data-origin="pandoc">
-html { -webkit-text-size-adjust: 100%; }
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
+.fenced-chunk { border-left: 1px solid #666; }
+.code-fence {
+  opacity: .4;
+  border: 1px dashed #666;
+  border-left: 2px solid;
+  &:hover { opacity: inherit; }
 }
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-{ counter-reset: source-line 0; }
-pre.numberSource code > span
-{ position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-{ content: counter(source-line);
-position: relative; left: -1em; text-align: right; vertical-align: baseline;
-border: none; display: inline-block;
--webkit-touch-callout: none; -webkit-user-select: none;
--khtml-user-select: none; -moz-user-select: none;
--ms-user-select: none; user-select: none;
-padding: 0 4px; width: 4em;
-color: #aaaaaa;
-}
-pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
-div.sourceCode
-{ }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
-code span.al { color: #ff0000; font-weight: bold; } 
-code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
-code span.at { color: #7d9029; } 
-code span.bn { color: #40a070; } 
-code span.bu { color: #008000; } 
-code span.cf { color: #007020; font-weight: bold; } 
-code span.ch { color: #4070a0; } 
-code span.cn { color: #880000; } 
-code span.co { color: #60a0b0; font-style: italic; } 
-code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
-code span.do { color: #ba2121; font-style: italic; } 
-code span.dt { color: #902000; } 
-code span.dv { color: #40a070; } 
-code span.er { color: #ff0000; font-weight: bold; } 
-code span.ex { } 
-code span.fl { color: #40a070; } 
-code span.fu { color: #06287e; } 
-code span.im { color: #008000; font-weight: bold; } 
-code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
-code span.kw { color: #007020; font-weight: bold; } 
-code span.op { color: #666666; } 
-code span.ot { color: #007020; } 
-code span.pp { color: #bc7a00; } 
-code span.sc { color: #4070a0; } 
-code span.ss { color: #bb6688; } 
-code span.st { color: #4070a0; } 
-code span.va { color: #19177c; } 
-code span.vs { color: #4070a0; } 
-code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
-</style>
-<script>
-// apply pandoc div.sourceCode style to pre.sourceCode instead
-(function() {
-  var sheets = document.styleSheets;
-  for (var i = 0; i < sheets.length; i++) {
-    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
-    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
-    var j = 0;
-    while (j < rules.length) {
-      var rule = rules[j];
-      // check if there is a div.sourceCode rule
-      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
-        j++;
-        continue;
-      }
-      var style = rule.style.cssText;
-      // check if color or background-color is set
-      if (rule.style.color === '' && rule.style.backgroundColor === '') {
-        j++;
-        continue;
-      }
-      // replace div.sourceCode by a pre.sourceCode rule
-      sheets[i].deleteRule(j);
-      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
-    }
-  }
-})();
-</script>
-
-
-
-
-<style type="text/css">body {
-background-color: #fff;
-margin: 1em auto;
-max-width: 700px;
-overflow: visible;
-padding-left: 2em;
-padding-right: 2em;
-font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-font-size: 14px;
-line-height: 1.35;
-}
-#TOC {
-clear: both;
-margin: 0 0 10px 10px;
-padding: 4px;
-width: 400px;
-border: 1px solid #CCCCCC;
-border-radius: 5px;
-background-color: #f6f6f6;
-font-size: 13px;
-line-height: 1.3;
-}
-#TOC .toctitle {
-font-weight: bold;
-font-size: 15px;
-margin-left: 5px;
-}
-#TOC ul {
-padding-left: 40px;
-margin-left: -1.5em;
-margin-top: 5px;
-margin-bottom: 5px;
-}
-#TOC ul ul {
-margin-left: -2em;
-}
-#TOC li {
-line-height: 16px;
-}
+.box, .figure, .table, table { margin: 1em auto; }
+div > .caption { padding: 1px 1em; }
+.figure { p:has(img, svg), pre:has(svg) { text-align: center; } }
+.flex-col { display: flex; justify-content: space-between; }
 table {
-margin: 1em auto;
-border-width: 1px;
-border-color: #DDDDDD;
-border-style: outset;
-border-collapse: collapse;
-}
-table th {
-border-width: 2px;
-padding: 5px;
-border-style: inset;
-}
-table td {
-border-width: 1px;
-border-style: inset;
-line-height: 18px;
-padding: 5px 5px;
-}
-table, table th, table td {
-border-left-style: none;
-border-right-style: none;
-}
-table thead, table tr.even {
-background-color: #f7f7f7;
-}
-p {
-margin: 0.5em 0;
+  &:only-child:not(.table > *) { margin: auto; }
+  th, td { padding: 5px; font-variant-numeric: tabular-nums; }
+  &:not([class]) {
+    thead, tfoot, tr:nth-child(even) { background: whitesmoke; }
+    thead th { border-bottom: 1px solid #ddd; }
+    border-top: 1px solid #666;
+    border-bottom: 1px solid #666;
+  }
 }
 blockquote {
-background-color: #f6f6f6;
-padding: 0.25em 0.75em;
+  color: #666;
+  margin: 0;
+  padding: 1px 1em;
+  border-left: .5em solid #eee;
 }
-hr {
-border-style: solid;
-border: none;
-border-top: 1px solid #777;
-margin: 28px 0;
+hr, .footnotes::before { border: 1px dashed #ddd; }
+.frontmatter { text-align: center; }
+#TOC {
+  a { text-decoration: none; }
+  ul { list-style: none; padding-left: 1em; columns: 24em; }
+  & > ul { padding: 0; }
+  ul ul { border-left: 1px solid lightsteelblue; }
 }
-dl {
-margin-left: 0;
+.body h2 { border-bottom: 1px solid #666; }
+.body .appendix, .appendix ~ h2 { border-bottom-style: dashed; }
+.main-number::after { content: "."; }
+span[class^="ref-number-"] { font-weight: bold; }
+.ref-number-fig::after, .ref-number-tab::after { content: ":"; }
+.cross-ref-chp::before { content: "Chapter "; }
+.cross-ref-sec::before { content: "Section "; }
+.cross-ref-apd::before { content: "Appendix "; }
+.cross-ref-fig::before, .ref-number-fig::before { content: "Figure "; }
+.cross-ref-tab::before, .ref-number-tab::before { content: "Table "; }
+.cross-ref-eqn::before, .MathJax_ref:has(mjx-mtext > mjx-c + mjx-c)::before { content: "Equation "; }
+.abstract, #refs {
+  &::before { display: block; margin: 1em auto; font-weight: bold; }
 }
-dl dd {
-margin-bottom: 13px;
-margin-left: 13px;
+.abstract::before { content: "Abstract"; text-align: center; }
+#refs::before { content: "Bibliography"; font-size: 1.5em; }
+.ref-paren-open::before { content: "("; }
+.ref-paren-close::after { content: ")"; }
+.ref-semicolon::after { content: "; "; }
+.ref-and::after { content: " and "; }
+.ref-et-al::after { content: " et al."; font-style: italic; }
+.footnote-ref a {
+  &::before { content: "["; }
+  &::after { content: "]"; }
 }
-dl dt {
-font-weight: bold;
+section.footnotes {
+  margin-top: 2em;
+  &::before { content: ""; display: block; max-width: 20em; }
 }
-ul {
-margin-top: 0;
+.fade {
+  background: repeating-linear-gradient(135deg, white, white 30px, #ddd 32px, #ddd 32px);
+  opacity: 0.6;
 }
-ul li {
-list-style: circle outside;
+@media (prefers-color-scheme: dark) {
+  html, img, video, iframe { filter: invert(1); }
+  body { background: #ededed; }
 }
-ul ul {
-margin-bottom: 0;
+@media print {
+  body { max-width: 100%; }
+  tr, img { break-inside: avoid; }
 }
-pre, code {
-background-color: #f7f7f7;
-border-radius: 3px;
-color: #333;
-white-space: pre-wrap; 
+@media only screen and (min-width: 992px) {
+  body:not(.pagesjs) pre:has(.line-numbers):not(:hover) { white-space: pre; }
 }
-pre {
-border-radius: 3px;
-margin: 5px 0px 10px 0px;
-padding: 10px;
-}
-pre:not([class]) {
-background-color: #f7f7f7;
-}
-code {
-font-family: Consolas, Monaco, 'Courier New', monospace;
-font-size: 85%;
-}
-p > code, li > code {
-padding: 2px 0px;
-}
-div.figure {
-text-align: center;
-}
-img {
-background-color: #FFFFFF;
-padding: 2px;
-border: 1px solid #DDDDDD;
-border-radius: 3px;
-border: 1px solid #CCCCCC;
-margin: 0 5px;
-}
-h1 {
-margin-top: 0;
-font-size: 35px;
-line-height: 40px;
-}
-h2 {
-border-bottom: 4px solid #f7f7f7;
-padding-top: 10px;
-padding-bottom: 2px;
-font-size: 145%;
-}
-h3 {
-border-bottom: 2px solid #f7f7f7;
-padding-top: 10px;
-font-size: 120%;
-}
-h4 {
-border-bottom: 1px solid #f7f7f7;
-margin-left: 8px;
-font-size: 105%;
-}
-h5, h6 {
-border-bottom: 1px solid #ccc;
-font-size: 105%;
-}
-a {
-color: #0033dd;
-text-decoration: none;
-}
-a:hover {
-color: #6666ff; }
-a:visited {
-color: #800080; }
-a:visited:hover {
-color: #BB00BB; }
-a[href^="http:"] {
-text-decoration: underline; }
-a[href^="https:"] {
-text-decoration: underline; }
-
-code > span.kw { color: #555; font-weight: bold; } 
-code > span.dt { color: #902000; } 
-code > span.dv { color: #40a070; } 
-code > span.bn { color: #d14; } 
-code > span.fl { color: #d14; } 
-code > span.ch { color: #d14; } 
-code > span.st { color: #d14; } 
-code > span.co { color: #888888; font-style: italic; } 
-code > span.ot { color: #007020; } 
-code > span.al { color: #ff0000; font-weight: bold; } 
-code > span.fu { color: #900; font-weight: bold; } 
-code > span.er { color: #a61717; background-color: #e3d2d2; } 
 </style>
-
-
-
-
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.14.69/css/prism-xcode.min.css">
 </head>
-
 <body>
-
-
-
-
-<h1 class="title toc-ignore">Making price indexes</h1>
-
-
-
+<div class="frontmatter">
+<div class="title"><h1>Making price indexes</h1></div>
+</div>
+<div class="body">
 <p>Most price indexes are made with a two-step procedure, where
-period-over-period <em>elementary indexes</em> are calculated for a
-collection of <em>elementary aggregates</em> at each point in time, and
-then aggregated according to a <em>price index aggregation
-structure</em>. These indexes can then be chained together to form a
-time series that gives the evolution of prices with respect to a fixed
-base period. This package contains a collection of functions that
-revolve around this work flow, making it easy to build standard price
-indexes in <strong>R</strong>.</p>
-<p>The purpose of this vignette is to give an introductory example for
-how to use the core functionality in this package to make a standard
-price index. Subsequent vignettes go into more details on advanced
-topics, often referencing the example in this vignette.</p>
-<div id="matched-sample-index" class="section level2">
-<h2>Matched-sample index</h2>
+period-over-period <em>elementary indexes</em> are calculated for a collection
+of <em>elementary aggregates</em> at each point in time, and then aggregated
+according to a <em>price index aggregation structure</em>. These indexes can
+then be chained together to form a time series that gives the evolution
+of prices with respect to a fixed base period. This package contains a
+collection of functions that revolve around this work flow, making it
+easy to build standard price indexes in <strong>R</strong>.</p>
+<p>The purpose of this vignette is to give an introductory example for how
+to use the core functionality in this package to make a standard price
+index. Subsequent vignettes go into more details on advanced topics,
+often referencing the example in this vignette.</p>
+<h2 id="sec:matched-sample-index">Matched-sample index</h2>
 <p>In this vignette we’ll be calculating a matched-sample index where a
 fixed set of businesses each provide prices for a collection of products
 over time. The products reported by a businesses can change over time,
 but the set of businesses is fixed for the duration of the sample. Each
-businesses has a weight that is established when the sample is drawn and
-represents a particular segment of the economy.</p>
+businesses has a weight that is established when the sample is drawn
+and represents a particular segment of the economy.</p>
 <p>The usual approach for calculating a matched-sample index starts by
 computing an elementary index for each business as an equally-weighted
 geometric mean of price relatives (i.e., a Jevons index). From there,
@@ -369,240 +144,451 @@ index values for different segments of the economy are calculated as an
 arithmetic mean of the elementary indexes using the businesses-level
 weights (either a Young or Lowe index, depending how the weights are
 constructed; see <code>vignette(&quot;adjust-weights&quot;)</code>).</p>
-<p>The <code>ms_prices</code> dataset has price data for five businesses
-over four quarters, and the <code>ms_weights</code> dataset has the
-weight data. Note that these data have fairly realistic patterns of
-missing data and are emblematic of the kinds of survey data used to make
-price indexes.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(piar)</span>
-<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">head</span>(ms_prices)</span></code></pre></div>
-<pre><code>##   period business product price
-## 1 202001       B1       1  1.14
-## 2 202001       B1       2    NA
-## 3 202001       B1       3  6.09
-## 4 202001       B2       4  6.23
-## 5 202001       B2       5  8.61
-## 6 202001       B2       6  6.40</code></pre>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>ms_weights</span></code></pre></div>
-<pre><code>##   business classification weight level1 level2 stratum
-## 1       B1             11    553      1     11      TS
-## 2       B2             11    646      1     11      TA
-## 3       B3             11    312      1     11      TS
-## 4       B4             12    622      1     12      TS
-## 5       B5             12    330      1     12      TS</code></pre>
-<p>The <code>elementary_index()</code> function makes, well, elementary
-indexes, using information on price relatives, elementary aggregates
-(businesses), and time periods (quarters). By default it makes a Jevons
-index, but any bilateral generalized-mean index is possible (see
-<code>vignette(&quot;index-number-formulas&quot;)</code> for more details). The
-only wrinkle is that price data here are in levels, and not relatives,
-but the <code>price_relative()</code> function can make the necessary
-conversion.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>elementals <span class="ot">&lt;-</span> ms_prices <span class="sc">|&gt;</span></span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>  <span class="fu">transform</span>(</span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>    <span class="at">relative =</span> <span class="fu">price_relative</span>(price, <span class="at">period =</span> period, <span class="at">product =</span> product)</span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>  <span class="fu">elementary_index</span>(relative <span class="sc">~</span> period <span class="sc">+</span> business, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a></span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>elementals</span></code></pre></div>
-<pre><code>## Period-over-period price index for 4 levels over 4 time periods 
-##       time
-## levels 202001    202002    202003   202004
-##     B1      1 0.8949097 0.3342939      NaN
-##     B2      1       NaN       NaN 2.770456
-##     B3      1 2.0200036 1.6353355 0.537996
-##     B4    NaN       NaN       NaN 4.576286</code></pre>
-<p>As with most functions in <strong>R</strong>, missing values are
-contagious by default. Setting <code>na.rm = TRUE</code> in
-<code>elementary_index()</code> means that missing price relatives are
-ignored, which is equivalent to imputing these missing relatives with
-the value of the elementary index for the respective businesses (i.e.,
-parental or overall mean imputation). Other types of imputation are
-covered in <code>vignette(&quot;imputation&quot;)</code>.</p>
-<p>The <code>elementary_index()</code> function returns a special index
-object, and there are a number of methods for working with these
-objects. For example, the resulting indexes to be extracted like a
-matrix even though it’s not a matrix.<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a></p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>elementals[, <span class="st">&quot;202004&quot;</span>]</span></code></pre></div>
-<pre><code>## Period-over-period price index for 4 levels over 1 time periods 
-##       time
-## levels   202004
-##     B1      NaN
-##     B2 2.770456
-##     B3 0.537996
-##     B4 4.576286</code></pre>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>elementals[<span class="fu">c</span>(<span class="st">&quot;B1&quot;</span>, <span class="st">&quot;B3&quot;</span>), ]</span></code></pre></div>
-<pre><code>## Period-over-period price index for 2 levels over 4 time periods 
-##       time
-## levels 202001    202002    202003   202004
-##     B1      1 0.8949097 0.3342939      NaN
-##     B3      1 2.0200036 1.6353355 0.537996</code></pre>
+<p>The <code>ms_prices</code> dataset has price data for five businesses over four
+quarters, and the <code>ms_weights</code> dataset has the weight data. Note that
+these data have fairly realistic patterns of missing data and are
+emblematic of the kinds of survey data used to make price indexes.</p>
+<pre><code class="language-r">library(piar)
+
+head(ms_prices)
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>period</th>
+<th>business</th>
+<th align="right">product</th>
+<th align="right">price</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>202001</td>
+<td>B1</td>
+<td align="right">1</td>
+<td align="right">1.14</td>
+</tr>
+<tr>
+<td>202001</td>
+<td>B1</td>
+<td align="right">2</td>
+<td align="right"></td>
+</tr>
+<tr>
+<td>202001</td>
+<td>B1</td>
+<td align="right">3</td>
+<td align="right">6.09</td>
+</tr>
+<tr>
+<td>202001</td>
+<td>B2</td>
+<td align="right">4</td>
+<td align="right">6.23</td>
+</tr>
+<tr>
+<td>202001</td>
+<td>B2</td>
+<td align="right">5</td>
+<td align="right">8.61</td>
+</tr>
+<tr>
+<td>202001</td>
+<td>B2</td>
+<td align="right">6</td>
+<td align="right">6.40</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-r">ms_weights
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>business</th>
+<th>classification</th>
+<th align="right">weight</th>
+<th>level1</th>
+<th>level2</th>
+<th>stratum</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>B1</td>
+<td>11</td>
+<td align="right">553</td>
+<td>1</td>
+<td>11</td>
+<td>TS</td>
+</tr>
+<tr>
+<td>B2</td>
+<td>11</td>
+<td align="right">646</td>
+<td>1</td>
+<td>11</td>
+<td>TA</td>
+</tr>
+<tr>
+<td>B3</td>
+<td>11</td>
+<td align="right">312</td>
+<td>1</td>
+<td>11</td>
+<td>TS</td>
+</tr>
+<tr>
+<td>B4</td>
+<td>12</td>
+<td align="right">622</td>
+<td>1</td>
+<td>12</td>
+<td>TS</td>
+</tr>
+<tr>
+<td>B5</td>
+<td>12</td>
+<td align="right">330</td>
+<td>1</td>
+<td>12</td>
+<td>TS</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>elementary_index()</code> function makes, well, elementary indexes, using
+information on price relatives, elementary aggregates (businesses), and
+time periods (quarters). By default it makes a Jevons index, but any
+bilateral generalized-mean index is possible (see
+<code>vignette(&quot;index-number-formulas&quot;)</code> for more details). The only wrinkle
+is that price data here are in levels, and not relatives, but the
+<code>price_relative()</code> function can make the necessary conversion.</p>
+<pre><code class="language-r">elementals &lt;- ms_prices |&gt;
+  transform(
+    relative = price_relative(price, period = period, product = product)
+  ) |&gt;
+  elementary_index(relative ~ period + business, na.rm = TRUE)
+
+elementals
+</code></pre>
+<pre><code>#&gt; Period-over-period price index for 4 levels over 4 time periods 
+#&gt;       time
+#&gt; levels 202001    202002    202003   202004
+#&gt;     B1      1 0.8949097 0.3342939      NaN
+#&gt;     B2      1       NaN       NaN 2.770456
+#&gt;     B3      1 2.0200036 1.6353355 0.537996
+#&gt;     B4    NaN       NaN       NaN 4.576286
+</code></pre>
+<p>As with most functions in <strong>R</strong>, missing values are contagious by
+default. Setting <code>na.rm = TRUE</code> in <code>elementary_index()</code> means that
+missing price relatives are ignored, which is equivalent to imputing
+these missing relatives with the value of the elementary index for the
+respective businesses (i.e., overall-mean imputation). Other
+types of imputation are covered in <code>vignette(&quot;imputation&quot;)</code>.</p>
+<p>The <code>elementary_index()</code> function returns a special index object, and
+there are a number of methods for working with these objects. For
+example, the resulting indexes to be extracted like a matrix (even
+though it’s not a matrix).<sup class="footnote-ref"><a href="#fn-1" id="fnref-1" data-footnote-ref>1</a></sup></p>
+<pre><code class="language-r">elementals[, &quot;202004&quot;]
+</code></pre>
+<pre><code>#&gt; Period-over-period price index for 4 levels over 1 time periods 
+#&gt;       time
+#&gt; levels   202004
+#&gt;     B1      NaN
+#&gt;     B2 2.770456
+#&gt;     B3 0.537996
+#&gt;     B4 4.576286
+</code></pre>
+<pre><code class="language-r">elementals[c(&quot;B1&quot;, &quot;B3&quot;), ]
+</code></pre>
+<pre><code>#&gt; Period-over-period price index for 2 levels over 4 time periods 
+#&gt;       time
+#&gt; levels 202001    202002    202003   202004
+#&gt;     B1      1 0.8949097 0.3342939      NaN
+#&gt;     B3      1 2.0200036 1.6353355 0.537996
+</code></pre>
 <p>With the elementary indexes out of the way, it’s time to make a
 price-index aggregation structure that maps each business to its
 position in the aggregation hierarchy. The only hiccup is unpacking the
 digit-wise classification for each businesses that defines the
-hierarchy. That’s the job of the <code>expand_classification()</code>
-function.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>ms_weights[<span class="fu">c</span>(<span class="st">&quot;level1&quot;</span>, <span class="st">&quot;level2&quot;</span>)] <span class="ot">&lt;-</span></span>
-<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>  <span class="fu">expand_classification</span>(ms_weights<span class="sc">$</span>classification)</span>
-<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a></span>
-<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>pias <span class="ot">&lt;-</span> ms_weights[<span class="fu">c</span>(<span class="st">&quot;level1&quot;</span>, <span class="st">&quot;level2&quot;</span>, <span class="st">&quot;business&quot;</span>, <span class="st">&quot;weight&quot;</span>)] <span class="sc">|&gt;</span></span>
-<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>  <span class="fu">as_aggregation_structure</span>()</span></code></pre></div>
-<p>It is now simple to aggregate the elementary indexes according to
-this aggregation structure with the <code>aggregate()</code> function.
-As with the elementary indexes, missing values are ignored by setting
-<code>na.rm = TRUE</code>, which is equivalent to parentally imputing
-missing values. Note that, unlike the elementary indexes, missing values
-are filled in to ensure the index can be chained over time.</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>index <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(elementals, pias, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a></span>
-<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>index</span></code></pre></div>
-<pre><code>## Period-over-period price index for 8 levels over 4 time periods 
-##       time
-## levels 202001    202002    202003   202004
-##     1       1 1.3007239 1.0630743 2.734761
-##     11      1 1.3007239 1.0630743 1.574515
-##     12      1 1.3007239 1.0630743 4.576286
-##     B1      1 0.8949097 0.3342939 1.574515
-##     B2      1 1.3007239 1.0630743 2.770456
-##     B3      1 2.0200036 1.6353355 0.537996
-##     B4      1 1.3007239 1.0630743 4.576286
-##     B5      1 1.3007239 1.0630743 4.576286</code></pre>
-</div>
-<div id="chaining" class="section level2">
-<h2>Chaining</h2>
-<p>The <code>elementary_index()</code> function makes period-over-period
-elementary indexes by default, which are then aggregated to make a
+hierarchy. That’s the job of the <code>expand_classification()</code> function.</p>
+<pre><code class="language-r">ms_weights[c(&quot;level1&quot;, &quot;level2&quot;)] &lt;-
+  expand_classification(ms_weights$classification)
+
+pias &lt;- ms_weights[c(&quot;level1&quot;, &quot;level2&quot;, &quot;business&quot;, &quot;weight&quot;)] |&gt;
+  as_aggregation_structure()
+</code></pre>
+<p>It is now simple to aggregate the elementary indexes according to this
+aggregation structure with the <code>aggregate()</code> function. As with the
+elementary indexes, missing values are ignored by setting <code>na.rm = TRUE</code>,
+which is equivalent to (recursively) imputing a missing value for a point in the
+aggregation structure by that of its parent. Note that,
+unlike the elementary indexes, missing values are filled in to ensure the
+index can be chained over time.</p>
+<pre><code class="language-r">index &lt;- aggregate(elementals, pias, na.rm = TRUE)
+
+index
+</code></pre>
+<pre><code>#&gt; Period-over-period price index for 8 levels over 4 time periods 
+#&gt;       time
+#&gt; levels 202001    202002    202003   202004
+#&gt;     1       1 1.3007239 1.0630743 2.734761
+#&gt;     11      1 1.3007239 1.0630743 1.574515
+#&gt;     12      1 1.3007239 1.0630743 4.576286
+#&gt;     B1      1 0.8949097 0.3342939 1.574515
+#&gt;     B2      1 1.3007239 1.0630743 2.770456
+#&gt;     B3      1 2.0200036 1.6353355 0.537996
+#&gt;     B4      1 1.3007239 1.0630743 4.576286
+#&gt;     B5      1 1.3007239 1.0630743 4.576286
+</code></pre>
+<h2 id="sec:chaining">Chaining</h2>
+<p>The <code>elementary_index()</code> function makes period-over-period elementary
+indexes by default, which are then aggregated to make a
 period-over-period index. Chaining an index is the process of taking the
 cumulative product of each of these period-over-period indexes to make a
 time series that compares prices to a fixed base period.</p>
-<p>The <code>chain()</code> function can be used to chain the values in
-an index object.</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a>chained_index <span class="ot">&lt;-</span> <span class="fu">chain</span>(index)</span>
-<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a></span>
-<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a>chained_index</span></code></pre></div>
-<pre><code>## Fixed-base price index for 8 levels over 4 time periods 
-##       time
-## levels 202001    202002    202003    202004
-##     1       1 1.3007239 1.3827662 3.7815355
-##     11      1 1.3007239 1.3827662 2.1771866
-##     12      1 1.3007239 1.3827662 6.3279338
-##     B1      1 0.8949097 0.2991629 0.4710366
-##     B2      1 1.3007239 1.3827662 3.8308934
-##     B3      1 2.0200036 3.3033836 1.7772072
-##     B4      1 1.3007239 1.3827662 6.3279338
-##     B5      1 1.3007239 1.3827662 6.3279338</code></pre>
-<p>This gives almost the same result as directly manipulating the index
-as a matrix, except that the former returns an index object (not a
-matrix).</p>
-<p>Chained indexes often need be to rebased, and this can be done with
-the <code>rebase()</code> function. For example, rebasing the index so
-that 202004 is the base period just requires dividing the chained index
-by the slice for 202004.</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="fu">rebase</span>(chained_index, chained_index[, <span class="st">&quot;202004&quot;</span>])</span></code></pre></div>
-<pre><code>## Warning: In rebase.direct_piar_index(chained_index, chained_index[, &quot;202004&quot;]) :
-##  extra argument  will be disregarded</code></pre>
-<pre><code>## Fixed-base price index for 8 levels over 4 time periods 
-##       time
-## levels 202001    202002    202003    202004
-##     1       1 1.3007239 1.3827662 3.7815355
-##     11      1 1.3007239 1.3827662 2.1771866
-##     12      1 1.3007239 1.3827662 6.3279338
-##     B1      1 0.8949097 0.2991629 0.4710366
-##     B2      1 1.3007239 1.3827662 3.8308934
-##     B3      1 2.0200036 3.3033836 1.7772072
-##     B4      1 1.3007239 1.3827662 6.3279338
-##     B5      1 1.3007239 1.3827662 6.3279338</code></pre>
-</div>
-<div id="working-with-indexes" class="section level2">
-<h2>Working with indexes</h2>
-<p>Once an index has been calculated, it usually needs to be turned into
-a table of index values. This can be done by either coercing an index
-into a matrix</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a><span class="fu">as.matrix</span>(chained_index)</span></code></pre></div>
-<pre><code>##       time
-## levels 202001    202002    202003    202004
-##     1       1 1.3007239 1.3827662 3.7815355
-##     11      1 1.3007239 1.3827662 2.1771866
-##     12      1 1.3007239 1.3827662 6.3279338
-##     B1      1 0.8949097 0.2991629 0.4710366
-##     B2      1 1.3007239 1.3827662 3.8308934
-##     B3      1 2.0200036 3.3033836 1.7772072
-##     B4      1 1.3007239 1.3827662 6.3279338
-##     B5      1 1.3007239 1.3827662 6.3279338</code></pre>
+<p>The <code>chain()</code> function can be used to chain the values in an index
+object.</p>
+<pre><code class="language-r">chained_index &lt;- chain(index)
+
+chained_index
+</code></pre>
+<pre><code>#&gt; Fixed-base price index for 8 levels over 4 time periods 
+#&gt;       time
+#&gt; levels 202001    202002    202003    202004
+#&gt;     1       1 1.3007239 1.3827662 3.7815355
+#&gt;     11      1 1.3007239 1.3827662 2.1771866
+#&gt;     12      1 1.3007239 1.3827662 6.3279338
+#&gt;     B1      1 0.8949097 0.2991629 0.4710366
+#&gt;     B2      1 1.3007239 1.3827662 3.8308934
+#&gt;     B3      1 2.0200036 3.3033836 1.7772072
+#&gt;     B4      1 1.3007239 1.3827662 6.3279338
+#&gt;     B5      1 1.3007239 1.3827662 6.3279338
+</code></pre>
+<p>This gives almost the same result as directly manipulating the index as
+a matrix, except that the former returns an index object (not a matrix).</p>
+<p>Chained indexes often need be to rebased, and this can be done with the
+<code>rebase()</code> function. For example, rebasing the index so that 202004 is
+the base period just requires dividing the chained index by the slice
+for 202004.</p>
+<pre><code class="language-r">rebase(chained_index, base = chained_index[, &quot;202004&quot;])
+</code></pre>
+<pre><code>#&gt; Fixed-base price index for 8 levels over 4 time periods 
+#&gt;       time
+#&gt; levels    202001    202002    202003 202004
+#&gt;     1  0.2644428 0.3439671 0.3656626      1
+#&gt;     11 0.4593084 0.5974334 0.6351161      1
+#&gt;     12 0.1580295 0.2055527 0.2185178      1
+#&gt;     B1 2.1229774 1.8998731 0.6351161      1
+#&gt;     B2 0.2610357 0.3395354 0.3609514      1
+#&gt;     B3 0.5626806 1.1366169 1.8587499      1
+#&gt;     B4 0.1580295 0.2055527 0.2185178      1
+#&gt;     B5 0.1580295 0.2055527 0.2185178      1
+</code></pre>
+<h2 id="sec:working-with-indexes">Working with indexes</h2>
+<p>Once an index has been calculated, it usually needs to be turned into a
+table of index values. This can be done by either coercing an index into
+a matrix</p>
+<pre><code class="language-r">as.matrix(chained_index)
+</code></pre>
+<table>
+<thead>
+<tr>
+<th></th>
+<th align="right">202001</th>
+<th align="right">202002</th>
+<th align="right">202003</th>
+<th align="right">202004</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td align="right">1.000</td>
+<td align="right">1.301</td>
+<td align="right">1.383</td>
+<td align="right">3.782</td>
+</tr>
+<tr>
+<td>11</td>
+<td align="right">1.000</td>
+<td align="right">1.301</td>
+<td align="right">1.383</td>
+<td align="right">2.177</td>
+</tr>
+<tr>
+<td>12</td>
+<td align="right">1.000</td>
+<td align="right">1.301</td>
+<td align="right">1.383</td>
+<td align="right">6.328</td>
+</tr>
+<tr>
+<td>B1</td>
+<td align="right">1.000</td>
+<td align="right">0.895</td>
+<td align="right">0.299</td>
+<td align="right">0.471</td>
+</tr>
+<tr>
+<td>B2</td>
+<td align="right">1.000</td>
+<td align="right">1.301</td>
+<td align="right">1.383</td>
+<td align="right">3.831</td>
+</tr>
+<tr>
+<td>B3</td>
+<td align="right">1.000</td>
+<td align="right">2.020</td>
+<td align="right">3.303</td>
+<td align="right">1.777</td>
+</tr>
+<tr>
+<td>B4</td>
+<td align="right">1.000</td>
+<td align="right">1.301</td>
+<td align="right">1.383</td>
+<td align="right">6.328</td>
+</tr>
+<tr>
+<td>B5</td>
+<td align="right">1.000</td>
+<td align="right">1.301</td>
+<td align="right">1.383</td>
+<td align="right">6.328</td>
+</tr>
+</tbody>
+</table>
 <p>or a data frame</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a><span class="fu">as.data.frame</span>(chained_index)</span></code></pre></div>
-<pre><code>##    period level     value
-## 1  202001     1 1.0000000
-## 2  202001    11 1.0000000
-## 3  202001    12 1.0000000
-## 4  202001    B1 1.0000000
-## 5  202001    B2 1.0000000
-## 6  202001    B3 1.0000000
-## 7  202001    B4 1.0000000
-## 8  202001    B5 1.0000000
-## 9  202002     1 1.3007239
-## 10 202002    11 1.3007239
-## 11 202002    12 1.3007239
-## 12 202002    B1 0.8949097
-## 13 202002    B2 1.3007239
-## 14 202002    B3 2.0200036
-## 15 202002    B4 1.3007239
-## 16 202002    B5 1.3007239
-## 17 202003     1 1.3827662
-## 18 202003    11 1.3827662
-## 19 202003    12 1.3827662
-## 20 202003    B1 0.2991629
-## 21 202003    B2 1.3827662
-## 22 202003    B3 3.3033836
-## 23 202003    B4 1.3827662
-## 24 202003    B5 1.3827662
-## 25 202004     1 3.7815355
-## 26 202004    11 2.1771866
-## 27 202004    12 6.3279338
-## 28 202004    B1 0.4710366
-## 29 202004    B2 3.8308934
-## 30 202004    B3 1.7772072
-## 31 202004    B4 6.3279338
-## 32 202004    B5 6.3279338</code></pre>
+<pre><code class="language-r">as.data.frame(chained_index)
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>period</th>
+<th>level</th>
+<th align="right">value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>202001</td>
+<td>1</td>
+<td align="right">1.000</td>
+</tr>
+<tr>
+<td>202001</td>
+<td>11</td>
+<td align="right">1.000</td>
+</tr>
+<tr>
+<td>202001</td>
+<td>12</td>
+<td align="right">1.000</td>
+</tr>
+<tr>
+<td>202001</td>
+<td>B1</td>
+<td align="right">1.000</td>
+</tr>
+<tr>
+<td>202001</td>
+<td>B2</td>
+<td align="right">1.000</td>
+</tr>
+<tr>
+<td>⋮</td>
+<td>⋮</td>
+<td align="right">⋮</td>
+</tr>
+<tr>
+<td>202004</td>
+<td>B1</td>
+<td align="right">0.471</td>
+</tr>
+<tr>
+<td>202004</td>
+<td>B2</td>
+<td align="right">3.831</td>
+</tr>
+<tr>
+<td>202004</td>
+<td>B3</td>
+<td align="right">1.777</td>
+</tr>
+<tr>
+<td>202004</td>
+<td>B4</td>
+<td align="right">6.328</td>
+</tr>
+<tr>
+<td>202004</td>
+<td>B5</td>
+<td align="right">6.328</td>
+</tr>
+</tbody>
+</table>
 <p>It is also sometimes useful to get the price-updated weights used to
 aggregate the index; these can be calculated by first updating the
-aggregation structure with the aggregated index, then made into a
-table.</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" tabindex="-1"></a><span class="fu">update</span>(pias, index) <span class="sc">|&gt;</span></span>
-<span id="cb23-2"><a href="#cb23-2" tabindex="-1"></a>  <span class="fu">as.data.frame</span>()</span></code></pre></div>
-<pre><code>##   level1 level2 business    weight
-## 1      1     11       B1  260.4832
-## 2      1     11       B2 2474.7571
-## 3      1     11       B3  554.4886
-## 4      1     12       B4 3935.9748
-## 5      1     12       B5 2088.2182</code></pre>
-</div>
-<div class="footnotes footnotes-end-of-document">
-<hr />
+aggregation structure with the aggregated index, then made into a table.</p>
+<pre><code class="language-r">update(pias, index) |&gt;
+  as.data.frame()
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>level1</th>
+<th>level2</th>
+<th>business</th>
+<th align="right">weight</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>11</td>
+<td>B1</td>
+<td align="right">260.483</td>
+</tr>
+<tr>
+<td>1</td>
+<td>11</td>
+<td>B2</td>
+<td align="right">2474.757</td>
+</tr>
+<tr>
+<td>1</td>
+<td>11</td>
+<td>B3</td>
+<td align="right">554.489</td>
+</tr>
+<tr>
+<td>1</td>
+<td>12</td>
+<td>B4</td>
+<td align="right">3935.975</td>
+</tr>
+<tr>
+<td>1</td>
+<td>12</td>
+<td>B5</td>
+<td align="right">2088.218</td>
+</tr>
+</tbody>
+</table>
+<section class="footnotes" data-footnotes>
 <ol>
-<li id="fn1"><p>Note that there are only indexes for four businesses,
-not five, because the fifth business never reports any prices. An
-elementary index can be made for this business by passing a factor with
-a level for all five businesses to <code>elementary_index()</code>.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn-1">
+<p>Note that there are only indexes for four businesses, not five,
+because the fifth business never reports any prices. An elementary
+index can be made for this business by passing a factor with a level
+for all five businesses to <code>elementary_index()</code>. <a href="#fnref-1" class="footnote-backref" data-footnote-backref data-footnote-backref-idx="1" aria-label="Back to reference 1">↩</a></p>
+</li>
 </ol>
+</section>
 </div>
-
-
-
-<!-- code folding -->
-
-
-<!-- dynamically load mathjax for compatibility with self-contained -->
-<script>
-  (function () {
-    var script = document.createElement("script");
-    script.type = "text/javascript";
-    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
-    document.getElementsByTagName("head")[0].appendChild(script);
-  })();
-</script>
-
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js" defer></script>
 </body>
 </html>

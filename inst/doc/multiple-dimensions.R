@@ -1,4 +1,3 @@
-## -----------------------------------------------------------------------------
 library(piar)
 
 elementals <- ms_prices |>
@@ -7,14 +6,14 @@ elementals <- ms_prices |>
   ) |>
   elementary_index(relative ~ period + business, na.rm = TRUE)
 
-## -----------------------------------------------------------------------------
 ms_weights$stratum <- c("TS", "TA", "TS", "TS", "TS")
 
 ms_weights
 
-## -----------------------------------------------------------------------------
-classification_sps <- paste0(ms_weights$classification, ms_weights$stratum) |>
-  expand_classification(width = c(1, 1, 2))
+classification_sps <- combine_classifications(
+  expand_classification(ms_weights$classification),
+  list(ms_weights$stratum)
+)
 
 pias_sps <- aggregation_structure(
   c(classification_sps, list(ms_weights$business)),
@@ -23,12 +22,10 @@ pias_sps <- aggregation_structure(
 
 pias_sps
 
-## -----------------------------------------------------------------------------
 index_sps <- aggregate(elementals, pias_sps, na.rm = TRUE)
 
 index_sps
 
-## -----------------------------------------------------------------------------
 interacted_hierarchy <- interact_classifications(
   expand_classification(ms_weights$classification),
   expand_classification(ms_weights$stratum)
@@ -43,6 +40,5 @@ index_sps2 <- lapply(pias_sps2, \(x) {
   aggregate(index_sps, x, include_ea = FALSE)
 })
 
-## -----------------------------------------------------------------------------
 Reduce(merge, index_sps2)
 

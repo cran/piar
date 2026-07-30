@@ -1,9 +1,8 @@
 ---
 title: "Spatial price indexes"
-output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Spatial price indexes}
-  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEngine{litedown::vignette}
   %\VignetteEncoding{UTF-8}
 ---
 

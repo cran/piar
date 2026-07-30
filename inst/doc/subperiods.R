@@ -1,4 +1,3 @@
-## -----------------------------------------------------------------------------
 set.seed(54321)
 
 library(piar)
@@ -32,7 +31,6 @@ quarterly_index <- matrix(
 
 head(quarterly_index)
 
-## -----------------------------------------------------------------------------
 annual_index <- chain(quarterly_index) |>
   mean(window = 4)
 
@@ -40,7 +38,6 @@ annual_index |>
   rebase(base = "Q1") |>
   head()
 
-## -----------------------------------------------------------------------------
 annual_pias <- pias |>
   update(annual_index, period = "Q1")
 
@@ -51,7 +48,6 @@ annual_index |>
   aggregate(annual_pias) |>
   all.equal(annual_index)
 
-## -----------------------------------------------------------------------------
 annual_index |>
   unchain() |>
   set_contrib_from_index() |>

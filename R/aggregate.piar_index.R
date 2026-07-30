@@ -3,13 +3,11 @@
 #' Aggregate elementary price indexes with a price index aggregation structure.
 #'
 #' The `aggregate()` method loops over each time period in `x` and
-#' 1. aggregates the elementary indexes with
-#' [`gpindex::generalized_mean(r)()`][gpindex::generalized_mean] for each level
+#' 1. aggregates the elementary indexes with [`gmean()`] for each level
 #' of `pias`;
 #' 2. aggregates percent-change contributions for each level of
 #' `pias` (if there are any and `contrib = TRUE`);
-#' 3. price updates the weights in `pias` with
-#' [`gpindex::factor_weights(r)()`][gpindex::factor_weights] (only for
+#' 3. price updates the weights in `pias` with [`update_weights()`] (only for
 #' period-over-period elementary indexes).
 #'
 #' The result is a collection of aggregated period-over-period indexes that
@@ -22,7 +20,7 @@
 #' index. Missing elementary indexes can be due to both missingness of these
 #' values in `x`, and the presence of elementary aggregates in `pias`
 #' that are not part of `x`. Setting `na.rm = TRUE` ignores missing
-#' values, and is equivalent to parental (or overall mean) imputation. As an
+#' values, and is equivalent to overall-mean (or parental) imputation. As an
 #' aggregated price index generally cannot have missing values (for otherwise
 #' it can't be chained over time and weights can't be price updated), any
 #' missing values for a level of `pias` are removed and recursively replaced
@@ -41,8 +39,7 @@
 #' Aggregating percent-change contributions uses the method in chapter 9 of the
 #' CPI manual (equations 9.26 and 9.28) when aggregating with an arithmetic
 #' mean. With a non-arithmetic mean, arithmetic weights are constructed using
-#' [`gpindex::transmute_weights(r, 1)()`][gpindex::transmute_weights] in order
-#' to apply this method.
+#' [`transmute_weights()`] in order to apply this method.
 #'
 #' There may not be contributions for all prices relatives in an elementary
 #' aggregate if the elementary indexes are built from several sources (as with
@@ -52,41 +49,54 @@
 #'
 #' If two aggregation structures are given then the steps above are done for
 #' each aggregation structure, with the aggregation for `pias` done with a
-#' generalized mean of order `r` the aggregation for `pias2` done with a
-#' generalized mean of order `-r`. The resulting indexes are combined with a
-#' geometric mean to make a superlative quadratic mean of order `2*r` index.
+#' generalized mean of order `order` the aggregation for `pias2` done with a
+#' generalized mean of order `-order`. The resulting indexes are combined with a
+#' geometric mean to make a superlative quadratic mean of order `2*order` index.
 #' Percent-change contributions are combined using a generalized van IJzeren
-#' decomposition; see [`gpindex::nested_transmute()`] for details.
+#' decomposition; see [`transmute_weights2()`] for details.
 #'
 #' @name aggregate.piar_index
 #' @aliases aggregate.piar_index
+#' @importFrom stats aggregate
+#' @family index methods
+#' @export
 #'
-#' @param x A price index, usually made by [elementary_index()].
-#' @param pias A price index aggregation structure or something that can be
-#'   coerced into one. This can be made with [aggregation_structure()].
-#' @param pias2 An optional secondary aggregation structure, usually with
-#'   current-period weights, to make a superlative index. See details.
-#' @param na.rm Should missing values be removed? By default, missing values
-#'   are not removed. Setting `na.rm = TRUE` is equivalent to overall mean
-#'   imputation.
-#' @param r Order of the generalized mean to aggregate index values. 0 for a
+#' @param x `[piar_index]` A price index, usually made by [elementary_index()].
+#' @param pias `[piar_aggregation_structure]` A price index
+#'   aggregation structure or something that can be coerced into one. This can
+#'   be made with [aggregation_structure()].
+#' @param pias2 `[piar_aggregation_structure]` An optional secondary
+#'   aggregation structure, usually with current-period weights, to make a
+#'   superlative index. See details.
+#' @param na.rm `[logical(1)]` Should missing values be removed? By default,
+#'   missing values are not removed. Setting `na.rm = TRUE` is equivalent to
+#'   overall-mean imputation.
+#' @param order `[numeric(1)]` Order of the generalized mean to aggregate
+#'   index values. 0 for a
 #'   geometric index (the default for making elementary indexes), 1 for an
 #'   arithmetic index (the default for aggregating elementary indexes and
 #'   averaging indexes over subperiods), or -1 for a harmonic index (usually for
 #'   a Paasche index). Other values are possible; see
-#'   [gpindex::generalized_mean()] for details. If `pias2` is given then the
+#'   [gmean()] for details. If `pias2` is given then the
 #'   index is aggregated with a quadratic mean of order `2*r`.
-#' @param contrib Aggregate percent-change contributions in `x`? By default
-#'   contributions are aggregated.
-#' @param include_ea Should indexes for the elementary aggregates be included
-#'   along with the aggregated indexes? By default, all index values are
-#'   returned.
+#' @param contrib `[logical(1)]` Aggregate percent-change contributions in `x`?
+#'   By default contributions are aggregated.
+#' @param include_ea `[logical(1)]` Should indexes for the elementary aggregates
+#'   be included along with the aggregated indexes? By default, all index values
+#'   are returned.
 #' @param ... Not currently used.
-#' @param duplicate_contrib The method to deal with duplicate product
-#'   contributions. Either `"make.unique"` to treat duplicate
+#' @param duplicate_contrib `[character(1)]` The method to deal with duplicate
+#'   product contributions. Either `"make.unique"` to treat duplicate
 #'   products as distinct products and make their names unique
 #'   with [make.unique()] or `"sum"` to add contributions for each product
 #'   (the default).
+#' @param impute_rules `[function]` (Experimental) A function that applies
+#'   imputation rules to the elementary indexes in each time period prior to
+#'   aggregation.
+#'   It takes two arguments, the elementary indexes for a given time period and
+#'   the (price updated) aggregation structure, and must return back the
+#'   elementary indexes.
+#' @param r Deprecated.
 #'
 #' @returns
 #' An aggregate price index that inherits from the class of `x`.
@@ -119,28 +129,20 @@
 #'   ea = rep(letters[1:2], 4)
 #' )
 #'
-#' # A two-level aggregation structure
-#'
+#' # A two-level aggregation structure.
 #' pias <- aggregation_structure(
 #'   list(c("top", "top", "top"), c("a", "b", "c")),
 #'   weights = 1:3
 #' )
 #'
-#' # Calculate Jevons elementary indexes
-#'
+#' # Calculate Jevons elementary indexes.
 #' (elementary <- elementary_index(prices, rel ~ period + ea))
 #'
-#' # Aggregate (note the imputation for elementary index 'c')
-#'
+#' # Aggregate (note the imputation for elementary index 'c').
 #' (index <- aggregate(elementary, pias, na.rm = TRUE))
 #'
-#' # Aggregation can equivalently be done as matrix multiplication
-#'
+#' # Aggregation can equivalently be done as matrix multiplication.
 #' as.matrix(pias) %*% as.matrix(chain(index[letters[1:3]]))
-#'
-#' @importFrom stats aggregate
-#' @family index methods
-#' @export
 aggregate.chainable_piar_index <- function(
   x,
   pias,
@@ -148,10 +150,15 @@ aggregate.chainable_piar_index <- function(
   pias2 = NULL,
   na.rm = FALSE,
   contrib = TRUE,
-  r = 1,
+  order = 1,
+  r = order,
   include_ea = TRUE,
-  duplicate_contrib = c("sum", "make.unique")
+  duplicate_contrib = c("sum", "make.unique"),
+  impute_rules = NULL
 ) {
+  if ("r" %in% names(sys.call())) {
+    warning("`r` is deprecated and will be removed; use `order` instead")
+  }
   chkDots(...)
   aggregate_index(
     x,
@@ -159,10 +166,11 @@ aggregate.chainable_piar_index <- function(
     pias2,
     na.rm = na.rm,
     contrib = contrib,
-    r = r,
+    order = r,
     include_ea = include_ea,
     chainable = TRUE,
-    duplicate_contrib = match.arg(duplicate_contrib)
+    duplicate_contrib = match.arg(duplicate_contrib),
+    impute_rules = impute_rules
   )
 }
 
@@ -175,10 +183,15 @@ aggregate.direct_piar_index <- function(
   pias2 = NULL,
   na.rm = FALSE,
   contrib = TRUE,
-  r = 1,
+  order = 1,
+  r = order,
   include_ea = TRUE,
-  duplicate_contrib = c("sum", "make.unique")
+  duplicate_contrib = c("sum", "make.unique"),
+  impute_rules = NULL
 ) {
+  if ("r" %in% names(sys.call())) {
+    warning("`r` is deprecated and will be removed; use `order` instead")
+  }
   chkDots(...)
   aggregate_index(
     x,
@@ -186,10 +199,11 @@ aggregate.direct_piar_index <- function(
     pias2,
     na.rm = na.rm,
     contrib = contrib,
-    r = r,
+    order = r,
     include_ea = include_ea,
     chainable = FALSE,
-    duplicate_contrib = match.arg(duplicate_contrib)
+    duplicate_contrib = match.arg(duplicate_contrib),
+    impute_rules = impute_rules
   )
 }
 
@@ -201,94 +215,94 @@ aggregate_index <- function(
   pias2,
   na.rm,
   contrib,
-  r,
+  order,
   include_ea,
   chainable,
-  duplicate_contrib
+  duplicate_contrib,
+  impute_rules
 ) {
   pias <- as_aggregation_structure(pias)
-  r <- as.numeric(r)
+  order <- as.numeric(order)
   has_contrib <- !is.null(x$contrib) && contrib
-  res <- aggregate_(
+  res <- .aggregate(
     x,
     pias,
     na.rm,
     has_contrib,
-    r,
+    order,
     include_ea,
     chainable,
-    duplicate_contrib
+    duplicate_contrib,
+    impute_rules
   )
 
   if (!is.null(pias2)) {
     pias2 <- as_aggregation_structure(pias2)
     if (!same_hierarchy(pias, pias2)) {
-      stop("'pias' and 'pias2' must represent the same aggregation structure")
+      stop("`pias` and `pias2` must represent the same aggregation structure")
     }
     if (
       contrib &&
         any(missing_weights(pias$weights) != missing_weights(pias2$weights))
     ) {
       stop(
-        "any NA or zero weights must appear in both 'pias' and 'pias2' when",
-        " 'contrib = TRUE'"
+        "any NA or zero weights must appear in both `pias` and `pias2` when",
+        " `contrib` is TRUE"
       )
     }
-    res2 <- aggregate_(
+    res2 <- .aggregate(
       x,
       pias2,
       na.rm,
       has_contrib,
-      -r,
+      -order,
       include_ea,
       chainable,
-      duplicate_contrib
+      duplicate_contrib,
+      impute_rules
     )
     if (has_contrib) {
       res$contrib[] <- Map(
-        super_aggregate_contrib(0),
+        super_aggregate_contrib,
         res$contrib,
         res2$contrib,
         res$index,
-        res2$index
+        res2$index,
+        order = 0
       )
     }
     res$index[] <- (res$index * res2$index)^0.5
   }
 
-  if (include_ea) {
-    lev <- unlist(pias$levels, use.names = FALSE)
-  } else {
+  if (!include_ea && nlevels(pias) > 1L) {
     lev <- unlist(drop_last(pias$levels), use.names = FALSE)
+  } else {
+    lev <- unlist(pias$levels, use.names = FALSE)
   }
 
   piar_index(res$index, res$contrib, lev, x$time, chainable = chainable)
 }
 
-aggregate_ <- function(
+.aggregate <- function(
   x,
   pias,
   na.rm,
   has_contrib,
-  r,
+  order,
   include_ea,
   chainable,
-  duplicate_contrib
+  duplicate_contrib,
+  impute_rules
 ) {
-  # Helpful functions.
-  price_update <- gpindex::factor_weights(r)
-  gen_mean <- gpindex::generalized_mean(r)
-  agg_contrib <- aggregate_contrib(r, duplicate_contrib)
-
-  # Put the aggregation weights upside down to line up with `pias`.
-  w <- rev(weights(pias, ea_only = FALSE, na.rm = na.rm))
-
   eas <- match_eas(pias, x)
 
   # Loop over each time period.
   index <- contrib <- vector("list", ntime(x))
   for (t in seq_along(x$time)) {
     rel <- con <- vector("list", nlevels(pias))
+    if (!is.null(impute_rules)) {
+      x[, t] <- impute_rules(x[, t], pias)[x$levels]
+    }
     # Align with weights so that positional indexing works.
     rel[[1L]] <- x$index[, t][eas]
 
@@ -298,18 +312,30 @@ aggregate_ <- function(
       con[[1L]][lengths(con[[1L]]) == 0L] <- list(numeric(0L))
     }
 
+    # Put the aggregation weights upside down to line up with `pias`.
+    w <- rev(weights(pias, ea_only = FALSE, na.rm = na.rm))
+
     # Loop over each level in `pias` from the bottom up and aggregate.
     for (i in seq_along(rel)[-1L]) {
       nodes <- unname(pias$child[[i - 1L]])
       rel[[i]] <- vapply(
         nodes,
-        \(z) gen_mean(rel[[i - 1L]][z], w[[i - 1L]][z], na.rm = na.rm),
+        \(z) gmean(rel[[i - 1L]][z], w[[i - 1L]][z], order, na.rm),
         numeric(1L)
       )
       if (has_contrib) {
         con[[i]] <- lapply(
-          nodes,
-          \(z) agg_contrib(con[[i - 1L]][z], rel[[i - 1L]][z], w[[i - 1L]][z])
+          seq_along(nodes),
+          \(j) {
+            aggregate_contrib(
+              con[[i - 1L]][nodes[[j]]],
+              rel[[i - 1L]][nodes[[j]]],
+              w[[i - 1L]][nodes[[j]]],
+              order,
+              rel[[i]][j],
+              duplicate_contrib
+            )
+          }
         )
       }
     }
@@ -326,11 +352,10 @@ aggregate_ <- function(
 
     # Price update weights for all periods after the first.
     if (chainable) {
-      pias$weights <- price_update(rel[[1L]], w[[1L]])
-      w <- rev(weights(pias, ea_only = FALSE, na.rm = na.rm))
+      pias$weights <- update_weights(rel[[1L]], w[[1L]], order)
     }
 
-    if (!include_ea) {
+    if (!include_ea && length(rel) > 1L) {
       rel <- rel[-1L]
       con <- con[-1L]
     }
@@ -343,42 +368,33 @@ aggregate_ <- function(
 
 #' Aggregate product contributions
 #' @noRd
-# This function is inefficient because it recalculates the mean, but this
-# ensures that contributions are still produced with missing index values.
-aggregate_contrib <- function(r, duplicate_contrib) {
-  arithmetic_weights <- gpindex::transmute_weights(r, 1)
-  force(duplicate_contrib)
-  function(x, rel, w) {
-    w <- arithmetic_weights(rel, w)
-    res <- Map(`*`, x, w)
-    if (all(lengths(res) == 0L)) {
-      return(numeric(0L))
-    }
-    if (duplicate_contrib == "make.unique") {
-      res <- unlist(res)
-      names(res) <- make.unique(names(res))
-    } else {
-      products <- unlist(lapply(res, names), use.names = FALSE)
-      if (anyDuplicated(products)) {
-        products <- unique(products)
-        mat <- do.call(cbind, Map(`[`, res, list(products)))
-        res <- rowSums(mat, na.rm = TRUE)
-        res[apply(is.na(mat), 1L, all)] <- NA_real_
-        names(res) <- products
-      } else {
-        res <- unlist(res)
-      }
-    }
-    res
+aggregate_contrib <- function(x, rel, w, order, index, duplicate_contrib) {
+  w <- transmute_weights(rel, w, order, to = 1, mean = index)
+  res <- Map(`*`, x, w)
+  if (all(lengths(res) == 0L)) {
+    return(numeric(0L))
   }
+  if (duplicate_contrib == "make.unique") {
+    res <- unlist(res)
+    names(res) <- make.unique(names(res))
+  } else {
+    products <- unlist(lapply(res, names), use.names = FALSE)
+    if (anyDuplicated(products)) {
+      products <- unique(products)
+      mat <- do.call(cbind, Map(`[`, res, list(products)))
+      res <- rowSums(mat, na.rm = TRUE)
+      res[apply(is.na(mat), 1L, all)] <- NA_real_
+      names(res) <- products
+    } else {
+      res <- unlist(res)
+    }
+  }
+  res
 }
 
 #' Aggregate product contributions for a superlative index
 #' @noRd
-super_aggregate_contrib <- function(r) {
-  arithmetic_weights <- gpindex::transmute_weights(r, 1)
-  function(x, y, rel1, rel2) {
-    w <- arithmetic_weights(c(rel1, rel2))
-    w[1L] * x + w[2L] * y
-  }
+super_aggregate_contrib <- function(x, y, rel1, rel2, order) {
+  w <- transmute_weights(c(rel1, rel2), order = order, to = 1)
+  w[1L] * x + w[2L] * y
 }

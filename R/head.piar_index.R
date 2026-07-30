@@ -2,8 +2,13 @@
 #'
 #' Extract the first/last parts of an index as if it were a matrix.
 #'
-#' @param x A price index, as made by, e.g., [elementary_index()].
-#' @param n See [head()]/[tail()]. The default takes the
+#' @family index methods
+#' @importFrom utils head
+#' @export
+#'
+#' @param x `[piar_index]` A price index, as made by,
+#'   e.g., [elementary_index()].
+#' @param n `[integer]` See [head()]/[tail()]. The default takes the
 #'   first/last 6 levels of `x`.
 #' @param ... Not currently used.
 #'
@@ -16,15 +21,13 @@
 #' head(index, 1)
 #'
 #' tail(index, 1)
-#'
-#' @family index methods
-#' @importFrom utils head
-#' @export
 # Optional arguments are before ... to agree with default in utils::head().
 head.piar_index <- function(x, n = 6L, ...) {
   chkDots(...)
   x$index <- head(x$index, n)
-  x$contrib <- head(x$contrib, n)
+  if (!is.null(x$contrib)) {
+    x$contrib <- head(x$contrib, n)
+  }
   if (!is.na(n[1L])) {
     x$levels <- head(x$levels, n[1L])
   }
@@ -40,7 +43,9 @@ head.piar_index <- function(x, n = 6L, ...) {
 tail.piar_index <- function(x, n = 6L, ...) {
   chkDots(...)
   x$index <- tail(x$index, n, keepnums = FALSE)
-  x$contrib <- tail(x$contrib, n, keepnums = FALSE)
+  if (!is.null(x$contrib)) {
+    x$contrib <- tail(x$contrib, n, keepnums = FALSE)
+  }
   if (!is.na(n[1L])) {
     x$levels <- tail(x$levels, n[1L])
   }

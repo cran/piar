@@ -1,4 +1,43 @@
-# piar (development version)
+# piar 0.10.1
+
+## Significant changes
+
+- Many functions from `{gpindex}` are now part of this package. This gives a somewhat
+more consistent experience and allows for improvements that would otherwise be difficult with
+two separate packages. With the exception of `transmute_weights()`, these functions
+either have new names or behave the same as the functions from `{gpindex}`. In particular:
+
+    - A new function `outliers()` to find extreme price relatives.
+
+    - Functions to calculate and splice multilateral GEKS indexes.
+
+    - Core mathematical machinery used to aggregate indexes and make product contributions.
+    
+    - A new vignette outlining some theory that underlies how indexes are calculated.
+    
+- The argument `r` in `elementary_index()`, `aggregate()`, `mean()`, `update()`,
+and `impute_prices()` is deprecated and will be removed in a future version.
+Use `order` instead.
+
+## Improvements
+
+- `aggregate(index)` gets an experimental new argument `impute_rules` to specify specific
+imputation rules during aggregation.
+
+## Bugs fixes
+
+- `head(index)` and `tail(index)` now work correctly if there are no product
+contributions.
+
+- `impute_prices()` no longer matches missing products across consecutive time
+periods when passed a matrix.
+
+- `impute_prices()` no longer returns all `NA`s with no time periods.
+
+- Setting `include_ea = FALSE` in `aggregate(index)` no longer gives an error with
+a one-level aggregation structure.
+
+# piar 0.9.0
 
 ## Significant changes
 

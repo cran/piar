@@ -1,4 +1,3 @@
-## -----------------------------------------------------------------------------
 library(piar)
 
 set.seed(12345)
@@ -27,30 +26,26 @@ weights <- data.frame(
 
 head(weights)
 
-## -----------------------------------------------------------------------------
 elementals <- unstack(elementals)
 
-## -----------------------------------------------------------------------------
 paasche_pias <- split(
   weights[c("level1", "level2", "ea", "weights")],
   weights[["period"]]
 ) |>
   lapply(as_aggregation_structure)
 
-## -----------------------------------------------------------------------------
 paasche <- Map(
   aggregate,
   elementals,
   paasche_pias,
   na.rm = TRUE,
   include_ea = FALSE,
-  r = -1
+  order = -1
 ) |>
   Reduce(stack, x = _)
 
 paasche
 
-## -----------------------------------------------------------------------------
 laspeyres_pias <- paasche_pias[c(1, 1, 2, 3)]
 
 fisher <- Map(
@@ -65,7 +60,6 @@ fisher <- Map(
 
 fisher
 
-## -----------------------------------------------------------------------------
 laspeyres <- Map(
   aggregate,
   elementals,

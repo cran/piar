@@ -13,7 +13,8 @@
   window = NULL,
   na.rm = FALSE,
   contrib = TRUE,
-  r = 1,
+  order = 1,
+  r = order,
   duplicate_contrib = c("sum", "make.unique")
 )
 
@@ -24,43 +25,51 @@
   window = NULL,
   na.rm = FALSE,
   contrib = TRUE,
-  r = 1,
+  order = 1,
+  r = order,
   duplicate_contrib = c("sum", "make.unique")
 )
 }
 \arguments{
-\item{x}{A price index, as made by, e.g., \code{\link[=elementary_index]{elementary_index()}}.}
+\item{x}{\verb{[piar_index]} A price index, as made by,
+e.g., \code{\link[=elementary_index]{elementary_index()}}.}
 
 \item{...}{Not currently used.}
 
-\item{weights}{A numeric vector of weights for the index values in \code{x}, or
+\item{weights}{\verb{[numeric >= 0]} A numeric vector of weights for the index
+values in \code{x}, or
 something that can be coerced into one. The
 default is equal weights. It is usually easiest to specify these weights as
 a matrix with a row for each index value in \code{x} and a column for each
 time period.}
 
-\item{window}{A positive integer giving the size of the window used to
+\item{window}{\verb{[integer(1) > 0]} A positive integer giving the size of the
+window used to
 average index values across subperiods. The default averages over all
 periods in \code{x}. Non-integers are truncated towards 0.}
 
-\item{na.rm}{Should missing values be removed? By default, missing values
-are not removed. Setting \code{na.rm = TRUE} is equivalent to overall mean
+\item{na.rm}{\verb{[logical(1)]} Should missing values be removed? By default,
+missing values
+are not removed. Setting \code{na.rm = TRUE} is equivalent to overall-mean
 imputation.}
 
-\item{contrib}{Aggregate percent-change contributions in \code{x}? By default
-contributions are aggregated.}
+\item{contrib}{\verb{[logical(1)]} Aggregate percent-change contributions in \code{x}?
+By default contributions are aggregated.}
 
-\item{r}{Order of the generalized mean to aggregate index values. 0 for a
+\item{order}{\verb{[numeric(1)]} Order of the generalized mean to aggregate
+index values. 0 for a
 geometric index (the default for making elementary indexes), 1 for an
 arithmetic index (the default for aggregating elementary indexes and
 averaging indexes over subperiods), or -1 for a harmonic index (usually for
 a Paasche index). Other values are possible; see
-\code{\link[gpindex:generalized_mean]{gpindex::generalized_mean()}} for details.}
+\code{\link[=gmean]{gmean()}} for details.}
 
-\item{duplicate_contrib}{The method to deal with duplicate product
-contributions. Either \code{"make.unique"} to make duplicate product names
-unique with \code{\link[=make.unique]{make.unique()}} or \code{"sum"} to add contributions for the same
-products across subperiods (the default).}
+\item{r}{Deprecated.}
+
+\item{duplicate_contrib}{\verb{[character(1)]} The method to deal with duplicate
+product contributions. Either \code{"make.unique"} to make duplicate product
+names unique with \code{\link[=make.unique]{make.unique()}} or \code{"sum"} to add contributions for the
+same products across subperiods (the default).}
 }
 \value{
 A price index, averaged over subperiods, that inherits from the same
@@ -89,29 +98,28 @@ section 4.3 of Balk (2008) for details.
 \examples{
 index <- as_index(matrix(c(1:12, 12:1), 2, byrow = TRUE), chainable = FALSE)
 
-# Turn a monthly index into a quarterly index
+# Turn a monthly index into a quarterly index.
 mean(index, window = 3)
-
 }
 \references{
 Balk, B. M. (2008). \emph{Price and Quantity Index Numbers}.
 Cambridge University Press.
 }
 \seealso{
-Other index methods: 
-\code{\link{[.piar_index}()},
+Other index methods:
+\code{\link[=[.piar_index]{[.piar_index()}},
 \code{\link{aggregate.piar_index}},
-\code{\link{as.data.frame.piar_index}()},
-\code{\link{as.ts.piar_index}()},
-\code{\link{chain}()},
-\code{\link{contrib}()},
-\code{\link{head.piar_index}()},
-\code{\link{is.na.piar_index}()},
-\code{\link{levels.piar_index}()},
-\code{\link{merge.piar_index}()},
-\code{\link{split.piar_index}()},
-\code{\link{stack.piar_index}()},
-\code{\link{time.piar_index}()},
-\code{\link{window.piar_index}()}
+\code{\link[=as.data.frame.piar_index]{as.data.frame.piar_index()}},
+\code{\link[=as.ts.piar_index]{as.ts.piar_index()}},
+\code{\link[=chain]{chain()}},
+\code{\link[=contrib]{contrib()}},
+\code{\link[=head.piar_index]{head.piar_index()}},
+\code{\link[=is.na.piar_index]{is.na.piar_index()}},
+\code{\link[=levels.piar_index]{levels.piar_index()}},
+\code{\link[=merge.piar_index]{merge.piar_index()}},
+\code{\link[=split.piar_index]{split.piar_index()}},
+\code{\link[=stack.piar_index]{stack.piar_index()}},
+\code{\link[=time.piar_index]{time.piar_index()}},
+\code{\link[=window.piar_index]{window.piar_index()}}
 }
 \concept{index methods}

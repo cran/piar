@@ -1,9 +1,8 @@
 ---
 title: "Adjusting annual weights"
-output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Adjusting annual weights}
-  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEngine{litedown::vignette}
   %\VignetteEncoding{UTF-8}
 ---
 

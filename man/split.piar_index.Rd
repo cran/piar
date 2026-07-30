@@ -10,20 +10,22 @@
 \method{split}{piar_index}(x, f, drop = FALSE, ..., along = c("levels", "time")) <- value
 }
 \arguments{
-\item{x}{A price index, as made by, e.g., \code{\link[=elementary_index]{elementary_index()}}.}
+\item{x}{\verb{[piar_index]} A price index, as made by,
+e.g., \code{\link[=elementary_index]{elementary_index()}}.}
 
-\item{f}{A factor or list of factors to group elements of \code{x}.}
+\item{f}{\verb{[factor | list]} A factor or list of factors to group elements
+of \code{x}.}
 
-\item{drop}{Should levels that do not occur in \code{f} be dropped? By default
-all levels are kept.}
+\item{drop}{\verb{[logical(1)]} Should levels that do not occur in \code{f} be dropped?
+By default all levels are kept.}
 
 \item{...}{Further arguments passed to \code{\link[=split.default]{split.default()}}.}
 
-\item{along}{Either \code{"levels"} to split over the levels of \code{x} (the default),
-or \code{"time"} to split over the time periods of \code{x}.}
+\item{along}{\verb{[character(1)]} Either \code{"levels"} to split over the levels
+of \code{x} (the default), or \code{"time"} to split over the time periods of \code{x}.}
 
-\item{value}{A list of values compatible with the splitting of \code{x}, or
-something that can be coerced into one, recycled if necessary.}
+\item{value}{\verb{[list]} A list of values compatible with the splitting of \code{x},
+or something that can be coerced into one, recycled if necessary.}
 }
 \value{
 \code{split()} returns a list of index objects for each level in \code{f}. The
@@ -40,23 +42,22 @@ index <- as_index(matrix(1:6, 2))
 split(index, 1:2)
 
 split(index, c(1, 1, 2), along = "time")
-
 }
 \seealso{
-Other index methods: 
-\code{\link{[.piar_index}()},
+Other index methods:
+\code{\link[=[.piar_index]{[.piar_index()}},
 \code{\link{aggregate.piar_index}},
-\code{\link{as.data.frame.piar_index}()},
-\code{\link{as.ts.piar_index}()},
-\code{\link{chain}()},
-\code{\link{contrib}()},
-\code{\link{head.piar_index}()},
-\code{\link{is.na.piar_index}()},
-\code{\link{levels.piar_index}()},
+\code{\link[=as.data.frame.piar_index]{as.data.frame.piar_index()}},
+\code{\link[=as.ts.piar_index]{as.ts.piar_index()}},
+\code{\link[=chain]{chain()}},
+\code{\link[=contrib]{contrib()}},
+\code{\link[=head.piar_index]{head.piar_index()}},
+\code{\link[=is.na.piar_index]{is.na.piar_index()}},
+\code{\link[=levels.piar_index]{levels.piar_index()}},
 \code{\link{mean.piar_index}},
-\code{\link{merge.piar_index}()},
-\code{\link{stack.piar_index}()},
-\code{\link{time.piar_index}()},
-\code{\link{window.piar_index}()}
+\code{\link[=merge.piar_index]{merge.piar_index()}},
+\code{\link[=stack.piar_index]{stack.piar_index()}},
+\code{\link[=time.piar_index]{time.piar_index()}},
+\code{\link[=window.piar_index]{window.piar_index()}}
 }
 \concept{index methods}

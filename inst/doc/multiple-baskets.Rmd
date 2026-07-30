@@ -1,9 +1,8 @@
 ---
 title: "Aggregating across baskets"
-output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Aggregating across baskets}
-  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEngine{litedown::vignette}
   %\VignetteEncoding{UTF-8}
 ---
 

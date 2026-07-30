@@ -1,4 +1,3 @@
-## -----------------------------------------------------------------------------
 library(piar)
 
 set.seed(12345)
@@ -47,7 +46,6 @@ weights2 <- data.frame(
   weights = runif(6, 100, 200)
 )
 
-## -----------------------------------------------------------------------------
 index <- Map(
   aggregate,
   list(elementals1, elementals2),
@@ -55,11 +53,9 @@ index <- Map(
   include_ea = FALSE
 )
 
-## -----------------------------------------------------------------------------
 stack(index[[1]], window(index[[2]], start = "9")) |>
   chain()
 
-## -----------------------------------------------------------------------------
 link_factor <- chain(index[[1]]) |>
   window(start = end(index[[1]])) |>
   as.numeric()
@@ -69,12 +65,10 @@ stack(
   chain(window(index[[2]], start = "9"), link = link_factor)
 )
 
-## -----------------------------------------------------------------------------
 index <- index |>
   lapply(chain) |>
   lapply(\(x) rebase(x, base = mean(x[, 1:4])))
 
-## -----------------------------------------------------------------------------
 link_factor <- window(index[[1]], start = "5") |>
   mean() |>
   as.numeric()
@@ -84,7 +78,6 @@ stack(
   rebase(window(index[[2]], start = "9"), base = 1 / link_factor)
 )
 
-## -----------------------------------------------------------------------------
 index[[1]] <- rebase(index[[1]], base = mean(window(index[[1]], start = "5")))
 
 link_factor <- as.numeric(index[[1]][, "8"]) / as.numeric(index[[2]][, "8"])

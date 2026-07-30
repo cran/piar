@@ -1,9 +1,8 @@
 ---
 title: "Superlative aggregation"
-output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Superlative aggregation}
-  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEngine{litedown::vignette}
   %\VignetteEncoding{UTF-8}
 ---
 
@@ -89,7 +88,7 @@ paasche <- Map(
   paasche_pias,
   na.rm = TRUE,
   include_ea = FALSE,
-  r = -1
+  order = -1
 ) |>
   Reduce(stack, x = _)
 

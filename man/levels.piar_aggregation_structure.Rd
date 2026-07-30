@@ -7,8 +7,8 @@
 \method{levels}{piar_aggregation_structure}(x)
 }
 \arguments{
-\item{x}{A price index aggregation structure, as made by
-\code{\link[=aggregation_structure]{aggregation_structure()}}.}
+\item{x}{\verb{[piar_aggregation_structure]} A price index aggregation structure,
+as made by \code{\link[=aggregation_structure]{aggregation_structure()}}.}
 }
 \value{
 A list of character vectors giving the levels for each position in the
@@ -19,10 +19,10 @@ Get the hierarchical list of levels for an aggregation structure. It is
 an error to try and replace these values.
 }
 \seealso{
-Other aggregation structure methods: 
-\code{\link{as.matrix.piar_aggregation_structure}()},
-\code{\link{cut.piar_aggregation_structure}()},
-\code{\link{update.piar_aggregation_structure}()},
-\code{\link{weights.piar_aggregation_structure}()}
+Other aggregation structure methods:
+\code{\link[=as.matrix.piar_aggregation_structure]{as.matrix.piar_aggregation_structure()}},
+\code{\link[=cut.piar_aggregation_structure]{cut.piar_aggregation_structure()}},
+\code{\link[=update.piar_aggregation_structure]{update.piar_aggregation_structure()}},
+\code{\link[=weights.piar_aggregation_structure]{weights.piar_aggregation_structure()}}
 }
 \concept{aggregation structure methods}

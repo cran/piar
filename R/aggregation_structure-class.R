@@ -22,6 +22,9 @@ piar_aggregation_structure <- function(child, parent, levels, weights) {
 }
 
 #---- Validator ----
+# The first two validators are not extensively used and duplicate checking
+# already done by aggregation_structure(). They're here in case a validator
+# is needed in the future.
 validate_pias_levels <- function(x) {
   lev <- unlist(x$levels, use.names = FALSE)
   if (missing_names(lev)) {
@@ -102,7 +105,7 @@ str.piar_aggregation_structure <- function(object, ...) {
 #'
 #' Test if an object is a price index aggregation structure.
 #'
-#' @param x An object to test.
+#' @param x `[object]` An object to test.
 #'
 #' @returns
 #' Returns `TRUE` if `x` inherits from [`piar_aggregation_structure`].

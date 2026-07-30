@@ -26,45 +26,60 @@
 #' price relatives instead of imputing the missing prices.
 #'
 #' Imputation works slightly differently depending on whether data are in a long
-#' or wide format. When `x` is a two-column of matrix of current and back prices
+#' or wide format. When `x` is a two-column matrix of current and back prices
 #' (in that order), then imputation is done separately on the current price
 #' at a point in time and the back price at the next point in time. When `x` is
 #' a numeric vector then these two prices are necessarily the same.
 #'
 #' @name impute_prices
-#' @param x Either a numeric vector (or something that can be coerced into one),
+#' @export
+#'
+#' @param x `[object]` Either a numeric vector (or something that can be
+#'   coerced into one),
 #'   a data frame of prices, or a two-column matrix of current prices
 #'   and back prices (in that order).
-#' @param period A factor, or something that can be coerced into one, giving
+#' @param period `[factor]` A factor, or something that can be coerced into one,
+#'   giving
 #'   the time period associated with each price in `x`. The ordering of time
 #'   periods follows of the levels of `period`, to agree with
 #'   [`cut()`][cut.Date].
-#' @param product A factor, or something that can be coerced into one, giving
-#'   the product associated with each price in `x`.
-#' @param ea A factor, or something that can be coerced into one, giving the
+#' @param product `[factor]` A factor, or something that can be coerced into
+#'   one, giving the product associated with each price in `x`.
+#' @param ea `[factor]` A factor, or something that can be coerced into one,
+#'   giving the
 #'   elementary aggregate associated with each price in `x`. This is evaluated
 #'   in `x` for the data frame method. The default pools all data into one
 #'   elementary aggregate.
-#' @param pias A price index aggregation structure, or something that can be
+#' @param pias `[piar_aggregation_structure]` A price index aggregation
+#'   structure, or something that can be
 #'   coerced into one, as made with [aggregation_structure()]. The default
 #'   imputes from elementary indexes only (i.e., not recursively).
-#' @param weights A numeric vector of weights for the prices in `x` (i.e.,
+#' @param weights `[numeric >= 0]` A numeric vector of weights for the prices
+#'   in `x` (i.e.,
 #'   product weights), or something that can be coerced into one. The default is
 #'   to give each price equal weight. This is evaluated in `x` for the data
 #'   frame method.
-#' @param r A pair of numeric values. The first gives the order of the
-#'   generalized-mean price index used to calculate the
+#' @param order `[numeric(2)]` A pair of numeric values. The first gives the
+#'   order of the generalized-mean price index used to calculate the
 #'   elementary price indexes, defaulting to a geometric index. The second
 #'   gives the order of the generalized-mean price index used to aggregate the
 #'   elementary price indexes, defaulting to an arithmetic index. Other values
 #'   are possible;
-#'   see [gpindex::generalized_mean()] for details.
-#' @param formula A two-sided formula, or something that can be coerced into
-#'   one, with prices on the left-hand
+#'   see [gmean()] for details.
+#' @param formula `[formula]` A two-sided formula, or something that can be
+#'   coerced into one, with prices on the left-hand
 #'   side and time periods and products on the right-hand side (in that order).
-#' @param method Name of the imputation method, one of `"overall-mean"`,
-#'   `"carry-forward"`, or `"carry-backward"`.
+#' @param method `[character(1)]` Name of the imputation method, one
+#'   of `"overall-mean"` (the default), `"carry-forward"`,
+#'   or `"carry-backward"`.
 #' @param ... Further arguments passed to or used by methods.
+#' @param impute_rules `[function]` (Experimental) A function that applies
+#'   imputation
+#'   rules to the elementary indexes in each time period prior to aggregation.
+#'   It takes two arguments, the elementary indexes for a given time period and
+#'   the (price updated) aggregation structure, and must return back the
+#'   elementary indexes.
+#' @param r Deprecated.
 #'
 #' @returns
 #' A numeric vector or matrix of prices with missing values replaced
@@ -99,7 +114,7 @@
 #' # Can also be done with current price-back price formulation.
 #' prices$back_price <- with(
 #'   prices,
-#'   price[gpindex::back_period(period, product)]
+#'   price[back_period(period, product)]
 #' )
 #'
 #' impute_prices(
@@ -108,9 +123,10 @@
 #'   ea = ea,
 #'   method = "overall-mean"
 #' )
-#'
-#' @export
 impute_prices <- function(x, ...) {
+  if ("r" %in% ...names()) {
+    warning("`r` is deprecated and will be removed; use `order` instead")
+  }
   UseMethod("impute_prices")
 }
 
@@ -130,13 +146,21 @@ impute_prices.matrix <- function(
   ea = NULL,
   weights = NULL,
   pias = NULL,
-  r = c(0, 1),
-  method = c("overall-mean", "carry-forward")
+  order = c(0, 1),
+  r = order,
+  method = c("overall-mean", "carry-forward"),
+  impute_rules = NULL
 ) {
-  # This is mostly a combination of gpindex::back_period() and aggregate()
+  # This is mostly a combination of back_period() and aggregate()
   # it just does it period-by-period and keeps track of prices to impute.
   chkDots(...)
   method <- match.arg(method)
+  if (not_finite_pair(r)) {
+    stop("`r` must be a pair of finite numbers")
+  }
+  if (ncol(x) != 2L) {
+    stop("`x` must be a two-column matrix")
+  }
   period <- as.factor(period)
   product <- as.factor(product)
   attributes(product) <- NULL
@@ -149,9 +173,6 @@ impute_prices.matrix <- function(
 
   if (different_length(x[, 1L], period, product, ea, weights)) {
     stop("input vectors must be the same length")
-  }
-  if (nlevels(period) == 0L) {
-    return(matrix(NA_real_, nrow = length(period), ncol = 2))
   }
 
   res <- split.data.frame(x, period)
@@ -176,11 +197,18 @@ impute_prices.matrix <- function(
         ea = ea[[t]],
         weights = weights[[t]],
         na.rm = TRUE,
-        r = r[1L]
+        order = r[1L]
       )
+      time(index) <- names(res)[t]
       if (!is.null(pias)) {
-        index <- aggregate(index, pias, na.rm = TRUE, r = r[2L])
-        pias <- update(pias, index, r = r[2L])
+        index <- aggregate(
+          index,
+          pias,
+          na.rm = TRUE,
+          order = r[2L],
+          impute_rules = impute_rules
+        )
+        pias <- update(pias, index, order = r[2L])
       }
       eas <- if (!is.null(ea)) {
         match(as.character(ea[[t]][impute]), index$levels)
@@ -191,9 +219,14 @@ impute_prices.matrix <- function(
     } else {
       res[[t]][impute, 1L] <- res[[t]][impute, 2L]
     }
+    # Move imputed prices to next-period back prices.
     if (t < length(res)) {
       impute2 <- which(is.na(res[[t + 1L]][, 2L]))
-      matches <- match(product[[t + 1L]][impute2], product[[t]][impute])
+      matches <- match(
+        product[[t + 1L]][impute2],
+        product[[t]][impute],
+        incomparables = NA
+      )
       res[[t + 1L]][impute2, 2L] <- res[[t]][impute, 1L][matches]
     }
   }
@@ -212,13 +245,18 @@ impute_prices.numeric <- function(
   ea = NULL,
   weights = NULL,
   pias = NULL,
-  r = c(0, 1),
-  method = c("overall-mean", "carry-forward", "carry-backward")
+  order = c(0, 1),
+  r = order,
+  method = c("overall-mean", "carry-forward", "carry-backward"),
+  impute_rules = NULL
 ) {
-  # This is mostly a combination of gpindex::back_period() and aggregate()
+  # This is mostly a combination of back_period() and aggregate()
   # it just does it period-by-period and keeps track of prices to impute.
   chkDots(...)
   method <- match.arg(method)
+  if (not_finite_pair(r)) {
+    stop("`r` must be a pair of finite numbers")
+  }
   period <- as.factor(period)
   if (method == "carry-backward") {
     period <- factor(period, rev(levels(period)))
@@ -234,9 +272,6 @@ impute_prices.numeric <- function(
 
   if (different_length(x, period, product, ea, weights)) {
     stop("input vectors must be the same length")
-  }
-  if (nlevels(period) == 0L) {
-    return(rep.int(NA_real_, length(period)))
   }
 
   res <- split(x, period)
@@ -264,11 +299,18 @@ impute_prices.numeric <- function(
         ea = ea[[t]],
         weights = weights[[t]],
         na.rm = TRUE,
-        r = r[1L]
+        order = r[1L]
       )
+      time(index) <- names(res)[t]
       if (!is.null(pias)) {
-        index <- aggregate(index, pias, na.rm = TRUE, r = r[2L])
-        pias <- update(pias, index, r = r[2L])
+        index <- aggregate(
+          index,
+          pias,
+          na.rm = TRUE,
+          order = r[2L],
+          impute_rules = impute_rules
+        )
+        pias <- update(pias, index, order = r[2L])
       }
       eas <- if (!is.null(ea)) {
         match(as.character(ea[[t]][impute]), index$levels)
@@ -285,7 +327,8 @@ impute_prices.numeric <- function(
       res[[t]][impute] <- res[[t - 1L]][matches]
     }
   }
-  unsplit(res, period)
+  split(x, period) <- res
+  x
 }
 
 #' @rdname impute_prices

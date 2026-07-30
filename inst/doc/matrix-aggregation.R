@@ -1,4 +1,3 @@
-## -----------------------------------------------------------------------------
 library(piar)
 
 # Make an aggregation structure.
@@ -22,19 +21,15 @@ index <- elementals |>
 
 index
 
-## -----------------------------------------------------------------------------
 pias_matrix <- as.matrix(pias)
 
 pias_matrix
 
-## -----------------------------------------------------------------------------
 pias_matrix %*% as.matrix(index[levels(pias)$business])
 
-## -----------------------------------------------------------------------------
 pias_matrix <- as.matrix(pias) > 0
 
 pias_matrix %*% is.na(elementals) / rowSums(pias_matrix)
 
-## -----------------------------------------------------------------------------
 as.matrix(pias, sparse = TRUE)
 

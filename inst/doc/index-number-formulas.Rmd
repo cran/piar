@@ -1,24 +1,23 @@
 ---
 title: "Index-number formulas"
-output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Index-number formulas}
-  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEngine{litedown::vignette}
   %\VignetteEncoding{UTF-8}
 ---
 
 Price indexes based on a generalized mean of price relatives constitute
 a large family of bilateral index-number formulas that are consistent in
 aggregation, and any index based on the generalized mean can be used to
-make and aggregate elementary indexes. To see how to make superlative
+make and aggregate elementary indexes. See the last section for a comprehensive list.
+To see how to make superlative
 indexes as well, let's start with a simple dataset of prices and
 quantities for two businesses over three periods. We'll be making
-extensive use of the *gpindex* package for lower-level price-index
-functions; see the help pages for that package to get more detail.
+extensive use of the lower-level math functions in this package; see the help pages for these functions to get more detail and
+`vignette("decomposing-indexes")` for the theoretical background.
 
 ```{r}
 library(piar)
-library(gpindex)
 
 prices <- data.frame(
   period = rep(1:3, each = 6),
@@ -43,22 +42,22 @@ making elementary indexes, many other types of index-numbers are
 possible. Among the unweighted index-number formulas, the Carli index
 (equally-weighted arithmetic mean of price relatives) is the historical
 competitor to the Jevons, and requires specifying the order of the
-generalized mean `r` when calling `elementary_index()`. An order of 1
+generalized mean `order = 1` when calling `elementary_index()`. An order of 1
 corresponds to an arithmetic mean.
 
 ```{r}
 prices |>
-  elementary_index(price / back_price ~ period + business, r = 1)
+  elementary_index(price / back_price ~ period + business, order = 1)
 ```
 
 The Coggeshall index (equally-weighted harmonic mean of price relatives)
 is another competitor to the Jevons, but is seldom used in practice.
 Despite it being more exotic, it is just as easy to make by specifying
-an order `r` of -1.
+an `order = -1`.
 
 ```{r}
 prices |>
-  elementary_index(price / back_price ~ period + business, r = -1)
+  elementary_index(price / back_price ~ period + business, order = -1)
 ```
 
 Weights can be added to make, for example, elementary indexes using the
@@ -87,18 +86,19 @@ geometric index by default, all that is needed to make a Törnqvist index
 is the weights.
 
 ```{r}
-tw <- grouped(index_weights("Tornqvist"))
+period_by_business <- interaction(prices$period, prices$business)
+
+tornqvist_weights <- split(prices, ~period_by_business) |>
+  lapply(\(df) {
+    0.5 * scale_weights(df$price * df$quantity) +
+      0.5 * scale_weights(df$back_price * df$back_quantity)
+  }) |>
+  unsplit(period_by_business)
 
 prices |>
   elementary_index(
     price / back_price ~ period + business,
-    weights = tw(
-      price,
-      back_price,
-      quantity,
-      back_quantity,
-      group = interaction(period, business)
-    )
+    weights = tornqvist_weights
   )
 ```
 
@@ -107,17 +107,20 @@ generalized-mean family. Despite this, it is possible to make weights to
 represent a Fisher index as a generalized mean of any order.
 
 ```{r}
-fw <- grouped(nested_transmute(0, c(1, -1), 0))
+fisher_weights <- split(prices, ~period_by_business) |>
+  lapply(\(df) {
+    transmute_weights2(
+      df$price / df$back_price,
+      list(df$back_price * df$back_quantity, df$price * df$quantity),
+      to = 0
+    )
+  }) |>
+  unsplit(period_by_business)
 
 prices |>
   elementary_index(
     price / back_price ~ period + business,
-    weights = fw(
-      price / back_price,
-      back_price * back_quantity,
-      price * quantity,
-      group = interaction(period, business)
-    )
+    weights = fisher_weights
   )
 ```
 
@@ -140,12 +143,7 @@ Fisher index using the default method.
 fisher_index <- prices |>
   elementary_index(
     price / back_price ~ period + business,
-    weights = fw(
-      price / back_price,
-      back_price * back_quantity,
-      price * quantity,
-      group = interaction(period, business)
-    ),
+    weights = fisher_weights,
     contrib = TRUE
   )
 
@@ -157,12 +155,13 @@ a function to compute contributions according to a different method
 
 ```{r}
 diewert_contributions <- function(p1, p0, q1, q0) {
-  Pf <- fisher_index(p1, p0, q1, q0)
-  Pl <- laspeyres_index(p1, p0, q0)
-  wl <- scale_weights(index_weights("Laspeyres")(p0, q0))
-  wp <- scale_weights(index_weights("HybridPaasche")(p0, q1))
+  rel <- p1 / p0
+  v0 <- scale_weights(p0 * q0)
+  v1 <- scale_weights(p0 * q1)
+  laspeyres <- gmean(rel, v0)
+  fisher <- nested_gmean(rel, list(v0, v1), order = c(1, 1))
 
-  (1 / (1 + Pf) * wl + Pl / (1 + Pf) * wp) * (p1 / p0 - 1)
+  (v0 + laspeyres * v1) / (1 + fisher) * (rel - 1)
 }
 ```
 
@@ -187,3 +186,130 @@ contrib(fisher_index, "B1")
 
 Aggregating the elementary indexes will then consistently aggregate the contributions
 for both businesses, even though they use different methods.
+
+## Indexes based on generalized means {#sec-appendix}
+
+```{r}
+#| eval: false
+# ---- Arithmetic mean ----
+# Carli
+carli <- \(p1, p0, q1, q0) gmean(p1 / p0)
+
+# Dutot
+dutot <- \(p1, p0, q1, q0) gmean(p1 / p0, p0)
+
+# Laspeyres
+laspeyres <- \(p1, p0, q1, q0) gmean(p1 / p0, p0 * q0)
+
+# Palgrave
+palgrave <- \(p1, p0, q1, q0) gmean(p1 / p0, p1 * q1)
+
+# Walsh-1
+walsh1 <- \(p1, p0, q1, q0) gmean(p1 / p0, p0 * sqrt(q0 * q1))
+
+# Marshall-Edgeworth
+marshall_edgeworth <- \(p1, p0, q1, q0) gmean(p1 / p0, p0 * (q0 * q1))
+
+# Geay-Khamis
+geary_khamis <- \(p1, p0, q1, q0) gmean(p1 / p0, p0 / (1 / q0 + 1 / q1))
+
+# Hybrid CSWD
+hybrid_cswd <- \(p1, p0, q1, q0) gmean(p1 / p0, sqrt(p0 / p1))
+
+# Martini
+martini <- \(p1, p0, q1, q0, a) gmean(p1 / p0, p0 * q0 * (q1 / p0)^a)
+
+# ---- Geometric mean ----
+# Jevons
+jevons <- \(p1, p0, q1, q0) gmean(p1 / p0, order = 0)
+
+# Geometric Laspeyres (Jöhr)
+geo_laspeyres <- \(p1, p0, q1, q0) gmean(p1 / p0, p0 * q0, order = 0)
+
+# Geometric Paasche
+geo_paasche <- \(p1, p0, q1, q0) gmean(p1 / p0, p1 * q1, order = 0)
+
+# Walsh-2
+walsh2 <- \(p1, p0, q1, q0) gmean(p1 / p0, sqrt(p0 * p1 * q0 * q1), order = 0)
+
+# Theil
+theil <- \(p1, p0, q1, q0) {
+  w0 <- scale_weights(p0 * q0)
+  w1 <- scale_weights(p1 * q1)
+  gmean(p1 / p0, ((w0 + w1) / 2 * w0 * w1)^(1 / 3), order = 0)
+}
+
+# Rao
+rao <- \(p1, p0, q1, q0) {
+  w0 <- scale_weights(p0 * q0)
+  w1 <- scale_weights(p1 * q1)
+  gmean(p1 / p0, w0 * w1 / (w0 + w1), order = 0)
+}
+
+# Sato-Vartia
+sato_vartia <- function(p1, p0, q1, q0) {
+  v0 <- scale_weights(p0 * q0)
+  v1 <- scale_weights(p1 * q1)
+  gmean(p1 / p0, emean(v0, v1), order = 0)
+}
+
+# ---- Harmonic mean ----
+# Coggeshall
+coggeshall <- \(p1, p0, q1, q0) gmean(p1 / p0, order = -1)
+
+# Paasche
+paasche <- \(p1, p0, q1, q0) gmean(p1 / p0, p1 * q1, order = -1)
+
+# Harmonic Laspeyres
+harm_laspeyres <- \(p1, p0, q1, q0) gmean(p1 / p0, p0 * q0, order = -1)
+
+# ---- Generalized mean ----
+# Lloyd-Moulton
+lloyd_moulton <- \(p1, p0, q1, q0, sigma) {
+  gmean(p1 / p0, p0 * q0, order = 1 - sigma)
+}
+
+# ---- Nested means ----
+# Drobisch (Sidgwick)
+drobisch <- \(p1, p0, q1, q0) {
+  nested_gmean(p1 / p0, list(p0 * q0, p1 * q1), outer_order = 1)
+}
+
+# Unnamed
+unnamed <- \(p1, p0, q1, q0) {
+  nested_gmean(
+    p1 / p0,
+    list(p0 * q0, p1 * q1),
+    order = c(1, 1),
+    outer_order = 1
+  )
+}
+
+# Törnqvist-Theil
+tornqvist <- \(p1, p0, q1, q0) {
+  nested_gmean(
+    p1 / p0,
+    list(p0 * q0, p1 * q1),
+    order = c(0, 0)
+  )
+}
+
+# Fisher
+fisher <- \(p1, p0, q1, q0) nested_gmean(p1 / p0, list(p0 * q0, p1 * q1))
+
+# CSWD
+cswd <- \(p1, p0, q1, q0) nested_gmean(p1 / p0)
+
+# Balk-Walsh
+balk_walsh <- \(p1, p0, q1, q0) nested_gmean(p1 / p0, order = c(0.5, -0.5))
+
+# Geometric AG mean
+ag_mean <- \(p1, p0, q1, q0, elasticity) {
+  nested_gmean(
+    p1 / p0,
+    list(p0 * q0, p0 * q0),
+    order = c(0, 1),
+    outer_weights = c(elasticity, 1 - elasticity)
+  )
+}
+```

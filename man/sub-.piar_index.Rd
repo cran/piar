@@ -10,15 +10,16 @@
 \method{[}{piar_index}(x, i, j, ...) <- value
 }
 \arguments{
-\item{x}{A price index, as made by, e.g., \code{\link[=elementary_index]{elementary_index()}}.}
+\item{x}{\verb{[piar_index]} A price index, as made by,
+e.g., \code{\link[=elementary_index]{elementary_index()}}.}
 
-\item{i, j}{Indices for the levels and time periods of a price index. See
-details.}
+\item{i, j}{\verb{[integer | logical | character | matrix]} Indices for the levels
+and time periods of a price index. See details.}
 
 \item{...}{Not currently used.}
 
-\item{value}{A numeric vector, price index, or list of price indexes.
-See details.}
+\item{value}{\verb{[numeric > 0 | piar_index | list]} A numeric vector,
+price index, or list of price indexes. See details.}
 }
 \value{
 A price index that inherits from the same class as \code{x}.
@@ -55,23 +56,22 @@ index[, 2]
 index[1, ] <- 1 # can be useful for doing specific imputations
 
 index
-
 }
 \seealso{
-Other index methods: 
+Other index methods:
 \code{\link{aggregate.piar_index}},
-\code{\link{as.data.frame.piar_index}()},
-\code{\link{as.ts.piar_index}()},
-\code{\link{chain}()},
-\code{\link{contrib}()},
-\code{\link{head.piar_index}()},
-\code{\link{is.na.piar_index}()},
-\code{\link{levels.piar_index}()},
+\code{\link[=as.data.frame.piar_index]{as.data.frame.piar_index()}},
+\code{\link[=as.ts.piar_index]{as.ts.piar_index()}},
+\code{\link[=chain]{chain()}},
+\code{\link[=contrib]{contrib()}},
+\code{\link[=head.piar_index]{head.piar_index()}},
+\code{\link[=is.na.piar_index]{is.na.piar_index()}},
+\code{\link[=levels.piar_index]{levels.piar_index()}},
 \code{\link{mean.piar_index}},
-\code{\link{merge.piar_index}()},
-\code{\link{split.piar_index}()},
-\code{\link{stack.piar_index}()},
-\code{\link{time.piar_index}()},
-\code{\link{window.piar_index}()}
+\code{\link[=merge.piar_index]{merge.piar_index()}},
+\code{\link[=split.piar_index]{split.piar_index()}},
+\code{\link[=stack.piar_index]{stack.piar_index()}},
+\code{\link[=time.piar_index]{time.piar_index()}},
+\code{\link[=window.piar_index]{window.piar_index()}}
 }
 \concept{index methods}

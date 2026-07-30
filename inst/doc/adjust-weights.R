@@ -1,4 +1,3 @@
-## -----------------------------------------------------------------------------
 set.seed(54321)
 
 library(piar)
@@ -31,10 +30,8 @@ elementals <- matrix(
 
 elementals
 
-## -----------------------------------------------------------------------------
 weights(pias) / rowMeans(as.matrix(chain(elementals)))
 
-## -----------------------------------------------------------------------------
 # Function to adjust annual weights.
 adjust_weights <- function(
   index,
@@ -62,7 +59,6 @@ adjust_weights <- function(
   adj_pias
 }
 
-## -----------------------------------------------------------------------------
 elementals[11:12] <- NA
 
 adjust_weights(elementals, pias)

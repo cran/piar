@@ -1,4 +1,3 @@
-## -----------------------------------------------------------------------------
 library(piar)
 
 # Make an aggregation structure.
@@ -17,7 +16,6 @@ elementals <- ms_prices |>
 
 elementals
 
-## -----------------------------------------------------------------------------
 set.seed(12345)
 
 scanner_prices <- data.frame(
@@ -29,12 +27,9 @@ scanner_prices <- data.frame(
 
 head(scanner_prices)
 
-## -----------------------------------------------------------------------------
-library(gpindex)
-
 geks_elementals <- with(
   scanner_prices,
-  fisher_geks(price, quantity, period, product, window = 3)
+  geks_index(price, quantity, period, product, window = 3)
 ) |>
   splice_index() |>
   t() |>
@@ -44,7 +39,6 @@ geks_elementals <- with(
 
 geks_elementals
 
-## -----------------------------------------------------------------------------
 merge(elementals, geks_elementals) |>
   aggregate(pias, na.rm = TRUE)
 

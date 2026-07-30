@@ -1,9 +1,8 @@
 ---
 title: "Aggregating over subperiods"
-output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Aggregating over subperiods}
-  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEngine{litedown::vignette}
   %\VignetteEncoding{UTF-8}
 ---
 

@@ -10,17 +10,19 @@
 \method{window}{piar_index}(x, start = NULL, end = NULL, ...) <- value
 }
 \arguments{
-\item{x}{A price index, as made by, e.g., \code{\link[=elementary_index]{elementary_index()}}.}
+\item{x}{\verb{[piar_index]} A price index, as made by,
+e.g., \code{\link[=elementary_index]{elementary_index()}}.}
 
-\item{start}{The time period to start the window. The default in the first
-period of \code{x}.}
+\item{start}{\verb{[character(1)]} The time period to start the window.
+The default in the first period of \code{x}.}
 
-\item{end}{The time period to end the window. The default is the last period
-of \code{x}.}
+\item{end}{\verb{[character(1)]} The time period to end the window. The default
+is the last period of \code{x}.}
 
 \item{...}{Not currently used.}
 
-\item{value}{A numeric vector or price index.}
+\item{value}{\verb{[numeric > 0 | piar_index]} A numeric vector or price index
+of replacement values.}
 }
 \value{
 \code{window()} extracts a price index over a window of time periods that
@@ -40,20 +42,20 @@ x
 
 }
 \seealso{
-Other index methods: 
-\code{\link{[.piar_index}()},
+Other index methods:
+\code{\link[=[.piar_index]{[.piar_index()}},
 \code{\link{aggregate.piar_index}},
-\code{\link{as.data.frame.piar_index}()},
-\code{\link{as.ts.piar_index}()},
-\code{\link{chain}()},
-\code{\link{contrib}()},
-\code{\link{head.piar_index}()},
-\code{\link{is.na.piar_index}()},
-\code{\link{levels.piar_index}()},
+\code{\link[=as.data.frame.piar_index]{as.data.frame.piar_index()}},
+\code{\link[=as.ts.piar_index]{as.ts.piar_index()}},
+\code{\link[=chain]{chain()}},
+\code{\link[=contrib]{contrib()}},
+\code{\link[=head.piar_index]{head.piar_index()}},
+\code{\link[=is.na.piar_index]{is.na.piar_index()}},
+\code{\link[=levels.piar_index]{levels.piar_index()}},
 \code{\link{mean.piar_index}},
-\code{\link{merge.piar_index}()},
-\code{\link{split.piar_index}()},
-\code{\link{stack.piar_index}()},
-\code{\link{time.piar_index}()}
+\code{\link[=merge.piar_index]{merge.piar_index()}},
+\code{\link[=split.piar_index]{split.piar_index()}},
+\code{\link[=stack.piar_index]{stack.piar_index()}},
+\code{\link[=time.piar_index]{time.piar_index()}}
 }
 \concept{index methods}
